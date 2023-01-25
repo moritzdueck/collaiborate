@@ -114,19 +114,19 @@ def main(experiment_name, classes, epochs, learning_rate, batch_size, max_items_
 
     criterion = torch.nn.CrossEntropyLoss() 
     model = nn.Sequential(
-        nn.Conv2d(1, 64, 3, padding='same'),
+        nn.Conv2d(1, 16, 3, padding='same'),
         nn.ReLU(),
         nn.MaxPool2d(2),
-        nn.Conv2d(64, 128, 3, padding='same'),
+        nn.Conv2d(16, 32, 3, padding='same'),
         nn.ReLU(),
         nn.MaxPool2d(2),
-        nn.Conv2d(128, 256, 3, padding='same'),
+        nn.Conv2d(32, 32, 3, padding='same'),
         nn.ReLU(),
         nn.MaxPool2d(2),
         nn.Flatten(),
-        nn.Linear(2304, 512),
+        nn.Linear(288, 128),
         nn.ReLU(),
-        nn.Linear(512, len(dataset.classes)),
+        nn.Linear(128, len(dataset.classes)),
     )
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
