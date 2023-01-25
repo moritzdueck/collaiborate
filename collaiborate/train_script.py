@@ -114,17 +114,17 @@ def main(experiment_name, classes, epochs, learning_rate, batch_size, max_items_
 
     criterion = torch.nn.CrossEntropyLoss() 
     model = nn.Sequential(
-        nn.Conv2d(1, 16, 3, padding='same'),
+        nn.Conv2d(1, 32, 3, padding='same'),
         nn.ReLU(),
         nn.MaxPool2d(2),
-        nn.Conv2d(16, 32, 3, padding='same'),
+        nn.Conv2d(32, 64, 3, padding='same'),
         nn.ReLU(),
         nn.MaxPool2d(2),
-        nn.Conv2d(32, 32, 3, padding='same'),
+        nn.Conv2d(64, 64, 3, padding='same'),
         nn.ReLU(),
         nn.MaxPool2d(2),
         nn.Flatten(),
-        nn.Linear(288, 128),
+        nn.Linear(576, 128),
         nn.ReLU(),
         nn.Linear(128, len(dataset.classes)),
     )
