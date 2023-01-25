@@ -143,7 +143,6 @@ def main(experiment_name, classes, epochs, learning_rate, batch_size, train_val_
             x = x.to(device)
             y = y.to(device)
             logits = model(x)
-            #y = y.unsqueeze(1)
 
             # zero the parameter gradients
             optimizer.zero_grad()
