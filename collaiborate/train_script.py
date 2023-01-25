@@ -99,9 +99,9 @@ class QuickDrawDataset(torch.utils.data.Dataset):
         plt.title(self.classes[label])
         plt.show()
 
-def main(experiment_name, classes, epochs, learning_rate, batch_size, train_val_split = 0.2):
+def main(experiment_name, classes, epochs, learning_rate, batch_size, max_items_per_class=5000, train_val_split = 0.2):
     download_quickdraw_dataset(root="./data", class_names = classes)
-    dataset = QuickDrawDataset(root = './data')
+    dataset = QuickDrawDataset(root = './data', max_items_per_class=max_items_per_class)
 
     for c in dataset.classes:
         print(f"{c} : {dataset.classes.index(c)}")
@@ -187,6 +187,7 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--tag', dest='tag', help='tag')
 
     parser.add_argument('-i', '--icons',dest='i', help='icons to use')
+    parser.add_argument('-n', '--num_icons_per_class',dest='n', help='number of icons per class', type=int)
 
     parser.add_argument('-x', '--epochs',dest='epochs', help='Number of epochs', type=int, required=False)
     parser.add_argument('-y', '--learning_rate',dest='learning_rate', help='Learning arte', type=float, required=False)
@@ -219,5 +220,5 @@ if __name__ == '__main__':
     g = torch.Generator()
     g.manual_seed(0)
 
-    main(args['tag'], args['i'].split(","), args['epochs'], args['learning_rate'], args['batch_size'])
+    main(args['tag'], args['i'].split(","), args['epochs'], args['learning_rate'], args['batch_size'], args['n'])
 
