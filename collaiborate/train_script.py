@@ -16,6 +16,7 @@ from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import DataLoader
 import torch.nn as nn
 import torch.nn.functional as F
+import wandb
 
 from utils import *
 
@@ -26,7 +27,7 @@ def main(experiment_name, classes, epochs, learning_rate, batch_size, max_items_
     for c in dataset.classes:
         print(f"{c} : {dataset.classes.index(c)}")
 
-    writer = SummaryWriter()
+    run = wandb.init(project='collaiborate')
 
     train_ds, val_ds = dataset.split(train_val_split)
     train_dataloader = DataLoader(train_ds, batch_size=batch_size, shuffle=True)
@@ -50,6 +51,8 @@ def main(experiment_name, classes, epochs, learning_rate, batch_size, max_items_
     )
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    if torch.backends.mps.is_available():
+        device = torch.device("mps")
     print(device)
     model = model.to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
@@ -59,7 +62,7 @@ def main(experiment_name, classes, epochs, learning_rate, batch_size, max_items_
         valid_loss = 0.0
 
         for i, batch in enumerate(train_dataloader, 0):
-            x, y = batch
+            x, y, idx = batch
             x = x.to(device)
             y = y.to(device)
             logits = model(x)
@@ -73,12 +76,12 @@ def main(experiment_name, classes, epochs, learning_rate, batch_size, max_items_
             optimizer.step()
 
             train_loss += loss.item() * batch_size
-            writer.add_scalar("Loss/train_iteration", loss.item(), epoch * len(train_dataloader) + i)
+            wandb.log({'Loss/train_iteration': loss.item()})
 
         model.eval()
 
         for i, batch in enumerate(validation_dataloader, 0):
-            x, y = batch
+            x, y, idx = batch
             x = x.to(device)
             y = y.to(device)
             logits = model(x)
@@ -89,14 +92,10 @@ def main(experiment_name, classes, epochs, learning_rate, batch_size, max_items_
 
         model.train()
 
+        wandb.log({'Loss/train': train_loss/len(train_dataloader.sampler)})
+        wandb.log({'Loss/test': valid_loss/len(validation_dataloader.sampler)})
 
-        writer.add_scalar("Loss/train", train_loss/len(train_dataloader.sampler), epoch)
-        writer.add_scalar("Loss/test", valid_loss/len(validation_dataloader.sampler), epoch)
-        writer.flush()
-
-
-        torch.save(model.state_dict(), './model_'+experiment_name+'.pth')
-        writer.close()
+    torch.save(model.state_dict(), './model_'+experiment_name+'.pth')
 
 
 

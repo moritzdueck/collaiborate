@@ -64,7 +64,7 @@ class QuickDrawDataset(torch.utils.data.Dataset):
         x = (self.X[idx] / 255.).astype(np.float32).reshape(1, 28, 28)
         y = self.Y[idx]
 
-        return torch.from_numpy(x), y.item()
+        return torch.from_numpy(x), y.item(), idx
 
     def __len__(self):
         return len(self.X)
@@ -84,8 +84,8 @@ class QuickDrawDataset(torch.utils.data.Dataset):
     
     def draw_image(self, idx):
         plt.figure()
-        plt.imshow(self[0][0].reshape(28,28,1), cmap='Greys')
-        plt.title(self.classes[self[0][1]])
+        plt.imshow(self[idx][0].reshape(28,28,1), cmap='Greys')
+        plt.title(self.classes[self[idx][1]])
         plt.show()
         
     def draw_mean_image(self, label, subplot=None):

@@ -6,8 +6,8 @@ svgwrite
 cairosvg
 IPython
 six>=1.12.0
-tensorflow
-tensorboardX
+tensorboard
+tensorflow-macos
 pillow
 svglib
 tqdm
