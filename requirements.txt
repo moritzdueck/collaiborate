@@ -24,3 +24,5 @@ shapely
 kivy
 wandb
 nbconvert==7.2.1
+lime
+umap-learn
