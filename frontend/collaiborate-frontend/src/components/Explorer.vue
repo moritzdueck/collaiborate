@@ -210,8 +210,8 @@ const updateSelectionDisplay = () => {
   }
 
   Promise.all(selection.value.flatMap((item: any) => [
-    fetch("http://127.0.0.1:5003/sketch/" + item.id).then(res => res.json()),
-    fetch("http://127.0.0.1:5003/sketch/" + path + "/" + item.id).then(res => res.blob())
+    fetch(apiUrl + "/sketch/" + item.id).then(res => res.json()),
+    fetch(apiUrl + "/sketch/" + path + "/" + item.id).then(res => res.blob())
   ])).then((values: any) => {
     const meta = values.filter((x: any) => x.label)
     const images = values.filter((x: any) => !x.label).map((blob: any) => URL.createObjectURL(blob))
