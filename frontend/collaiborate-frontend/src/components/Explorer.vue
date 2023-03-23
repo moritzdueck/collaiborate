@@ -87,6 +87,10 @@ import Scatterplot from "./Scatterplot.vue";
 import {computed, onMounted, ref, shallowRef, watch} from "vue";
 import * as d3 from "d3";
 
+console.log(import.meta.env.MODE)
+console.log(import.meta.env.VITE_APIURL)
+const apiUrl = import.meta.env.VITE_APIURL
+
 const data = shallowRef([])
 const sketches = shallowRef([] as any)
 const selection = shallowRef([] as any)
@@ -131,7 +135,7 @@ const colorStrategyOptions = ref(['by_class', 'by_prediction'])
 
 onMounted(() => {
   const projectionPath = projection.value === 'last conv layer' ? 'umap-cl' : 'umap'
-  fetch("http://127.0.0.1:5003/" + projectionPath + "/10000")
+  fetch(apiUrl + projectionPath + "/10000")
       .then(res => res.json())
       .then(d => {
         console.log(data)
@@ -152,14 +156,14 @@ const reloadData = (viewport: number[]) => {
   console.log(viewportPath)
 
   if (selectedClasses.value.length > 0) {
-    fetch("http://127.0.0.1:5003/" + projectionPath + "_filtered/" + selectedClasses.value.join("-") + "/10000" + viewportPath)
+    fetch(apiUrl + projectionPath + "_filtered/" + selectedClasses.value.join("-") + "/10000" + viewportPath)
         .then(res => res.json())
         .then(d => {
           console.log(data)
           data.value = d
         })
   } else {
-    fetch("http://127.0.0.1:5003/" + projectionPath + "/10000" + viewportPath)
+    fetch(apiUrl + projectionPath + "/10000" + viewportPath)
         .then(res => res.json())
         .then(d => {
           console.log(data)
