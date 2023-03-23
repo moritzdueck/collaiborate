@@ -1,0 +1,12 @@
+version: '3'
+services:
+  collaiborate:
+    build: ./collaiborate
+    image: collaiborateregistry.azurecr.io/collaiborate
+    ports:
+      - 5003:5003
+  collaiborate-frontend:
+    build: ./frontend/collaiborate-frontend
+    image: collaiborateregistry.azurecr.io/collaiborate-frontend
+    ports:
+      - 80:80

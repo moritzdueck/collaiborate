@@ -1,0 +1,306 @@
+<template>
+  <div class="explorer-container">
+    <div class="projection-container">
+      <div class="projection-container__menu">
+        <span>Projection</span>
+        <span>Visualization type</span>
+        <span>Color points by</span>
+        <span>Restrict Classes</span>
+        <Dropdown v-model="projection" editable :options="projectionOptions"
+                  placeholder="Select a Projection"/>
+
+        <Dropdown v-model="analysisType" editable :options="analysisTypeOptions" v-on:change="updateSelectionDisplay"
+                  placeholder="Select a Visualization"/>
+
+        <Dropdown v-model="colorStrategy" editable :options="colorStrategyOptions"
+                  placeholder="Color Strategy">
+        </Dropdown>
+
+        <MultiSelect v-model="selectedClasses" :options="classOptions" option-label="label" option-value="value"
+                     placeholder="Select Classes">
+          <template #value="slotProps">
+            <div v-if="slotProps.value" class="flex align-items-center">
+              <span v-for="v of slotProps.value" class="selected-color-option">
+                  <span style="width: 30px; height:30px; display: inline-block"
+                        :style="'background-color:' + myColor(classOptions[v].label)"></span>
+              {{ classOptions[v].label }}
+              </span>
+
+            </div>
+            <span v-else>{{ slotProps.placeholder }}</span>
+          </template>
+          <template #option="slotProps">
+            <div class="flex align-items-center">
+              <span style="width: 30px; height:30px; display: block"
+                    :style="'background-color:' + myColor(slotProps.option.label)"></span>
+              <div>{{ slotProps.option.label }}</div>
+            </div>
+          </template>
+        </MultiSelect>
+      </div>
+      <Scatterplot :data="data" :color-strategy="colorStrategy" v-on:selection="handleSelection"
+                   v-on:viewport="handleViewport"></Scatterplot>
+    </div>
+    <div>
+
+      <!--   Class mode   -->
+
+      <div class="legend__class" v-if="mode === 'class'">
+        <p>true class</p>
+        <p class="samples__wrong-prediction">prediction, in case it is wrong</p>
+      </div>
+
+      <div class="samples-container" v-if="mode === 'class'">
+        <div v-for="sketch of sketches" class="sample">
+          <span>{{ sketch[0].label }}</span>
+          <span v-if="sketch[0].label === sketch[0].prediction"/>
+          <span v-if="sketch[0].label !== sketch[0].prediction"
+                class="samples__wrong-prediction">{{ sketch[0].prediction }}</span>
+          <img class="samples__image" :src="sketch[1]"/>
+        </div>
+      </div>
+
+
+      <!--   No Class mode   -->
+
+      <div class="legend__class" v-if="mode === 'no_class'">
+        <p>correctly classified</p>
+        <p class="samples__wrong-prediction">wrongly classified</p>
+      </div>
+
+      <div class="samples-container" v-if="mode === 'no_class'">
+        <div v-for="sketch of sketches" class="sample">
+          <span>{{ sketch[0].label }}</span>
+          <span v-if="sketch[0].label === sketch[0].prediction" class="samples__fill-prediction"/>
+          <span v-if="sketch[0].label !== sketch[0].prediction" class="samples__fill_wrong-prediction"></span>
+          <img class="samples__image" :src="sketch[1]"/>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</template>
+
+<script setup lang="ts">
+
+import Scatterplot from "./Scatterplot.vue";
+import {computed, onMounted, ref, shallowRef, watch} from "vue";
+import * as d3 from "d3";
+
+const data = shallowRef([])
+const sketches = shallowRef([] as any)
+const selection = shallowRef([] as any)
+
+const mode = ref('class' as 'class' | 'no_class')
+const analysisType = ref('sketch only' as 'sketch only' | 'predicted probabilities' | 'vanilla gradients' | 'grad cam' | 'occlusion');
+const analysisTypeOptions = ref(['sketch only', 'predicted probabilities', 'vanilla gradients', 'grad cam', 'occlusion'])
+const projection = ref('input images' as 'input images' | 'last conv layer')
+const projectionOptions = ref(['input images', 'last conv layer'])
+
+const classOptions = ref([
+  {label: 'airplane', value: 0},
+  {label: 'apple', value: 1},
+  {label: 'bee', value: 2},
+  {label: 'car', value: 3},
+  {label: 'dragon', value: 4},
+  {label: 'mosquito', value: 5},
+  {label: 'moustache', value: 6},
+  {label: 'mouth', value: 7},
+  {label: 'pear', value: 8},
+  {label: 'piano', value: 9},
+  {label: 'pineapple', value: 10},
+  {label: 'smiley face', value: 11},
+  {label: 'train', value: 12},
+  {label: 'umbrella', value: 13},
+  {label: 'wine bottle', value: 14},
+])
+const selectedClasses = ref([])
+
+const myColor = d3.scaleOrdinal()
+    .domain(['airplane', 'apple', 'bee', 'car', 'dragon', 'mosquito', 'moustache', 'mouth', 'pear', 'piano', 'pineapple', 'smiley face', 'train', 'umbrella', 'wine bottle'])
+    .range(['rgb(31, 119, 180)', 'rgb(174, 199, 232)', 'rgb(255, 127, 14)', 'rgb(255, 187, 120)',
+      'rgb(214, 39, 40)', 'rgb(44, 160, 44)', 'rgb(152, 223, 138)', 'rgb(255, 152, 150)',
+      'rgb(148, 103, 189)', 'rgb(197, 176, 213)', 'rgb(140, 86, 75)', 'rgb(196, 156, 148)',
+      'rgb(227, 119, 194)', 'rgb(247, 182, 210)', 'rgb(127, 127, 127)', 'rgb(199, 199, 199)',
+      'rgb(188, 189, 34)', 'rgb(219, 219, 141)', 'rgb(23, 190, 207)', 'rgb(158, 218, 229)']);
+
+
+const colorStrategy = ref('by_class' as 'by_class' | 'by_prediction')
+const colorStrategyOptions = ref(['by_class', 'by_prediction'])
+
+
+onMounted(() => {
+  const projectionPath = projection.value === 'last conv layer' ? 'umap-cl' : 'umap'
+  fetch("http://127.0.0.1:5003/" + projectionPath + "/10000")
+      .then(res => res.json())
+      .then(d => {
+        console.log(data)
+        data.value = d
+      })
+})
+
+const reloadData = (viewport: number[]) => {
+
+  const projectionPath = projection.value === 'last conv layer' ? 'umap-cl' : 'umap'
+  const viewportPath = (viewport.length == 4)
+      ? ('/' + viewport[0].toPrecision(8)
+          + '/' + viewport[1].toPrecision(8)
+          + '/' + viewport[2].toPrecision(8)
+          + '/' + viewport[3].toPrecision(8))
+      : ''
+
+  console.log(viewportPath)
+
+  if (selectedClasses.value.length > 0) {
+    fetch("http://127.0.0.1:5003/" + projectionPath + "_filtered/" + selectedClasses.value.join("-") + "/10000" + viewportPath)
+        .then(res => res.json())
+        .then(d => {
+          console.log(data)
+          data.value = d
+        })
+  } else {
+    fetch("http://127.0.0.1:5003/" + projectionPath + "/10000" + viewportPath)
+        .then(res => res.json())
+        .then(d => {
+          console.log(data)
+          data.value = d
+        })
+  }
+}
+
+watch([selectedClasses, projection], () => reloadData([]))
+
+const handleSelection = (s: any) => {
+  selection.value = s
+  updateSelectionDisplay()
+}
+
+let timeout = 0
+const handleViewport = (viewport: any) => {
+  clearTimeout(timeout)
+  timeout = setTimeout(() => {
+    reloadData(viewport);
+  }, 1000)
+}
+
+const updateSelectionDisplay = () => {
+
+  let path = ''
+
+  switch (analysisType.value) {
+    case "sketch only":
+      path = "png"
+      break;
+    case "predicted probabilities":
+      path = "probs"
+      break;
+    case "vanilla gradients":
+      path = "vg"
+      break;
+    case "grad cam":
+      path = "gradcam"
+      break;
+    case "occlusion":
+      path = "occlusion"
+      break;
+  }
+
+  Promise.all(selection.value.flatMap((item: any) => [
+    fetch("http://127.0.0.1:5003/sketch/" + item.id).then(res => res.json()),
+    fetch("http://127.0.0.1:5003/sketch/" + path + "/" + item.id).then(res => res.blob())
+  ])).then((values: any) => {
+    const meta = values.filter((x: any) => x.label)
+    const images = values.filter((x: any) => !x.label).map((blob: any) => URL.createObjectURL(blob))
+    sketches.value = meta.map(function (e: any, i: number) {
+      return [e, images[i]];
+    });
+  })
+
+}
+
+</script>
+
+<style scoped>
+
+.explorer-container {
+  display: grid;
+  grid-template-columns: 60% 40%;
+  height: 100px;
+  width: 100%;
+  align-content: start;
+}
+
+.projection-container {
+  width: 100%;
+  height: 100%;
+}
+
+.projection-container__menu {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+.samples-container {
+  width: 100%;
+  height: 700px;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  overflow: auto;
+  gap: 2px;
+  background-color: #f9f9f9;
+  padding: 5px;
+  align-content: start;
+}
+
+.sample {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  border-radius: 2px;
+  padding: 10px;
+}
+
+.sample > span {
+  height: 20px;
+  font-size: small;
+}
+
+.samples__image {
+  width: 100%;
+  display: block;
+}
+
+.samples__wrong-prediction {
+  color: rgb(235, 64, 52);
+}
+
+.legend__class {
+  padding: 10px;
+}
+
+.legend__class > p {
+  margin: 5px;
+}
+
+.samples__fill-prediction {
+  width: 100%;
+  background-color: black;
+}
+
+.samples__fill_wrong-prediction {
+  width: 100%;
+  background-color: rgb(235, 64, 52);
+}
+
+.selected-color-option {
+  font-size: 8px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 1px;
+}
+
+</style>
