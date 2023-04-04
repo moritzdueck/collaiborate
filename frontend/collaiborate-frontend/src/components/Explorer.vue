@@ -118,8 +118,8 @@ const sketches = shallowRef([] as any)
 const selection = shallowRef([] as any)
 
 const mode = ref('class' as 'class' | 'no_class')
-const analysisType = ref('sketch only' as 'sketch only' | 'predicted probabilities' | 'vanilla gradients' | 'grad cam' | 'occlusion');
-const analysisTypeOptions = ref(['sketch only', 'predicted probabilities', 'vanilla gradients', 'grad cam', 'occlusion'])
+const analysisType = ref('sketch only' as 'sketch only' | 'predicted probabilities' | 'vanilla gradients' | 'grad cam' | 'occlusion' | 'knn');
+const analysisTypeOptions = ref(['sketch only', 'predicted probabilities', 'vanilla gradients', 'grad cam', 'occlusion', 'knn'])
 const projection = ref('input images' as 'input images' | 'last conv layer')
 const projectionOptions = ref(['input images', 'last conv layer'])
 
@@ -251,6 +251,8 @@ const updateSelectionDisplay = () => {
     case "occlusion":
       path = "occlusion"
       break;
+    case "knn":
+      path = "lclknn/2000"
   }
 
   Promise.all(selection.value.flatMap((item: any) => [

@@ -10,6 +10,7 @@ import pandas as pd
 from captum.attr import Occlusion
 from backend import classes, get_model, get_grad_cam_model
 import re
+from sklearn.neighbors import NearestNeighbors
 
 app = Flask(__name__, static_folder='./frontend-build/dist/', static_url_path='/')
 api = Api(app)
@@ -64,7 +65,6 @@ class UmapProjectionFiltered(Resource):
             if pred_filter_string is not None:
                 pred_filter_to_classes = list(map(lambda n: int(n), pred_filter_string.split('-')))
                 pred_filter = lambda x: x['c_hat'] in pred_filter_to_classes
-
 
             print(self.df.head())
             return list(
@@ -200,6 +200,31 @@ def get_vg(sketch_index):
     return Response(buf, mimetype='image/png')
 
 
+@app.route("/sketch/lclknn/<int:n>/<int:sketch_index>")
+def get_lclknn(sketch_index, n):
+    x = val_data[sketch_index][0].reshape(28, 28, 1).flatten().reshape(1, -1)
+    nn = NearestNeighbors(n_neighbors=n, metric='cosine', algorithm='brute').fit(
+        np.vstack(val_data[:, 0]).reshape(300000, 784))
+
+    dists, idxs = nn.kneighbors(x)
+    img = np.zeros(shape=[28, 28, 1])
+    for i in idxs[0][1:]:
+        img += val_data[i][0].reshape(28, 28, 1)
+
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(5, 10))
+    plt.tight_layout()
+    ax1.imshow(val_data[sketch_index][0].reshape(28, 28, 1), cmap='Greys')
+    ax1.set_axis_off()
+
+    ax2.imshow(img.reshape(28, 28, 1), cmap='Greys')
+    ax2.set_axis_off()
+
+    buf = io.BytesIO()
+    fig.savefig(buf, format='png', bbox_inches='tight')
+    buf.seek(0)
+    return Response(buf, mimetype='image/png')
+
+
 @app.route("/sketch/gradcam/<int:sketch_index>")
 def get_grad_cam(sketch_index):
     x = torch.Tensor(val_data[sketch_index][0])
@@ -285,4 +310,4 @@ api.add_resource(UmapProjectionCLFiltered,
 cors = CORS(app, origins="*")
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5003, debug=True)
+    app.run(host='0.0.0.0', port=5003)
