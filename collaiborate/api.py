@@ -9,8 +9,9 @@ import torch
 import pandas as pd
 from captum.attr import Occlusion
 from backend import classes, get_model, get_grad_cam_model
+import re
 
-app = Flask(__name__, static_folder='./frontend-build/dist/',  static_url_path='/')
+app = Flask(__name__, static_folder='./frontend-build/dist/', static_url_path='/')
 api = Api(app)
 
 val_data = np.load("val_data.npy", allow_pickle=True)
@@ -49,14 +50,29 @@ class UmapProjectionFiltered(Resource):
         self.df = kwargs['umap_df']
 
     def get(self, restricted_classes, length):
-        filter_to_classes = list(map(lambda n: int(n), restricted_classes.split('-')))
-        print(self.df.shape)
-        return list(
-            filter(
-                lambda x: x['c'] in filter_to_classes,
-                list(self.df.apply(lambda x: {'x': x[1], 'y': x[2], 'c': x[3], 'c_hat': x[5], 'id': x[0]}, axis=1))
-            )
-        )[0:length]
+        match = re.match(r't((?:[0-9]+-?)+)?p((?:[0-9]+-?)+)?', restricted_classes)
+        if match is not None:
+            label_filter_string = re.match(r't((?:[0-9]+-?)+)?p((?:[0-9]+-?)+)?', restricted_classes).group(1)
+            pred_filter_string = re.match(r't((?:[0-9]+-?)+)?p((?:[0-9]+-?)+)?', restricted_classes).group(2)
+
+            label_filter = lambda x: True
+            if label_filter_string is not None:
+                label_filter_to_classes = list(map(lambda n: int(n), label_filter_string.split('-')))
+                label_filter = lambda x: x['c'] in label_filter_to_classes
+
+            pred_filter = lambda x: True
+            if pred_filter_string is not None:
+                pred_filter_to_classes = list(map(lambda n: int(n), pred_filter_string.split('-')))
+                pred_filter = lambda x: x['c_hat'] in pred_filter_to_classes
+
+
+            print(self.df.head())
+            return list(
+                filter(
+                    lambda x: label_filter(x) & pred_filter(x),
+                    list(self.df.apply(lambda x: {'x': x[1], 'y': x[2], 'c': x[3], 'c_hat': x[5], 'id': x[0]}, axis=1))
+                )
+            )[0:length]
 
 
 class UmapProjectionCL(Resource):
@@ -75,14 +91,27 @@ class UmapProjectionCLFiltered(Resource):
         self.df = kwargs['umap_df']
 
     def get(self, restricted_classes, length):
-        filter_to_classes = list(map(lambda n: int(n), restricted_classes.split('-')))
-        print(self.df.shape)
-        return list(
-            filter(
-                lambda x: x['c'] in filter_to_classes,
-                list(self.df.apply(lambda x: {'x': x[7], 'y': x[8], 'c': x[3], 'c_hat': x[5], 'id': x[0]}, axis=1))
-            )
-        )[0:length]
+        match = re.match(r't((?:[0-9]+-?)+)?p((?:[0-9]+-?)+)?', restricted_classes)
+        if match is not None:
+            label_filter_string = re.match(r't((?:[0-9]+-?)+)?p((?:[0-9]+-?)+)?', restricted_classes).group(1)
+            pred_filter_string = re.match(r't((?:[0-9]+-?)+)?p((?:[0-9]+-?)+)?', restricted_classes).group(2)
+
+            label_filter = lambda x: True
+            if label_filter_string is not None:
+                label_filter_to_classes = list(map(lambda n: int(n), label_filter_string.split('-')))
+                label_filter = lambda x: x['c'] in label_filter_to_classes
+
+            pred_filter = lambda x: True
+            if pred_filter_string is not None:
+                pred_filter_to_classes = list(map(lambda n: int(n), pred_filter_string.split('-')))
+                pred_filter = lambda x: x['c_hat'] in pred_filter_to_classes
+
+            return list(
+                filter(
+                    lambda x: label_filter(x) & pred_filter(x),
+                    list(self.df.apply(lambda x: {'x': x[7], 'y': x[8], 'c': x[3], 'c_hat': x[5], 'id': x[0]}, axis=1))
+                )
+            )[0:length]
 
 
 class SketchMetadata(Resource):
@@ -256,4 +285,4 @@ api.add_resource(UmapProjectionCLFiltered,
 cors = CORS(app, origins="*")
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5003)
+    app.run(host='0.0.0.0', port=5003, debug=True)

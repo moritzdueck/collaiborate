@@ -5,7 +5,8 @@
         <span>Projection</span>
         <span>Visualization type</span>
         <span>Color points by</span>
-        <span>Restrict Classes</span>
+        <span>Restrict Labels</span>
+        <span>Restrict Predictions</span>
         <Dropdown v-model="projection" editable :options="projectionOptions"
                   placeholder="Select a Projection"/>
 
@@ -16,14 +17,35 @@
                   placeholder="Color Strategy">
         </Dropdown>
 
-        <MultiSelect v-model="selectedClasses" :options="classOptions" option-label="label" option-value="value"
+        <MultiSelect v-model="selectedTrueClasses" :options="trueClassOptions" option-label="label" option-value="value"
                      placeholder="Select Classes">
           <template #value="slotProps">
-            <div v-if="slotProps.value" class="flex align-items-center">
+            <div v-if="slotProps.value" class="multi-select-options-grid">
               <span v-for="v of slotProps.value" class="selected-color-option">
                   <span style="width: 30px; height:30px; display: inline-block"
-                        :style="'background-color:' + myColor(classOptions[v].label)"></span>
-              {{ classOptions[v].label }}
+                        :style="'background-color:' + myColor(trueClassOptions[v].label)"></span>
+              {{ trueClassOptions[v].label }}
+              </span>
+
+            </div>
+            <span v-else>{{ slotProps.placeholder }}</span>
+          </template>
+          <template #option="slotProps">
+            <div class="flex align-items-center">
+              <span style="width: 30px; height:30px; display: block"
+                    :style="'background-color:' + myColor(slotProps.option.label)"></span>
+              <div>{{ slotProps.option.label }}</div>
+            </div>
+          </template>
+        </MultiSelect>
+        <MultiSelect v-model="selectedPredictedClasses" :options="predictedClassOptions" option-label="label" option-value="value"
+                     placeholder="Select Classes">
+          <template #value="slotProps">
+            <div v-if="slotProps.value" class="multi-select-options-grid">
+              <span v-for="v of slotProps.value" class="selected-color-option">
+                  <span style="width: 30px; height:30px; display: inline-block"
+                        :style="'background-color:' + myColor(predictedClassOptions[v].label)"></span>
+              {{ predictedClassOptions[v].label }}
               </span>
 
             </div>
@@ -101,7 +123,7 @@ const analysisTypeOptions = ref(['sketch only', 'predicted probabilities', 'vani
 const projection = ref('input images' as 'input images' | 'last conv layer')
 const projectionOptions = ref(['input images', 'last conv layer'])
 
-const classOptions = ref([
+const trueClassOptions = ref([
   {label: 'airplane', value: 0},
   {label: 'apple', value: 1},
   {label: 'bee', value: 2},
@@ -118,7 +140,26 @@ const classOptions = ref([
   {label: 'umbrella', value: 13},
   {label: 'wine bottle', value: 14},
 ])
-const selectedClasses = ref([])
+const selectedTrueClasses = ref([])
+
+const predictedClassOptions = ref([
+  {label: 'airplane', value: 0},
+  {label: 'apple', value: 1},
+  {label: 'bee', value: 2},
+  {label: 'car', value: 3},
+  {label: 'dragon', value: 4},
+  {label: 'mosquito', value: 5},
+  {label: 'moustache', value: 6},
+  {label: 'mouth', value: 7},
+  {label: 'pear', value: 8},
+  {label: 'piano', value: 9},
+  {label: 'pineapple', value: 10},
+  {label: 'smiley face', value: 11},
+  {label: 'train', value: 12},
+  {label: 'umbrella', value: 13},
+  {label: 'wine bottle', value: 14},
+])
+const selectedPredictedClasses = ref([])
 
 const myColor = d3.scaleOrdinal()
     .domain(['airplane', 'apple', 'bee', 'car', 'dragon', 'mosquito', 'moustache', 'mouth', 'pear', 'piano', 'pineapple', 'smiley face', 'train', 'umbrella', 'wine bottle'])
@@ -129,8 +170,8 @@ const myColor = d3.scaleOrdinal()
       'rgb(188, 189, 34)', 'rgb(219, 219, 141)', 'rgb(23, 190, 207)', 'rgb(158, 218, 229)']);
 
 
-const colorStrategy = ref('by_class' as 'by_class' | 'by_prediction')
-const colorStrategyOptions = ref(['by_class', 'by_prediction'])
+const colorStrategy = ref('by_class' as 'by_class' | 'by_prediction' | 'true/false')
+const colorStrategyOptions = ref(['by_class', 'by_prediction', 'true/false'])
 
 
 onMounted(() => {
@@ -155,8 +196,11 @@ const reloadData = (viewport: number[]) => {
 
   console.log(viewportPath)
 
-  if (selectedClasses.value.length > 0) {
-    fetch(apiUrl + projectionPath + "_filtered/" + selectedClasses.value.join("-") + "/10000" + viewportPath)
+  if (selectedTrueClasses.value.length > 0 || selectedPredictedClasses.value.length > 0 ) {
+
+    const filterString = 't' + selectedTrueClasses.value.join("-") + 'p' + selectedPredictedClasses.value.join("-")
+
+    fetch(apiUrl + projectionPath + "_filtered/" + filterString + "/10000" + viewportPath)
         .then(res => res.json())
         .then(d => {
           console.log(data)
@@ -172,7 +216,7 @@ const reloadData = (viewport: number[]) => {
   }
 }
 
-watch([selectedClasses, projection], () => reloadData([]))
+watch([selectedTrueClasses, selectedPredictedClasses, projection], () => reloadData([]))
 
 const handleSelection = (s: any) => {
   selection.value = s
@@ -241,7 +285,7 @@ const updateSelectionDisplay = () => {
 
 .projection-container__menu {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
 }
 
 .samples-container {
@@ -305,6 +349,11 @@ const updateSelectionDisplay = () => {
   flex-direction: column;
   align-items: center;
   margin: 0 1px;
+}
+
+.multi-select-options-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
 }
 
 </style>
