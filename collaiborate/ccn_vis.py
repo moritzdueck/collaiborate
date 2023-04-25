@@ -86,7 +86,7 @@ if __name__ == '__main__':
 
     subset_idx = np.random.choice(len(val_data), 100000, replace=False)
 
-    for i in range(0,14):
+    for i in range(0,2):
         print("\n\n\n\n\nITERATION " + str(i) + "\n\n\n\n")
         df1 = get_df_intermediate_representation(i, subset_idx)
         df2 = get_df_intermediate_representation(i+1, subset_idx)
