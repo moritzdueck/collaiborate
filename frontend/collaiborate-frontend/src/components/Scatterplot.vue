@@ -7,12 +7,12 @@
 
 <script setup>
 import * as d3 from "d3";
-import {onMounted, ref, watchEffect} from "vue";
+import {onMounted, ref, watch} from "vue";
 import useResizeObserver from "../use/resizeObserver.js";
 import {axisBottom, axisLeft, axisRight, axisTop, extent, max, min, scaleLinear} from "d3";
 
 const {resizeRef, resizeState} = useResizeObserver();
-const props = defineProps(['data', 'colorStrategy'])
+const props = defineProps(['data', 'colorStrategy', 'selection'])
 const emit = defineEmits(['selection', 'viewport'])
 const svgRef = ref(null);
 
@@ -26,9 +26,7 @@ onMounted(() => {
         'rgb(227, 119, 194)', 'rgb(247, 182, 210)', 'rgb(127, 127, 127)', 'rgb(199, 199, 199)',
         'rgb(188, 189, 34)', 'rgb(219, 219, 141)', 'rgb(23, 190, 207)', 'rgb(158, 218, 229)']);
 
-  watchEffect(() => {
-
-    console.log('redoing everything!')
+  const update = () => {
 
     const {width, height} = resizeState.dimensions;
     const innerWidth = width - margin.left - margin.right
@@ -149,7 +147,14 @@ onMounted(() => {
             .style("stroke", getColor)
             .data();
       } else {
-        dot.style("stroke", getColor)
+        if (props.selection.length > 0) {
+          const selectedIds = props.selection.map(item => item.id)
+          dot.style("stroke", "white")
+              .filter(d => selectedIds.includes(d.id))
+              .style("stroke", getColor)
+        } else {
+          dot.style("stroke", getColor)
+        }
       }
       svg.property("value", value).dispatch("input");
 
@@ -165,8 +170,7 @@ onMounted(() => {
         value = dot.filter(d => x0 <= zx(d.x) && zx(d.x) < x1 && y0 <= zy(d.y) && zy(d.y) < y1).data();
       }
 
-      emit("selection", value.splice(0, 32))
-
+      emit("selection", value)
     }
 
     function getColor(d) {
@@ -181,11 +185,11 @@ onMounted(() => {
       return myColor(d.c)
     }
 
-  }, {
-    onTrigger(e) {
-      console.log(e)
-    }
-  })
+  }
+
+  watch(() => props.data, update)
+  watch(() => resizeRef, update)
+  watch(() => props.selection, update)
 
 
 })
@@ -195,7 +199,7 @@ onMounted(() => {
 <style scoped>
 .scatter-container {
   width: 100%;
-  height: 800px;
+  height: 45vh;
   background-color: white;
   padding: 20px;
   box-sizing: border-box;
