@@ -66,7 +66,7 @@ onMounted(() => {
     }
 
     const x = d3.scalePoint()
-        .range([0, innerWidth])
+        .range([1, innerWidth-1])
         .domain(dimensions);
 
     function path(d) {
