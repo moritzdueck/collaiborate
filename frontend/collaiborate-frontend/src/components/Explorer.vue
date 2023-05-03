@@ -189,7 +189,7 @@ onMounted(() => {
         data.value = d
       })
 
-  fetch(apiUrl + '/lines')
+  fetch(apiUrl + 'lines')
       .then(res => res.json())
       .then(d => {
         linesData.value = d
