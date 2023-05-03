@@ -7,6 +7,7 @@
         <span>Color points by</span>
         <span>Restrict Labels</span>
         <span>Restrict Predictions</span>
+        <span></span>
         <Dropdown v-model="projection" editable :options="projectionOptions"
                   placeholder="Select a Projection"/>
 
@@ -38,7 +39,8 @@
             </div>
           </template>
         </MultiSelect>
-        <MultiSelect v-model="selectedPredictedClasses" :options="predictedClassOptions" option-label="label" option-value="value"
+        <MultiSelect v-model="selectedPredictedClasses" :options="predictedClassOptions" option-label="label"
+                     option-value="value"
                      placeholder="Select Classes">
           <template #value="slotProps">
             <div v-if="slotProps.value" class="multi-select-options-grid">
@@ -59,9 +61,12 @@
             </div>
           </template>
         </MultiSelect>
+        <Button v-if="selection.length > 0" @click="selection = []">X</Button>
       </div>
-      <Scatterplot :data="data" :color-strategy="colorStrategy" v-on:selection="handleSelection"
+      <Scatterplot :data="data" :color-strategy="colorStrategy" v-on:selection="handleSelection" :selection="selection"
                    v-on:viewport="handleViewport"></Scatterplot>
+
+      <ParallelLines :data="linesData" :selection="selection" :scatterData="data" v-on:selection="handleSelection"/>
     </div>
     <div>
 
@@ -108,12 +113,14 @@
 import Scatterplot from "./Scatterplot.vue";
 import {computed, onMounted, ref, shallowRef, watch} from "vue";
 import * as d3 from "d3";
+import ParallelLines from "./ParallelLines.vue";
 
 console.log(import.meta.env.MODE)
 console.log(import.meta.env.VITE_APIURL)
 const apiUrl = import.meta.env.VITE_APIURL
 
 const data = shallowRef([])
+const linesData = shallowRef([])
 const sketches = shallowRef([] as any)
 const selection = shallowRef([] as any)
 
@@ -179,8 +186,13 @@ onMounted(() => {
   fetch(apiUrl + projectionPath + "/10000")
       .then(res => res.json())
       .then(d => {
-        console.log(data)
         data.value = d
+      })
+
+  fetch(apiUrl + '/lines')
+      .then(res => res.json())
+      .then(d => {
+        linesData.value = d
       })
 })
 
@@ -196,21 +208,19 @@ const reloadData = (viewport: number[]) => {
 
   console.log(viewportPath)
 
-  if (selectedTrueClasses.value.length > 0 || selectedPredictedClasses.value.length > 0 ) {
+  if (selectedTrueClasses.value.length > 0 || selectedPredictedClasses.value.length > 0) {
 
     const filterString = 't' + selectedTrueClasses.value.join("-") + 'p' + selectedPredictedClasses.value.join("-")
 
     fetch(apiUrl + projectionPath + "_filtered/" + filterString + "/10000" + viewportPath)
         .then(res => res.json())
         .then(d => {
-          console.log(data)
           data.value = d
         })
   } else {
     fetch(apiUrl + projectionPath + "/10000" + viewportPath)
         .then(res => res.json())
         .then(d => {
-          console.log(data)
           data.value = d
         })
   }
@@ -255,7 +265,7 @@ const updateSelectionDisplay = () => {
       path = "lclknn/2000"
   }
 
-  Promise.all(selection.value.flatMap((item: any) => [
+  Promise.all(selection.value.slice(0, 32).flatMap((item: any) => [
     fetch(apiUrl + "sketch/" + item.id).then(res => res.json()),
     fetch(apiUrl + "sketch/" + path + "/" + item.id).then(res => res.blob())
   ])).then((values: any) => {
@@ -287,7 +297,7 @@ const updateSelectionDisplay = () => {
 
 .projection-container__menu {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 50px;
 }
 
 .samples-container {
@@ -353,7 +363,7 @@ const updateSelectionDisplay = () => {
   margin: 0 1px;
 }
 
-.multi-select-options-grid{
+.multi-select-options-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
 }

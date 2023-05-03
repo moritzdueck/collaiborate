@@ -1,3 +1,4 @@
 collaiborate/model_lessCapacity.pth filter=lfs diff=lfs merge=lfs -text
 collaiborate/umap_extended.csv filter=lfs diff=lfs merge=lfs -text
 collaiborate/val_data.npy filter=lfs diff=lfs merge=lfs -text
+collaiborate/knn_analysis_quickdraw_10000_100.csv filter=lfs diff=lfs merge=lfs -text

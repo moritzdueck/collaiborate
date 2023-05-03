@@ -21,6 +21,7 @@ model = get_model()
 grad_model = get_grad_cam_model()
 occlusion = Occlusion(model)
 umap_df = pd.read_csv("./umap_extended.csv")
+lines_df = pd.read_csv("./knn_analysis_quickdraw_10000_100.csv").set_index('idx')
 matplotlib.use('SVG')
 
 
@@ -31,6 +32,7 @@ class UmapProjection(Resource):
 
     def get(self, length):
         return list(self.df
+                    .filter(items=list(lines_df.index), axis=0)
                     .apply(lambda x: {'x': x[1], 'y': x[2], 'c': x[3], 'c_hat': x[5], 'id': x[0]}, axis=1))[0:length]
 
 
@@ -43,6 +45,29 @@ class UmapProjectionXY(Resource):
         return list(self.df
                     [(self.df.x > xmin) & (self.df.x < xmax) & (self.df.y > ymin) & (self.df.y < ymax)]
                     .apply(lambda x: {'x': x[1], 'y': x[2], 'c': x[3], 'c_hat': x[5], 'id': x[0]}, axis=1))[0:length]
+
+
+class ParallelLines(Resource):
+
+    def __init__(self, **kwargs):
+        self.df = kwargs['lines_df']
+
+    def get(self):
+        return {
+            'layers': ['Conv2d(1, 16, 3)', 'relu1', 'maxpool1', 'Conv2d(16, 32, 3)', 'relu2',
+                       'maxpool2', 'Conv2d(32, 32, 3)', 'relu3', 'maxpool3',
+                       'Linear(288, 128)', 'relu4', 'Linear(128, len(classes))'],
+            'items': list(lines_df.apply(lambda x: {
+                'idx': x.name,
+                'layers': [x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[10], x[11], x[12]],
+                'y': x[13],
+                'y_hat': x[14],
+                'mean': x[15],
+                'std': x[16],
+                'correct': x[17],
+                'pred_entropy': x[18]
+            }, axis=1))
+        }
 
 
 class UmapProjectionFiltered(Resource):
@@ -70,7 +95,11 @@ class UmapProjectionFiltered(Resource):
             return list(
                 filter(
                     lambda x: label_filter(x) & pred_filter(x),
-                    list(self.df.apply(lambda x: {'x': x[1], 'y': x[2], 'c': x[3], 'c_hat': x[5], 'id': x[0]}, axis=1))
+                    list(
+                        self.df
+                        .filter(items=list(lines_df.index), axis=0)
+                        .apply(lambda x: {'x': x[1], 'y': x[2], 'c': x[3], 'c_hat': x[5], 'id': x[0]}, axis=1)
+                    )
                 )
             )[0:length]
 
@@ -299,6 +328,11 @@ api.add_resource(UmapProjection,
 api.add_resource(UmapProjectionXY,
                  "/umap/<int:length>/<float(signed=True):xmin>/<float(signed=True):xmax>/<float(signed=True):ymin>/<float(signed=True):ymax>",
                  resource_class_kwargs={'umap_df': umap_df})
+
+api.add_resource(ParallelLines,
+                 "/lines",
+                 resource_class_kwargs={'lines_df': lines_df})
+
 api.add_resource(UmapProjectionCL, "/umap-cl/<int:length>", resource_class_kwargs={'umap_df': umap_df})
 api.add_resource(UmapProjectionFiltered,
                  "/umap_filtered/<string:restricted_classes>/<int:length>",
