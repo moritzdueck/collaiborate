@@ -33,4 +33,5 @@ COPY collaiborate/utils.py .
 COPY collaiborate/val_data.npy .
 COPY collaiborate/umap_extended.csv .
 COPY collaiborate/model_lessCapacity.pth .
+COPY collaiborate/knn_analysis_quickdraw_10000_100.csv .
 ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "collaiborate", "python", "api.py"]
