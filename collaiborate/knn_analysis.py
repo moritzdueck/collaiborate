@@ -5,11 +5,8 @@ import torch
 import math
 import numpy as np
 import os
-import matplotlib.pyplot as plt
 import random
 import pandas as pd
-import sklearn.metrics
-import seaborn as sb
 
 import torch.nn as nn
 import scipy
