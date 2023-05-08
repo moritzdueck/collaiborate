@@ -117,11 +117,11 @@ def get_vae(wheights):
     return flat_model
 
 
-def process_one_layer(i, model, data, k, directory):
+def process_one_layer(i, model, data, k, my_directory):
     df1 = get_df_intermediate_representation(i, model, data)
     df2 = get_df_intermediate_representation(i + 1, model, data)
     df_diff = get_diff(df1, df2, k)
-    df_diff.to_csv(directory + 'diff-' + str(k) + '-' + str(i) + '-' + str(i) + '.csv')
+    df_diff.to_csv(my_directory + 'diff-' + str(k) + '-' + str(i) + '-' + str(i) + '.csv')
 
 if __name__ == '__main__':
 
@@ -141,4 +141,4 @@ if __name__ == '__main__':
     Path(directory).mkdir(exist_ok=True, parents=True)
 
     with mp.Pool(2) as p:
-        p.starmap(process_one_layer, zip(range(32, 34), repeat(model), repeat(data), repeat(k), repeat(dir)))
+        p.starmap(process_one_layer, zip(range(32, 34), repeat(model), repeat(data), repeat(k), repeat(directory)))
