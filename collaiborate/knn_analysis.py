@@ -94,8 +94,8 @@ def get_cnn(wheights):
 
 def get_vae(wheights):
     model = VanillaVAE(3, 128)
-    checkpoint = torch.load(wheights, map_location=torch.device('cpu'))
-    model.load_state_dict(checkpoint)
+    # checkpoint = torch.load(wheights, map_location=torch.device('cpu'))
+    # model.load_state_dict(checkpoint)
     model.eval()
 
     # reshape model so that layers can be indexed in flat structure
