@@ -140,5 +140,5 @@ if __name__ == '__main__':
     directory = f"{datetime.now()}/results/"
     Path(directory).mkdir(exist_ok=True, parents=True)
 
-    with mp.Pool(2) as p:
-        p.starmap(process_one_layer, zip(range(32, 34), repeat(model), repeat(data), repeat(k), repeat(directory)))
+    with mp.Pool(8) as p:
+        p.starmap(process_one_layer, zip(range(len(model)), repeat(model), repeat(data), repeat(k), repeat(directory)))
