@@ -17,16 +17,22 @@ import multiprocessing as mp
 from itertools import repeat
 
 
-
 def get_df_intermediate_representation(layer, model, data):
     results = []
+    model.train()
     for idx in tqdm(range(len(data))):
-        x = data[idx][0]
-        intermediate = model[:layer](torch.tensor(x).unsqueeze(dim=0))
-        results.append([idx, intermediate.detach().numpy()])
+        x = torch.autograd.Variable(torch.tensor(data[idx][0])).unsqueeze(dim=0)
+        intermediate = model[:layer](x)
+        intermediate.retain_grad()
+        y = model[layer:](intermediate).sum()
+        model.zero_grad()
+        y.backward()
+        grad = intermediate.grad.cpu()[0]
+        results.append([idx, (intermediate * grad).detach().numpy()])
 
     df = pd.DataFrame(results, columns=["idx", "intermediate"])
     df = df.set_index("idx")
+    model.eval()
     return df
 
 
