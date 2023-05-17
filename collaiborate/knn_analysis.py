@@ -21,7 +21,7 @@ def get_df_intermediate_representation(layer, model, data):
     results = []
     model.train()
     for idx in tqdm(range(len(data))):
-        x = torch.autograd.Variable(torch.tensor(data[idx][0])).unsqueeze(dim=0)
+        x = torch.autograd.Variable(torch.tensor(data[idx][0]), requires_grad=True).unsqueeze(dim=0)
         intermediate = model[:layer](x)
         intermediate.retain_grad()
         y = model[layer:](intermediate).sum()
