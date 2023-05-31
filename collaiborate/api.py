@@ -23,6 +23,7 @@ occlusion = Occlusion(model)
 umap_df = pd.read_csv("./umap_extended.csv")
 lines_df = pd.read_csv("./knn_analysis_quickdraw_10000_100.csv").set_index('idx')
 matplotlib.use('SVG')
+base_df = pd.read_csv('base_slim.csv', index_col="idx")
 
 
 class UmapProjection(Resource):
@@ -53,6 +54,21 @@ class ParallelLines(Resource):
         self.df = kwargs['lines_df']
 
     def get(self):
+        # return {
+        #     'layers': ['Conv2d(1, 16, 3)', 'maxpool1', 'Conv2d(16, 32, 3)',
+        #                'maxpool2', 'Conv2d(32, 32, 3)', 'maxpool3',
+        #                'Linear(288, 128)', 'Linear(128, len(classes))'],
+        #     'items': list(lines_df.apply(lambda x: {
+        #         'idx': x.name,
+        #         'layers': [x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7]],
+        #         'y': x[9],
+        #         'y_hat': x[10],
+        #         'mean': x[11],
+        #         'std': x[12],
+        #         'correct': x[13],
+        #         'pred_entropy': x[14]
+        #     }, axis=1))
+        # }
         return {
             'layers': ['Conv2d(1, 16, 3)', 'relu1', 'maxpool1', 'Conv2d(16, 32, 3)', 'relu2',
                        'maxpool2', 'Conv2d(32, 32, 3)', 'relu3', 'maxpool3',
@@ -154,6 +170,47 @@ class SketchMetadata(Resource):
         }
 
 
+class Neighborhood(Resource):
+
+    def __init__(self, **kwargs):
+        self.base_df = kwargs['base_df']
+
+    def get(self, sketch_index):
+        result = []
+        for n in self.base_df.loc[sketch_index][0: 14000]:
+            idx = self.base_df.iloc[n].name
+            result.append(int(idx))
+
+        all_samples = set(result)
+
+        all_layers = {}
+        for layer in range(14):
+
+            idx = self.base_df.loc[sketch_index].name
+            x = val_data[idx][0]
+            subject_rep = model[:layer](torch.tensor(x).unsqueeze(1)).detach().numpy()
+
+            result = {}
+            for idx in all_samples:
+                if idx == sketch_index:
+                    continue;
+                x = val_data[idx][0]
+                rep = model[:layer](torch.tensor(x).unsqueeze(1)).detach().numpy()
+                d = np.linalg.norm(subject_rep.flatten() - rep.flatten())
+                result[int(idx)] = d.astype(float)
+
+            all_layers[layer] = result
+
+        labels = dict()
+        for idx in all_samples:
+            labels[str(idx)] = int(val_data[idx][1])
+
+        return {
+            "layers": all_layers,
+            "labels": labels
+        }
+
+
 @app.before_request
 def basic_authentication():
     if request.method.lower() == 'options':
@@ -171,7 +228,23 @@ def get_sketch(sketch_index):
     buf = io.BytesIO()
     fig.savefig(buf, format='png', bbox_inches='tight')
     buf.seek(0)
-    return Response(buf, mimetype='image/png')
+    return Response(buf, mimetype='image/png', headers={})
+
+
+@app.route("/sketch/pngcolor/<int:sketch_index>")
+def get_sketch_color(sketch_index):
+    fig = plt.figure()
+    plt.tight_layout()
+    ax = plt.Axes(fig, [0., 0., 1., 1.])
+    ax.set_axis_off()
+    fig.add_axes(ax)
+    x = val_data[sketch_index][0].reshape(28, 28, 1)
+    ax.imshow(x, cmap='Greys', alpha=x.reshape(28, 28))
+    buf = io.BytesIO()
+
+    fig.savefig(buf, format='png', bbox_inches='tight', transparent=True)
+    buf.seek(0)
+    return Response(buf, mimetype='image/png', headers={})
 
 
 @app.route("/sketch/probs/<int:sketch_index>")
@@ -320,6 +393,14 @@ def index():
     return app.send_static_file('index.html')
 
 
+@app.after_request
+def add_header(response: Response):
+    response.cache_control.max_age = 3600
+    response.access_control_allow_origin = "*"
+    response.access_control_allow_headers = "*"
+    return response
+
+
 api.add_resource(SketchMetadata, "/sketch/<int:sketch_index>")
 
 api.add_resource(UmapProjection,
@@ -341,7 +422,11 @@ api.add_resource(UmapProjectionCLFiltered,
                  "/umap-cl_filtered/<string:restricted_classes>/<int:length>",
                  resource_class_kwargs={'umap_df': umap_df})
 
+api.add_resource(Neighborhood,
+                 "/neighborhood/<int:sketch_index>",
+                 resource_class_kwargs={'base_df': base_df})
+
 cors = CORS(app, origins="*")
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5003)
+    app.run(host='0.0.0.0', port=5003, debug=True)

@@ -78,7 +78,8 @@
       </div>
 
       <div class="samples-container" v-if="mode === 'class'">
-        <div v-for="sketch of sketches" class="sample">
+        <div v-for="(sketch, i) of sketches" class="sample">
+          <a @click="emit('index', selection[i].id )">{{ selection[i].id}}</a>
           <span>{{ sketch[0].label }}</span>
           <span v-if="sketch[0].label === sketch[0].prediction"/>
           <span v-if="sketch[0].label !== sketch[0].prediction"
@@ -118,6 +119,8 @@ import ParallelLines from "./ParallelLines.vue";
 console.log(import.meta.env.MODE)
 console.log(import.meta.env.VITE_APIURL)
 const apiUrl = import.meta.env.VITE_APIURL
+
+const emit = defineEmits(['index'])
 
 const data = shallowRef([])
 const linesData = shallowRef([])
@@ -366,6 +369,8 @@ const updateSelectionDisplay = () => {
 .multi-select-options-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
+  overflow: auto;
+  max-height: 70px;
 }
 
 </style>
