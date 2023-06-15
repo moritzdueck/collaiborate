@@ -2,7 +2,7 @@
   <div class="layer-dropdown" @click="showOptions = !showOptions">
     <div style="margin: -5px;" :class="'layer '+modelValue.type">{{ modelValue.label }}</div>
     <div v-if="showOptions" class="options">
-      <div class="flex align-items-center" v-for="layer of layers" @click.stop="showOptions = false; modelValue = layer; $emit('update:modelValue', layer);">
+      <div class="flex align-items-center" v-for="layer of layers" @click.stop="showOptions = false; $emit('update:modelValue', layer);">
         <div :class="'layer '+layer.type">{{ layer.label }}</div>
       </div>
     </div>
