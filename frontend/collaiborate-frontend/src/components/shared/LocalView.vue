@@ -1,24 +1,24 @@
 <template>
   <div class="menu">
 
-    <p>Show neighborhood in layer</p>
-    <Dropdown v-model="referenceLayer" editable  :options="referenceLayerOptions" placeholder="Select Layer"/>
-    <p>and show the change in distance compared to layer</p>
-    <Dropdown v-model="comparisonLayer" editable :disabled="!referenceLayer" :options="comparisonLayerOptions" placeholder="Select Layer"/>
-<!--    <Button outlined severity="secondary" @click="updateLayer(0)">Input</Button>-->
-<!--    <Button outlined severity="secondary" @click="updateLayer(1)">(0): Conv2d</Button>-->
-<!--    <Button outlined severity="secondary" @click="updateLayer(2)">(1): ReLU</Button>-->
-<!--    <Button outlined severity="secondary" @click="updateLayer(3)">(2): MaxPool2d</Button>-->
-<!--    <Button outlined severity="secondary" @click="updateLayer(4)">(3): Conv2d</Button>-->
-<!--    <Button outlined severity="secondary" @click="updateLayer(5)">(4): ReLU</Button>-->
-<!--    <Button outlined severity="secondary" @click="updateLayer(6)">(5): MaxPool2d</Button>-->
-<!--    <Button outlined severity="secondary" @click="updateLayer(7)">(6): Conv2d</Button>-->
-<!--    <Button outlined severity="secondary" @click="updateLayer(8)">(7): ReLU</Button>-->
-<!--    <Button outlined severity="secondary" @click="updateLayer(9)">(8): MaxPool2d</Button>-->
-<!--    <Button outlined severity="secondary" @click="updateLayer(10)">(9): Flatten</Button>-->
-<!--    <Button outlined severity="secondary" @click="updateLayer(11)">(10): Linear</Button>-->
-<!--    <Button outlined severity="secondary" @click="updateLayer(12)">(11): ReLU</Button>-->
-<!--    <Button outlined severity="secondary" @click="updateLayer(13)">(12): Linear</Button>-->
+<!--    <p>Show neighborhood in layer</p>-->
+<!--    <Dropdown v-model="referenceLayer" editable  :options="referenceLayerOptions" placeholder="Select Layer"/>-->
+<!--    <p>and show the change in distance compared to layer</p>-->
+<!--    <Dropdown v-model="comparisonLayer" editable :disabled="!referenceLayer" :options="comparisonLayerOptions" placeholder="Select Layer"/>-->
+    <Button outlined severity="secondary" @click="updateLayer(0)">Input</Button>
+    <Button outlined severity="secondary" @click="updateLayer(1)">(0): Conv2d</Button>
+    <Button outlined severity="secondary" @click="updateLayer(2)">(1): ReLU</Button>
+    <Button outlined severity="secondary" @click="updateLayer(3)">(2): MaxPool2d</Button>
+    <Button outlined severity="secondary" @click="updateLayer(4)">(3): Conv2d</Button>
+    <Button outlined severity="secondary" @click="updateLayer(5)">(4): ReLU</Button>
+    <Button outlined severity="secondary" @click="updateLayer(6)">(5): MaxPool2d</Button>
+    <Button outlined severity="secondary" @click="updateLayer(7)">(6): Conv2d</Button>
+    <Button outlined severity="secondary" @click="updateLayer(8)">(7): ReLU</Button>
+    <Button outlined severity="secondary" @click="updateLayer(9)">(8): MaxPool2d</Button>
+    <Button outlined severity="secondary" @click="updateLayer(10)">(9): Flatten</Button>
+    <Button outlined severity="secondary" @click="updateLayer(11)">(10): Linear</Button>
+    <Button outlined severity="secondary" @click="updateLayer(12)">(11): ReLU</Button>
+    <Button outlined severity="secondary" @click="updateLayer(13)">(12): Linear</Button>
   </div>
 
   <div class="bottom-menu">
@@ -47,7 +47,8 @@
 import Button from 'primevue/button';
 import {computed, onMounted, ref, shallowRef, watch} from "vue";
 import * as d3 from "d3";
-import useResizeObserver from "../use/resizeObserver.js";
+import useResizeObserver from "../../use/resizeObserver.js";
+import {getNeighborhoodForSample, samples} from "../../utils/utils.ts";
 
 const {resizeRef, resizeState} = useResizeObserver();
 const svgRef = ref(null);
@@ -100,6 +101,7 @@ const apiUrl = import.meta.env.VITE_APIURL
 
 function updateLayer(layer) {
   neighborsRef.value = neighborsData.value[layer];
+  neighborsRefBefore.value = neighborsData.value[currentLayer.value];
   lastLayer.value = currentLayer.value
   currentLayer.value = layer
 }
@@ -292,9 +294,9 @@ function setupCircleView() {
                 .attr('opacity', 0)
                 .each(d => radii[d[0]] = (scaleR(d[1]) * r))
                 .attr('class', 'n closer')
-                .transition()
-                .ease(d3.easeLinear)
-                .duration(3000)
+                // .transition()
+                // .ease(d3.easeLinear)
+                // .duration(3000)
                 .attr('x', (d) => (scaleR(d[1]) * r * Math.cos(angleLookup[d[0]])) + width / 2 - 10)
                 .attr('y', (d) => (scaleR(d[1]) * r * Math.sin(angleLookup[d[0]])) + height / 2 - 10)
                 .attr('opacity', 1)
@@ -302,9 +304,9 @@ function setupCircleView() {
             update => update
                 .attr('x', (d) => (radiiBefore[d[0]] * Math.cos(angleLookup[d[0]])) + width / 2 - 10)
                 .attr('y', (d) => (radiiBefore[d[0]] * Math.sin(angleLookup[d[0]])) + height / 2 - 10)
-                .transition()
-                .ease(d3.easeLinear)
-                .duration(3000)
+                // .transition()
+                // .ease(d3.easeLinear)
+                // .duration(3000)
                 .attr('x', (d) => (scaleR(d[1]) * r * Math.cos(angleLookup[d[0]])) + width / 2 - 10)
                 .attr('y', (d) => (scaleR(d[1]) * r * Math.sin(angleLookup[d[0]])) + height / 2 - 10)
                 .each(d => radii[d[0]] = (scaleR(d[1]) * r))
@@ -313,9 +315,9 @@ function setupCircleView() {
             exit => exit
                 .attr('x', (d) => (radiiBefore[d[0]] * Math.cos(angleLookup[d[0]])) + width / 2 - 10)
                 .attr('y', (d) => (radiiBefore[d[0]] * Math.sin(angleLookup[d[0]])) + height / 2 - 10)
-                .transition()
-                .ease(d3.easeLinear)
-                .duration(3000)
+                // .transition()
+                // .ease(d3.easeLinear)
+                // .duration(3000)
                 .attr('x', (d) => (scaleR(neighborsRef.value[d[0]]) * r * Math.cos(angleLookup[d[0]])) + width / 2 - 10)
                 .attr('y', (d) => (scaleR(neighborsRef.value[d[0]]) * r * Math.sin(angleLookup[d[0]])) + height / 2 - 10)
                 .attr('opacity', 0)
@@ -465,7 +467,7 @@ function setupDiffView() {
 
 onMounted(() => {
 
-  fetch(apiUrl + "neighborhood/" + props.index)
+  getNeighborhoodForSample(props.index)
       .then(result => result.json())
       .then(json => {
         labels.value = json.labels

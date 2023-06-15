@@ -8,10 +8,10 @@
 
 import {onMounted, ref, watch} from "vue";
 import * as d3 from "d3";
-import useResizeObserver from "../use/resizeObserver.js";
+import useResizeObserver from "../../use/resizeObserver.js";
 
 const {resizeRef, resizeState} = useResizeObserver();
-const props = defineProps(['data', 'selection', 'scatterData'])
+const props = defineProps(['data', 'selection', 'scatterData', 'enableBrush'])
 const emit = defineEmits(['selection'])
 const svgRef = ref(null);
 
@@ -19,11 +19,10 @@ onMounted(() => {
 
   const margin = {top: 50, right: 50, bottom: 50, left: 50}
 
-  //watchEffect(() => {
 
-  watch(props, async (newQuestion, oldQuestion) => {
+  const update = () => {
 
-    if (props.data.length === 0) {
+    if (props.data?.length === 0 || !props.data) {
       return
     }
 
@@ -31,7 +30,6 @@ onMounted(() => {
 
     let filterF = () => true
 
-    const dataIdxShownInScatter = props.scatterData.map(item => item.id)
     const selection = props.selection.map(item => item.id)
     if (selection.length > 0) {
       filterF = (item) => selection.includes(item.idx)
@@ -47,7 +45,6 @@ onMounted(() => {
         .attr("width", width)
         .attr("height", height)
 
-
     svgContainer.selectAll("g").remove()
 
     const svg = svgContainer
@@ -56,58 +53,55 @@ onMounted(() => {
         .style("height", innerHeight)
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-
-    const yScales = {}
     const dimensions = props.data.layers
-    for (const dim of dimensions) {
-      yScales[dim] = d3.scaleLinear()
-          .domain([0, 100])
-          .range([innerHeight, 0])
-    }
+    const xScale = d3.scaleLinear()
+        .domain([0, 100])
+        .range([innerWidth, 0])
 
-    const x = d3.scalePoint()
-        .range([1, innerWidth-1])
+    const yScale = d3.scalePoint()
+        .range([1, innerHeight - 1])
         .domain(dimensions);
 
     function path(d) {
       return d3.line()(dimensions.map(function (p, i) {
-        // console.log(yScales)
-        // console.log(p)
-        // console.log(i)
-        // console.log(d)
-        return [x(p), yScales[p](d.layers[i])];
+        return [xScale(d.layers[i]), yScale(p)];
       }));
     }
 
-    const color = d3.scaleSequential().domain([1, 100])
+    const color = d3.scaleSequential().domain([-20, 60])
         .interpolator(d3.interpolateViridis);
 
-    const filteredData = props.data.items
-        .filter(item => dataIdxShownInScatter.includes(item.idx))
+    let filteredData = props.data.items
         .filter(filterF)
 
+    if (props.scatterData) {
+      const dataIdxShownInScatter = props.scatterData.map(item => item.id)
+      filteredData = filteredData.filter(item => dataIdxShownInScatter.includes(item.idx))
+    }
 
     const brush = d3.brush()
         .on("start brush end", brushed)
-        .on('end', ({selection}) => brushEnd(selection, filteredData, dimensions, x, yScales))
+        .on('end', ({selection}) => brushEnd(selection, filteredData, dimensions, xScale, yScale))
 
-    function brushEnd(selection, filteredData, dimensions, x, yScales) {
+    function brushEnd(selection, filteredData, dimensions, xScale, yScale) {
       console.log(selection)
       const indices = filteredData.filter(item => dimensions
-          .map((p, i) => [x(p), yScales[p](item.layers[i])])
+          .map((p, i) => [xScale(item.layers[i]), yScale(p)])
           .some(item => selection[0][0] < item[0] && selection[1][0] > item[0] && selection[0][1] < item[1] && selection[1][1] > item[1])
       ).map(item => item.idx)
 
-      const items = props.scatterData.filter(item => indices.includes(item.id))
-      console.log(items)
-      emit("selection", items)
+      if (props.scatterData) {
+        const items = props.scatterData.filter(item => indices.includes(item.id))
+        console.log(items)
+        emit("selection", items)
+      }
 
     }
 
     function brushed(e) {
     }
 
-    svg.selectAll("path")
+    const svgPath = svg.selectAll("path")
         .data(filteredData)
         .enter()
         .append("path")
@@ -117,12 +111,26 @@ onMounted(() => {
         .attr("d", path)
         .style("fill", "none")
         .style("stroke", function (d) {
-          return (color(d.layers[0]))
+          return (color(d.layers[d.layers.length-1]))
         })
         .style("stroke-width", filteredData.length > 100 ? 0.1 : 1)
         .style("opacity", 1)
-    //.on("mouseover", highlight)
-    //.on("mouseleave", doNotHighlight )
+
+    let lengths = []
+
+    svgPath
+        .each(function (d, i) {
+          lengths[i] = d3.select(this).node().getTotalLength();
+        })
+        .attr("stroke-dasharray", (d, i) => lengths[i] + " " + lengths[i])
+        .attr("stroke-dashoffset", (d, i) => lengths[i])
+        .transition()
+        .ease(d3.easeLinear)
+        .attr("stroke-dashoffset", 0)
+        .delay(function (d, i) {
+          return i;
+        })
+        .duration(2000)
 
 
     svg.selectAll("myAxis")
@@ -132,16 +140,16 @@ onMounted(() => {
         .attr("class", "axis")
         // I translate this element to its right position on the x axis
         .attr("transform", function (d) {
-          return "translate(" + x(d) + ")";
+          return "translate(0," + yScale(d) + ")";
         })
         // And I build the axis with the call function
         .each(function (d) {
-          d3.select(this).call(d3.axisLeft().ticks(10).scale(yScales[d]));
+          d3.select(this).call(d3.axisTop().ticks(10).scale(xScale));
         })
         // Add axis title
         .append("text")
         .style("text-anchor", "middle")
-        .attr("y", -9)
+        .attr("x", -9)
         .text(function (d) {
           return d;
         })
@@ -153,10 +161,14 @@ onMounted(() => {
         .style("height", innerHeight)
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    brushArea.call(brush);
+    if (props.enableBrush) {
+      brushArea.call(brush);
+    }
 
-  })
+  }
 
+  watch(props, update)
+  update()
 
 })
 
@@ -165,6 +177,6 @@ onMounted(() => {
 <style scoped>
 .lines-container {
   width: 100%;
-  height: 45vh;
+  height: 100%;
 }
 </style>

@@ -1,112 +1,100 @@
 <template>
-  <div class="explorer-container">
-    <div class="projection-container">
-      <div class="projection-container__menu">
-        <span>Projection</span>
-        <span>Visualization type</span>
-        <span>Color points by</span>
-        <span>Restrict Labels</span>
-        <span>Restrict Predictions</span>
-        <span></span>
-        <Dropdown v-model="projection" editable :options="projectionOptions"
-                  placeholder="Select a Projection"/>
+  <div style="display: flex; flex-direction: column; height: 100vh; width: 100%; ">
+    <div class="projection-container__menu">
+      <span>Projection</span>
+      <span>Visualization type</span>
+      <span>Color points by</span>
+      <span>Restrict Labels</span>
+      <span>Restrict Predictions</span>
+      <span></span>
+      <Dropdown v-model="projection" editable :options="projectionOptions"
+                placeholder="Select a Projection"/>
 
-        <Dropdown v-model="analysisType" editable :options="analysisTypeOptions" v-on:change="updateSelectionDisplay"
-                  placeholder="Select a Visualization"/>
+      <Dropdown v-model="analysisType" editable :options="analysisTypeOptions" v-on:change="updateSelectionDisplay"
+                placeholder="Select a Visualization"/>
 
-        <Dropdown v-model="colorStrategy" editable :options="colorStrategyOptions"
-                  placeholder="Color Strategy">
-        </Dropdown>
+      <Dropdown v-model="colorStrategy" editable :options="colorStrategyOptions"
+                placeholder="Color Strategy">
+      </Dropdown>
 
-        <MultiSelect v-model="selectedTrueClasses" :options="trueClassOptions" option-label="label" option-value="value"
-                     placeholder="Select Classes">
-          <template #value="slotProps">
-            <div v-if="slotProps.value" class="multi-select-options-grid">
+      <MultiSelect v-model="selectedTrueClasses" :options="trueClassOptions" option-label="label" option-value="value"
+                   placeholder="Select Classes">
+        <template #value="slotProps">
+          <div v-if="slotProps.value" class="multi-select-options-grid">
               <span v-for="v of slotProps.value" class="selected-color-option">
                   <span style="width: 30px; height:30px; display: inline-block"
                         :style="'background-color:' + myColor(trueClassOptions[v].label)"></span>
               {{ trueClassOptions[v].label }}
               </span>
 
-            </div>
-            <span v-else>{{ slotProps.placeholder }}</span>
-          </template>
-          <template #option="slotProps">
-            <div class="flex align-items-center">
-              <span style="width: 30px; height:30px; display: block"
-                    :style="'background-color:' + myColor(slotProps.option.label)"></span>
-              <div>{{ slotProps.option.label }}</div>
-            </div>
-          </template>
-        </MultiSelect>
-        <MultiSelect v-model="selectedPredictedClasses" :options="predictedClassOptions" option-label="label"
-                     option-value="value"
-                     placeholder="Select Classes">
-          <template #value="slotProps">
-            <div v-if="slotProps.value" class="multi-select-options-grid">
+          </div>
+          <span v-else>{{ slotProps.placeholder }}</span>
+        </template>
+        <template #option="slotProps">
+          <div class="flex align-items-center">
+            <div>{{ slotProps.option.label }}</div>
+          </div>
+        </template>
+      </MultiSelect>
+      <MultiSelect v-model="selectedPredictedClasses" :options="predictedClassOptions" option-label="label"
+                   option-value="value"
+                   placeholder="Select Classes">
+        <template #value="slotProps">
+          <div v-if="slotProps.value" class="multi-select-options-grid">
               <span v-for="v of slotProps.value" class="selected-color-option">
                   <span style="width: 30px; height:30px; display: inline-block"
                         :style="'background-color:' + myColor(predictedClassOptions[v].label)"></span>
               {{ predictedClassOptions[v].label }}
               </span>
 
-            </div>
-            <span v-else>{{ slotProps.placeholder }}</span>
-          </template>
-          <template #option="slotProps">
-            <div class="flex align-items-center">
+          </div>
+          <span v-else>{{ slotProps.placeholder }}</span>
+        </template>
+        <template #option="slotProps">
+          <div class="flex align-items-center">
               <span style="width: 30px; height:30px; display: block"
                     :style="'background-color:' + myColor(slotProps.option.label)"></span>
-              <div>{{ slotProps.option.label }}</div>
-            </div>
-          </template>
-        </MultiSelect>
-        <Button v-if="selection.length > 0" @click="selection = []">X</Button>
-      </div>
-      <Scatterplot :data="data" :color-strategy="colorStrategy" v-on:selection="handleSelection" :selection="selection"
-                   v-on:viewport="handleViewport"></Scatterplot>
-
-      <ParallelLines :data="linesData" :selection="selection" :scatterData="data" v-on:selection="handleSelection"/>
+            <div>{{ slotProps.option.label }}</div>
+          </div>
+        </template>
+      </MultiSelect>
+      <Button v-if="selection.length > 0" @click="selection = []">X</Button>
     </div>
-    <div>
-
-      <!--   Class mode   -->
-
-      <div class="legend__class" v-if="mode === 'class'">
-        <p>true class</p>
-        <p class="samples__wrong-prediction">prediction, in case it is wrong</p>
-      </div>
-
-      <div class="samples-container" v-if="mode === 'class'">
-        <div v-for="(sketch, i) of sketches" class="sample">
-          <a @click="emit('index', selection[i].id )">{{ selection[i].id}}</a>
-          <span>{{ sketch[0].label }}</span>
-          <span v-if="sketch[0].label === sketch[0].prediction"/>
-          <span v-if="sketch[0].label !== sketch[0].prediction"
-                class="samples__wrong-prediction">{{ sketch[0].prediction }}</span>
-          <img class="samples__image" :src="sketch[1]"/>
+    <div class="explorer-container">
+      <div class="projection-container">
+        <div style="flex-grow: 1; width: 100%; height: 100%;">
+          <ParallelLines :data="linesData" :selection="selection" :scatterData="data" v-on:selection="handleSelection" :enable-brush="true"/>
         </div>
       </div>
+      <div class="projection-sample-container">
 
+        <Scatterplot :data="data" :color-strategy="colorStrategy" v-on:selection="handleSelection" :selection="selection"
+                     v-on:viewport="handleViewport"></Scatterplot>
 
-      <!--   No Class mode   -->
+        <!--   Class mode   -->
 
-      <div class="legend__class" v-if="mode === 'no_class'">
-        <p>correctly classified</p>
-        <p class="samples__wrong-prediction">wrongly classified</p>
-      </div>
-
-      <div class="samples-container" v-if="mode === 'no_class'">
-        <div v-for="sketch of sketches" class="sample">
-          <span>{{ sketch[0].label }}</span>
-          <span v-if="sketch[0].label === sketch[0].prediction" class="samples__fill-prediction"/>
-          <span v-if="sketch[0].label !== sketch[0].prediction" class="samples__fill_wrong-prediction"></span>
-          <img class="samples__image" :src="sketch[1]"/>
+        <div class="legend__class" v-if="mode === 'class'">
+          <p>true class</p>
+          <p class="samples__wrong-prediction">prediction, in case it is wrong</p>
         </div>
-      </div>
-    </div>
 
+        <div class="samples-container" v-if="mode === 'class'">
+          <div v-for="(sketch, i) of sketches" class="sample">
+            <a @click="selection.length && emit('index', selection[i]?.id )">{{ selection.length > 0? selection[i]?.id : ""}}</a>
+            <span>{{ sketch[0].label }}</span>
+            <span v-if="sketch[0].label === sketch[0].prediction"/>
+            <span v-if="sketch[0].label !== sketch[0].prediction"
+                  class="samples__wrong-prediction">{{ sketch[0].prediction }}</span>
+            <img class="samples__image" :src="sketch[1]"/>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
   </div>
+
+
 </template>
 
 <script setup lang="ts">
@@ -114,7 +102,7 @@
 import Scatterplot from "./Scatterplot.vue";
 import {computed, onMounted, ref, shallowRef, watch} from "vue";
 import * as d3 from "d3";
-import ParallelLines from "./ParallelLines.vue";
+import ParallelLines from "../shared/ParallelLines.vue";
 
 console.log(import.meta.env.MODE)
 console.log(import.meta.env.VITE_APIURL)
@@ -287,33 +275,43 @@ const updateSelectionDisplay = () => {
 
 .explorer-container {
   display: grid;
-  grid-template-columns: 60% 40%;
-  height: 100px;
+  grid-template-columns: 350px 1fr;
+  height: calc(100vh - 60px);
   width: 100%;
-  align-content: start;
+  align-content: stretch;
 }
 
 .projection-container {
   width: 100%;
-  height: 100%;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .projection-container__menu {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr 50px;
+  height: 60px;
+  padding-top: 15px;
+}
+
+.projection-sample-container{
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .samples-container {
   width: 100%;
-  height: 700px;
+  flex-grow: 1;
   box-sizing: border-box;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  overflow: auto;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
   gap: 2px;
   background-color: #f9f9f9;
   padding: 5px;
   align-content: start;
+  overflow: auto;
 }
 
 .sample {
