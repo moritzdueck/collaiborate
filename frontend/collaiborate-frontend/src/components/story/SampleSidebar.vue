@@ -1,7 +1,7 @@
 <template>
   <div class="sample-sidebar" v-if="allImages">
     <span v-for="sample of samples" :class="modelValue === sample? 'active' : ''"
-          @click="$emit('update:modelValue', sample); modelValue = sample">
+          @click="$emit('update:modelValue', sample);">
       <img class="samples__image" :src="'data:image/png;base64, ' + allImages[sample]" alt=""/>
     </span>
   </div>

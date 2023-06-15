@@ -287,7 +287,7 @@ import SimpleNeighborhood from "../reusables/SimpleNeighborhood.vue";
 import ParallelLines from "../shared/ParallelLines.vue";
 
 const props = defineProps({
-  allImages: {},
+  allImages: {} as any,
   lines: {}
 })
 const activeText = ref("")
