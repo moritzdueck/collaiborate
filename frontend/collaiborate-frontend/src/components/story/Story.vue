@@ -306,14 +306,14 @@ onMounted(() => {
         step: ".text-block",
         progress: true,
       })
-      .onStepEnter(({element, index, direction}) => {
-        activeText.value = element.id
-        textIndex.value = index
+      .onStepEnter((e: any) => {
+        activeText.value = e.element.id
+        textIndex.value = e.index
       })
-      .onStepProgress((e) => {
+      .onStepProgress((e: any) => {
         currentProgress.value = e.progress
       })
-      .onStepExit((response) => {
+      .onStepExit((response: any) => {
         // { element, index, direction }
       });
 })
