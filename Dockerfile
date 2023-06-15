@@ -15,6 +15,7 @@ WORKDIR /app
 # Create the environment:
 COPY collaiborate/environment.yml .
 RUN apt-get update
+RUN apt-get install -y curl
 RUN apt-get install -y gcc
 RUN conda install conda=23.1.0
 RUN conda update -n base -c defaults conda
