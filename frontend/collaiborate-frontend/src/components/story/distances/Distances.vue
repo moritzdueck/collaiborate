@@ -16,7 +16,7 @@
       </p>
     </div>
 
-    <img :src="'src/assets/distances/'+sample+'-layer'+layer+'.svg'" style="width: 100%;"/>
+    <img :src="'/distances/'+sample+'-layer'+layer+'.svg'" style="width: 100%;"/>
   </div>
 </template>
 

@@ -51,7 +51,7 @@ const apiUrl = import.meta.env.VITE_APIURL
 export function getNeighborhoodForSample(index: number){
 
     if(Object.keys(samples).includes(""+index)){
-        return fetch("src/assets/precomputed/" + index + '.json?json')
+        return fetch("/precomputed/" + index + '.json?json')
     }
     return fetch(apiUrl + "neighborhood/" + index)
 }
