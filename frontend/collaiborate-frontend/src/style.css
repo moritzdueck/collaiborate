@@ -2,6 +2,10 @@ body{
   margin: 0;
 }
 
+p{
+  line-height: 1.8;
+}
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   font-size: 14px;
@@ -15,6 +19,10 @@ body{
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+}
+
+h1, h2 {
+  font-family: 'Archivo Black', sans-serif;
 }
 
 a {
@@ -42,4 +50,80 @@ h1 {
   button {
     background-color: #f9f9f9;
   }
+}
+
+
+
+.layer {
+  padding: 8px;
+  height: 30px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.layer:active {
+  backdrop-filter: brightness(70%);
+}
+
+.layer.active, .layer:hover {
+  color: black;
+}
+
+.input.active, .input:hover, .output.active, .output:hover {
+  background-color: var(--yellow);
+}
+
+.convolution.active, .convolution:hover {
+  background-color: var(--purple);
+}
+
+.relu.active, .relu:hover {
+  background-color: var(--teal);
+}
+
+.max-pooling.active, .max-pooling:hover {
+  background-color: var(--orange);
+}
+
+.flatten.active, .flatten:hover {
+  background-color: var(--blue);
+}
+
+.linear.active, .linear:hover {
+  background-color: var(--red);
+}
+
+.input, .output {
+  border: 3px solid var(--yellow);
+}
+
+.convolution {
+  /*background-color: var(--grey);*/
+  border: 3px solid var(--purple);
+}
+
+.relu {
+  /*background-color: var(--grey);*/
+  border: 3px solid var(--teal);
+}
+
+.max-pooling {
+  /*background-color: var(--grey);*/
+  border: 3px solid var(--orange);
+}
+
+.flatten {
+  /*background-color: var(--grey);*/
+  border: 3px solid var(--blue);
+}
+
+.linear {
+  /*background-color: var(--grey);*/
+  border: 3px solid var(--red);
 }

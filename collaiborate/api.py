@@ -54,34 +54,17 @@ class ParallelLines(Resource):
         self.df = kwargs['lines_df']
 
     def get(self):
-        # return {
-        #     'layers': ['Conv2d(1, 16, 3)', 'maxpool1', 'Conv2d(16, 32, 3)',
-        #                'maxpool2', 'Conv2d(32, 32, 3)', 'maxpool3',
-        #                'Linear(288, 128)', 'Linear(128, len(classes))'],
-        #     'items': list(lines_df.apply(lambda x: {
-        #         'idx': x.name,
-        #         'layers': [x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7]],
-        #         'y': x[9],
-        #         'y_hat': x[10],
-        #         'mean': x[11],
-        #         'std': x[12],
-        #         'correct': x[13],
-        #         'pred_entropy': x[14]
-        #     }, axis=1))
-        # }
         return {
             'layers': ['Conv2d(1, 16, 3)', 'relu1', 'maxpool1', 'Conv2d(16, 32, 3)', 'relu2',
-                       'maxpool2', 'Conv2d(32, 32, 3)', 'relu3', 'maxpool3',
+                       'maxpool2', 'Conv2d(32, 32, 3)', 'relu3', 'maxpool3', 'flatten',
                        'Linear(288, 128)', 'relu4', 'Linear(128, len(classes))'],
             'items': list(lines_df.apply(lambda x: {
                 'idx': x.name,
-                'layers': [x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[10], x[11], x[12]],
+                'layers': [x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9], x[10], x[11], x[12]],
                 'y': x[13],
                 'y_hat': x[14],
                 'mean': x[15],
                 'std': x[16],
-                'correct': x[17],
-                'pred_entropy': x[18]
             }, axis=1))
         }
 
@@ -177,7 +160,7 @@ class Neighborhood(Resource):
 
     def get(self, sketch_index):
         result = []
-        for n in self.base_df.loc[sketch_index][0: 14000]:
+        for n in self.base_df.loc[sketch_index][0:1000]:
             idx = self.base_df.iloc[n].name
             result.append(int(idx))
 
@@ -207,8 +190,16 @@ class Neighborhood(Resource):
 
         return {
             "layers": all_layers,
-            "labels": labels
+            "labels": labels,
         }
+
+class AllImages(Resource):
+
+    def __init__(self, **kwargs):
+        self.base_df = kwargs['base_df']
+
+    def get(self):
+        return base_df['img'].to_dict()
 
 
 @app.before_request
@@ -233,7 +224,8 @@ def get_sketch(sketch_index):
 
 @app.route("/sketch/pngcolor/<int:sketch_index>")
 def get_sketch_color(sketch_index):
-    fig = plt.figure()
+    px = 1 / plt.rcParams['figure.dpi']  # pixel in inches
+    fig = plt.figure(figsize=(28 * px, 28 * px))
     plt.tight_layout()
     ax = plt.Axes(fig, [0., 0., 1., 1.])
     ax.set_axis_off()
@@ -395,7 +387,7 @@ def index():
 
 @app.after_request
 def add_header(response: Response):
-    response.cache_control.max_age = 3600
+    response.cache_control.max_age = 3600*24*365
     response.access_control_allow_origin = "*"
     response.access_control_allow_headers = "*"
     return response
@@ -424,6 +416,10 @@ api.add_resource(UmapProjectionCLFiltered,
 
 api.add_resource(Neighborhood,
                  "/neighborhood/<int:sketch_index>",
+                 resource_class_kwargs={'base_df': base_df})
+
+api.add_resource(AllImages,
+                 "/all",
                  resource_class_kwargs={'base_df': base_df})
 
 cors = CORS(app, origins="*")

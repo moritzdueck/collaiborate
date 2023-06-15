@@ -8,7 +8,7 @@
 <script setup>
 import * as d3 from "d3";
 import {onMounted, ref, watch} from "vue";
-import useResizeObserver from "../use/resizeObserver.js";
+import useResizeObserver from "../../use/resizeObserver.js";
 import {axisBottom, axisLeft, axisRight, axisTop, extent, max, min, scaleLinear} from "d3";
 
 const {resizeRef, resizeState} = useResizeObserver();
