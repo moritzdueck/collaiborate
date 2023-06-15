@@ -30,8 +30,11 @@ COPY --from=frontend /app/dist/. ./frontend-build/dist
 COPY collaiborate/api.py .
 COPY collaiborate/backend.py .
 COPY collaiborate/utils.py .
-COPY collaiborate/val_data.npy .
-COPY collaiborate/umap_extended.csv .
-COPY collaiborate/model_lessCapacity.pth .
-COPY collaiborate/knn_analysis_quickdraw_10000_100.csv .
+
+RUN curl -o val_data.npy https://polybox.ethz.ch/index.php/s/T3PNmkWiDH1xwEl/download
+RUN curl -o umap_extended.csv https://polybox.ethz.ch/index.php/s/xy2UMmlL7zMNi9p/download
+RUN curl -o model_lessCapacity.pth https://polybox.ethz.ch/index.php/s/XK6OcQQzyl29CQP/download
+RUN curl -o knn_analysis_quickdraw_10000_100.csv https://polybox.ethz.ch/index.php/s/MU6c3qOq8NdzKkI/download
+RUN curl -o base_slim.csv https://polybox.ethz.ch/index.php/s/mBsfssjPjBW0uh9/download
+
 ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "collaiborate", "python", "api.py"]
