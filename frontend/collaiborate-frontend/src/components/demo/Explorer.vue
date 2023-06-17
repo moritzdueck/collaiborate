@@ -73,7 +73,7 @@
     <div class="explorer-container">
       <div class="projection-container">
         <div style="flex-grow: 1; width: 100%; height: 100%;">
-          <ParallelLines :data="linesData" :selection="selection.map(s => s.id)" :scatterData="data"
+          <ParallelLines :data="linesData" :selection="selection.map((s:any) => s.id)" :scatterData="data"
                          v-on:selection="handleSelection" :enable-brush="true"/>
         </div>
       </div>

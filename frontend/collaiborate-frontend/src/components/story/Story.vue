@@ -86,7 +86,7 @@
              style=" height: 100%; width: 100%; border: 30px solid rgba(0,0,0,0);">
 
           <ParallelLines :animate-line-draw="false" :data="lines" v-if="lines"
-                         :selection="lines.items.filter(l => l.y === classes.indexOf('wine bottle')).map(item => item.idx)"
+                         :selection="lines.items.filter((l:any) => l.y === classes.indexOf('wine bottle')).map((item:any) => item.idx)"
                          v-on:selection="" :enable-brush="false"/>
 
         </div>
@@ -95,7 +95,7 @@
              style=" height: 100%; width: 100%; border: 30px solid rgba(0,0,0,0);">
 
           <ParallelLines :animate-line-draw="false" :data="lines" v-if="lines"
-                         :selection="lines.items.filter(l => l.y === classes.indexOf('wine bottle')).filter(l => l.mean > 71).map(item => item.idx)"
+                         :selection="lines.items.filter((l:any) => l.y === classes.indexOf('wine bottle')).filter((l:any) => l.mean > 71).map((item:any) => item.idx)"
                          v-on:selection="" :enable-brush="false"/>
 
         </div>
@@ -104,7 +104,7 @@
              style=" height: 100%; width: 100%; border: 30px solid rgba(0,0,0,0);">
 
           <ParallelLines :animate-line-draw="false" :data="lines" v-if="lines"
-                         :selection="lines.items.filter(l => l.y === classes.indexOf('wine bottle')).filter(l => l.mean < 35).map(item => item.idx)"
+                         :selection="lines.items.filter((l:any) => l.y === classes.indexOf('wine bottle')).filter((l:any) => l.mean < 35).map((item:any) => item.idx)"
                          v-on:selection="" :enable-brush="false"/>
 
         </div>
@@ -312,7 +312,7 @@
           </p>
           <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <span v-if="allImages && lines"
-                  v-for="s of lines.items.filter(l => l.y === classes.indexOf('wine bottle')).filter(l => l.mean > 71).map(item => item.idx)">
+                  v-for="s of lines.items.filter((l:any) => l.y === classes.indexOf('wine bottle')).filter((l:any) => l.mean > 71).map((item:any) => item.idx)">
               <img :src="'data:image/png;base64, ' + allImages[s]" alt=""/>
             </span>
           </div>
@@ -332,7 +332,7 @@
           </p>
           <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <span v-if="allImages && lines"
-                  v-for="s of lines.items.filter(l => l.y === classes.indexOf('wine bottle')).filter(l => l.mean < 35).map(item => item.idx)">
+                  v-for="s of lines.items.filter((l:any) => l.y === classes.indexOf('wine bottle')).filter((l:any) => l.mean < 35).map((item:any) => item.idx)">
               <img :src="'data:image/png;base64, ' + allImages[s]" alt=""/>
             </span>
           </div>
@@ -414,7 +414,7 @@ import SimpleNeighborhoodUnsorted from "../reusables/SimpleNeighborhoodUnsorted.
 
 const props = defineProps({
   allImages: {} as any,
-  lines: {}
+  lines: {} as any
 })
 
 defineEmits({
