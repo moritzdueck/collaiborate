@@ -1,11 +1,20 @@
 <template>
   <div style="display: flex; flex-direction: column; height: 100vh; width: 100%; ">
     <div class="projection-container__menu">
+
+      <div>
+        <span class="jump-section" @click="$emit('story')">
+          Back to the story
+          <img class="up" src="/arrow_up.svg">
+        </span>
+      </div>
+
       <span>Projection</span>
       <span>Visualization type</span>
       <span>Color points by</span>
       <span>Restrict Labels</span>
       <span>Restrict Predictions</span>
+      <span></span>
       <span></span>
       <Dropdown v-model="projection" editable :options="projectionOptions"
                 placeholder="Select a Projection"/>
@@ -60,15 +69,18 @@
       </MultiSelect>
       <Button v-if="selection.length > 0" @click="selection = []">X</Button>
     </div>
+
     <div class="explorer-container">
       <div class="projection-container">
         <div style="flex-grow: 1; width: 100%; height: 100%;">
-          <ParallelLines :data="linesData" :selection="selection" :scatterData="data" v-on:selection="handleSelection" :enable-brush="true"/>
+          <ParallelLines :data="linesData" :selection="selection.map(s => s.id)" :scatterData="data"
+                         v-on:selection="handleSelection" :enable-brush="true"/>
         </div>
       </div>
       <div class="projection-sample-container">
 
-        <Scatterplot :data="data" :color-strategy="colorStrategy" v-on:selection="handleSelection" :selection="selection"
+        <Scatterplot :data="data" :color-strategy="colorStrategy" v-on:selection="handleSelection"
+                     :selection="selection"
                      v-on:viewport="handleViewport"></Scatterplot>
 
         <!--   Class mode   -->
@@ -80,7 +92,8 @@
 
         <div class="samples-container" v-if="mode === 'class'">
           <div v-for="(sketch, i) of sketches" class="sample">
-            <a @click="selection.length && emit('index', selection[i]?.id )">{{ selection.length > 0? selection[i]?.id : ""}}</a>
+            <a @click="selection.length && emit('index', selection[i]?.id )"
+               style="cursor: pointer">{{ selection.length > 0 ? selection[i]?.id : "" }}</a>
             <span>{{ sketch[0].label }}</span>
             <span v-if="sketch[0].label === sketch[0].prediction"/>
             <span v-if="sketch[0].label !== sketch[0].prediction"
@@ -108,7 +121,7 @@ console.log(import.meta.env.MODE)
 console.log(import.meta.env.VITE_APIURL)
 const apiUrl = import.meta.env.VITE_APIURL
 
-const emit = defineEmits(['index'])
+const emit = defineEmits(['index', 'story'])
 
 const data = shallowRef([])
 const linesData = shallowRef([])
@@ -286,16 +299,17 @@ const updateSelectionDisplay = () => {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .projection-container__menu {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 50px;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 50px;
   height: 60px;
   padding-top: 15px;
 }
 
-.projection-sample-container{
+.projection-sample-container {
   display: flex;
   flex-direction: column;
   overflow: hidden;

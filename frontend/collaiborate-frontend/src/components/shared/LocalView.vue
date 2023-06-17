@@ -1,29 +1,40 @@
 <template>
+
+  <div class="description"><span>Changes between <img src="/pin.svg" alt="pin" style="width: 20px; display: inline-block; vertical-align: middle"/> <span style="color: var(--blue)">{{ layers[lastLayer] }}</span> and {{ layers[currentLayer] }}</span></div>
+
   <div class="menu">
 
 <!--    <p>Show neighborhood in layer</p>-->
 <!--    <Dropdown v-model="referenceLayer" editable  :options="referenceLayerOptions" placeholder="Select Layer"/>-->
 <!--    <p>and show the change in distance compared to layer</p>-->
 <!--    <Dropdown v-model="comparisonLayer" editable :disabled="!referenceLayer" :options="comparisonLayerOptions" placeholder="Select Layer"/>-->
-    <Button outlined severity="secondary" @click="updateLayer(0)">Input</Button>
-    <Button outlined severity="secondary" @click="updateLayer(1)">(0): Conv2d</Button>
-    <Button outlined severity="secondary" @click="updateLayer(2)">(1): ReLU</Button>
-    <Button outlined severity="secondary" @click="updateLayer(3)">(2): MaxPool2d</Button>
-    <Button outlined severity="secondary" @click="updateLayer(4)">(3): Conv2d</Button>
-    <Button outlined severity="secondary" @click="updateLayer(5)">(4): ReLU</Button>
-    <Button outlined severity="secondary" @click="updateLayer(6)">(5): MaxPool2d</Button>
-    <Button outlined severity="secondary" @click="updateLayer(7)">(6): Conv2d</Button>
-    <Button outlined severity="secondary" @click="updateLayer(8)">(7): ReLU</Button>
-    <Button outlined severity="secondary" @click="updateLayer(9)">(8): MaxPool2d</Button>
-    <Button outlined severity="secondary" @click="updateLayer(10)">(9): Flatten</Button>
-    <Button outlined severity="secondary" @click="updateLayer(11)">(10): Linear</Button>
-    <Button outlined severity="secondary" @click="updateLayer(12)">(11): ReLU</Button>
-    <Button outlined severity="secondary" @click="updateLayer(13)">(12): Linear</Button>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(0)" :class="(lastLayer === 0)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(0)">Input</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(1)" :class="(lastLayer === 1)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(1)">(0): Conv2d</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(2)" :class="(lastLayer === 2)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(2)">(1): ReLU</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(3)" :class="(lastLayer === 3)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(3)">(2): MaxPool2d</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(4)" :class="(lastLayer === 4)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(4)">(3): Conv2d</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(5)" :class="(lastLayer === 5)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(5)">(4): ReLU</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(6)" :class="(lastLayer === 6)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(6)">(5): MaxPool2d</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(7)" :class="(lastLayer === 7)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(7)">(6): Conv2d</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(8)" :class="(lastLayer === 8)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(8)">(7): ReLU</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(9)" :class="(lastLayer === 9)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(9)">(8): MaxPool2d</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(10)" :class="(lastLayer === 10)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(10)">(9): Flatten</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(11)" :class="(lastLayer === 11)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(11)">(10): Linear</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(12)" :class="(lastLayer === 12)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(12)">(11): ReLU</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(13)" :class="(lastLayer === 13)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(13)">(12): Linear</Button></div>
+
+    <div class="menu-legend">
+      <img src="/pin.svg" alt="pin" style="width: 30px"/>
+      <span>initial layer</span>
+    </div>
+
   </div>
 
+
+
   <div class="bottom-menu">
-    <Button outlined severity="secondary" @click="emit('index', undefined)">Leave View</Button>
-    <Button outlined severity="secondary" @click="orderByClass()">Reorder</Button>
+    <Button outlined severity="secondary" @click="emit('updateIndex', undefined)">Leave View</Button>
+<!--    <Button outlined severity="secondary" @click="orderByClass()">Reorder</Button>-->
   </div>
 
   <!--  <div v-if="counts" class="label-counts">-->
@@ -34,12 +45,12 @@
     <svg ref="svgRef"/>
   </div>
 
-  <div class="diff-container">
-    <div class="description">Changes between {{ layers[lastLayer] }} and {{ layers[currentLayer] }}</div>
-    <div ref="resizeRef2" style="width: 100%; height: 100%;">
-      <svg ref="svgRef2"/>
-    </div>
-  </div>
+<!--  <div class="diff-container">-->
+<!--    <div class="description">Changes between {{ layers[lastLayer] }} and {{ layers[currentLayer] }}</div>-->
+<!--    <div ref="resizeRef2" style="width: 100%; height: 100%;">-->
+<!--      <svg ref="svgRef2"/>-->
+<!--    </div>-->
+<!--  </div>-->
 
 </template>
 
@@ -52,8 +63,8 @@ import {getNeighborhoodForSample, samples} from "../../utils/utils.ts";
 
 const {resizeRef, resizeState} = useResizeObserver();
 const svgRef = ref(null);
-const {resizeRef: resizeRef2, resizeState: resizeState2} = useResizeObserver();
-const svgRef2 = ref(null);
+// const {resizeRef: resizeRef2, resizeState: resizeState2} = useResizeObserver();
+// const svgRef2 = ref(null);
 const neighborsRef = shallowRef()
 const neighborsRefBefore = shallowRef()
 const neighborsData = shallowRef([])
@@ -61,9 +72,10 @@ const labels = shallowRef([])
 const lastLayer = ref(0)
 const counts = ref(undefined)
 const currentLayer = ref(0)
+const brushFilter = ref(() => true)
 
-const props = defineProps(['index'])
-const emit = defineEmits(['index'])
+const props = defineProps(['index', 'allImages'])
+const emit = defineEmits(['updateIndex'])
 
 const classes = ['airplane', 'apple', 'bee', 'car', 'dragon', 'mosquito', 'moustache', 'mouth', 'pear', 'piano', 'pineapple', 'smiley face', 'train', 'umbrella', 'wine bottle']
 
@@ -84,26 +96,19 @@ const layers = [
   "(12): Linear"
 ]
 
-const referenceLayer = ref("Input")
-const comparisonLayer = ref("Input")
-const referenceLayerOptions = ref(layers)
-const comparisonLayerOptions = computed(() => layers.slice(0, layers.indexOf(referenceLayer.value)+1))
-
-watch(referenceLayer, (layer) => {
-  neighborsRef.value = neighborsData.value[layers.indexOf(layer)];
-})
-
-watch(comparisonLayer, (layer) => {
-  neighborsRefBefore.value = neighborsData.value[layers.indexOf(layer)];
-})
 
 const apiUrl = import.meta.env.VITE_APIURL
 
 function updateLayer(layer) {
-  neighborsRef.value = neighborsData.value[layer];
-  neighborsRefBefore.value = neighborsData.value[currentLayer.value];
-  lastLayer.value = currentLayer.value
   currentLayer.value = layer
+  neighborsRef.value = neighborsData.value[currentLayer.value];
+  // neighborsRefBefore.value = neighborsData.value[lastLayer.value];
+}
+
+function updateLastLayer(layer) {
+  lastLayer.value = layer
+  // neighborsRef.value = neighborsData.value[currentLayer.value];
+  neighborsRefBefore.value = neighborsData.value[lastLayer.value];
 }
 
 let angleLookup = {}
@@ -139,7 +144,7 @@ function setupCircleView() {
       .style("height", innerHeight)
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  const r = Math.min(innerWidth, innerHeight) * 0.3
+  const r = Math.min(innerWidth, innerHeight) * 0.25
 
   svg.selectAll('circle')
       .data([1000, 900, 800, 700, 600, 500, 400, 300, 200, 100])
@@ -153,7 +158,7 @@ function setupCircleView() {
       .attr("stroke", "#eee")
 
   svg.selectAll("#center")
-      .data([apiUrl + "sketch/png/" + props.index])
+      .data([apiUrl + "sketch/pngcolor/" + props.index])
       .enter()
       .append('image')
       .attr('xlink:href', (d) => d)
@@ -162,10 +167,18 @@ function setupCircleView() {
       .attr('x', width / 2 - 15)
       .attr('y', height / 2 - 15)
 
-  const update = (selection) => {
+  const update = () => {
+    if(!props.allImages)
+      return
+
     console.log("update")
+    console.log(Object.entries(neighborsRef.value))
+
     neighbors = Object.fromEntries(Object.entries(neighborsRef.value).sort((a, b) => a[1] - b[1]).slice(0, 1000))
     neighborsBefore = Object.fromEntries(Object.entries(neighborsRefBefore.value).sort((a, b) => a[1] - b[1]).slice(0, 1000))
+
+    console.log(neighbors)
+    console.log(neighborsBefore)
 
     // __________ LABELS _____________
     const countsTmp = [
@@ -260,6 +273,10 @@ function setupCircleView() {
       }
     }
 
+    console.log(enterLines)
+    console.log(updateLines)
+    console.log(exitLines)
+
     background.selectAll('line')
         .remove()
 
@@ -274,8 +291,8 @@ function setupCircleView() {
         .attr("y1", d => scaleOld(neighborsRefBefore.value[d]) * r * Math.sin(angleLookup[d]) + height / 2)
         .attr("x2", d => scaleR(neighborsRef.value[d]) * r * Math.cos(angleLookup[d]) + width / 2)
         .attr("y2", d => scaleR(neighborsRef.value[d]) * r * Math.sin(angleLookup[d]) + height / 2)
-        .style("stroke", d => scaleOld(neighborsRefBefore.value[d]) > scaleR(neighborsRef.value[d]) ? "green" : "red")
-        .style("opacity", 0.1)
+        .style("stroke", d => scaleOld(neighborsRefBefore.value[d]) > scaleR(neighborsRef.value[d]) ? "var(--green)" : "var(--red)")
+        .style("opacity", 0.2)
         .attr("class", "move")
 
     // __________ SKETCHES _____________
@@ -286,7 +303,7 @@ function setupCircleView() {
         .join(
             enter => enter
                 .append('image')
-                .attr('xlink:href', (d) => apiUrl + "sketch/pngcolor/" + d[0])
+                .attr('xlink:href', (d) => 'data:image/png;base64, ' + props.allImages[d[0]])
                 .attr('x', (d) => ((scaleOld(neighborsRefBefore.value[d[0]]) * r) * Math.cos(angleLookup[d[0]])) + width / 2 - 10)
                 .attr('y', (d) => ((scaleOld(neighborsRefBefore.value[d[0]]) * r) * Math.sin(angleLookup[d[0]])) + height / 2 - 10)
                 .attr('width', 20)
@@ -299,7 +316,7 @@ function setupCircleView() {
                 // .duration(3000)
                 .attr('x', (d) => (scaleR(d[1]) * r * Math.cos(angleLookup[d[0]])) + width / 2 - 10)
                 .attr('y', (d) => (scaleR(d[1]) * r * Math.sin(angleLookup[d[0]])) + height / 2 - 10)
-                .attr('opacity', 1)
+                .attr('opacity', (d) => brushFilter.value(d[0])? 1 : 0.1)
                 .selection(),
             update => update
                 .attr('x', (d) => (radiiBefore[d[0]] * Math.cos(angleLookup[d[0]])) + width / 2 - 10)
@@ -327,7 +344,7 @@ function setupCircleView() {
 
     // __________ histogram _____________
 
-    const rescalingFactors = updateLines.map(x => ({
+    const rescalingFactors = [...all].map(x => ({
       icon: x,
       factor: scaleOld(neighborsRefBefore.value[x]) - scaleR(neighborsRef.value[x])
     }))
@@ -341,15 +358,15 @@ function setupCircleView() {
         .append('line')
         .style("stroke-width", 1)
         .attr("x1", (d, i) => scaleX(i))
-        .attr("y1", d => (innerHeight - 60) + d.factor * 50)
+        .attr("y1", d => (innerHeight - 60) + d.factor * 30)
         .attr("x2", (d, i) => scaleX(i))
         .attr("y2", () => (innerHeight - 60))
-        .style("stroke", d => d.factor > 0 ? "green" : "red")
+        .style("stroke", d => d.factor > 0 ? "var(--green)" : "var(--red)")
         .style("opacity", 0.5)
         .attr("class", "other")
 
     const brush = d3.brushX()
-        .extent([[150, innerHeight - 90], [width - 150, innerHeight - 10]])
+        .extent([[150, innerHeight - 90], [width - 150, innerHeight - 30]])
         .on("brush", brushed)
         .on("end", brushended);
 
@@ -367,8 +384,20 @@ function setupCircleView() {
 
     function brushended({selection}) {
       if (selection) {
-        const selected = rescalingFactors.filter((d, i) => (scaleX(i) > selection[0]) && (scaleX(i) < selection[1]))
-        console.log(selected)
+        const selected = rescalingFactors.filter((d, i) => (scaleX(i) > selection[0]) && (scaleX(i) < selection[1])).map(i => i.icon)
+
+        function f(sketch){
+          return selected.includes(sketch)
+        }
+
+        background.selectAll("line.move").style("stroke",  d => {
+          if(!f(d)){
+            return "var(--gray)"
+          }
+          return scaleOld(neighborsRefBefore.value[d]) > scaleR(neighborsRef.value[d]) ? "var(--green)" : "var(--red)"
+        })
+
+        svg.selectAll('image.n').attr('opacity', (d) => f(d[0])? 1: 0.1)
 
       }
       if (!selection) {
@@ -467,30 +496,43 @@ function setupDiffView() {
 
 onMounted(() => {
 
-  getNeighborhoodForSample(props.index)
-      .then(result => result.json())
-      .then(json => {
-        labels.value = json.labels
-        neighborsData.value = json.layers;
-        neighborsRef.value = json.layers[0]
+  const render = () => {
+    getNeighborhoodForSample(props.index)
+        .then(result => result.json())
+        .then(json => {
+          labels.value = json.labels
+          neighborsData.value = json.layers;
+          neighborsRef.value = json.layers[0]
+          neighborsRefBefore.value = json.layers[0]
 
-        neighborsRefBefore.value = json.layers[0]
+          setupCircleView();
+          // watch(resizeRef2, setupCircleView)
+          // setupDiffView();
+          // watch(resizeRef2, setupDiffView)
+        })
+  }
 
-        setupCircleView();
-        setupDiffView();
+  watch(() => props.index, render)
+  watch(() => props.allImages, render)
 
-        watch(resizeRef2, setupCircleView)
-        watch(resizeRef2, setupDiffView)
-
-      })
+  if(props.index){
+    render()
+  }
 
 })
 </script>
 
+<style>
+rect.selection {
+  fill: var(--blue-transparent);
+}
+</style>
+
 <style scoped>
 .container {
-  width: 70%;
+  width: 100%;
   height: 100vh;
+  overflow: hidden;
 }
 
 .container > svg {
@@ -536,6 +578,45 @@ onMounted(() => {
 
 .label-counts > span {
   display: flex;
+}
+
+.layer-pin {
+  width: 30px;
+  height: 30px;
+  display: inline-block;
+  border-radius: 30px;
+  cursor: pointer;
+}
+
+.layer-pin > img{
+  width: 30px;
+  opacity: 0;
+}
+
+.layer-pin:hover > img{
+  opacity: 1;
+}
+
+.layer-pin.active-pin > img{
+  opacity: 1;
+}
+
+
+.menu-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 40px;
+  gap: 10px;
+}
+
+.description {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 30px;
+  position: absolute;
+  width: 100%;
 }
 
 </style>

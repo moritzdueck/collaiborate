@@ -2,10 +2,12 @@
 import Explorer from './components/demo/Explorer.vue'
 import ScrollamaStory from "./components/story/Story.vue";
 import {onMounted, ref, shallowRef} from "vue";
+import LocalView from "./components/shared/LocalView.vue";
 
 const allImages = shallowRef()
 const lines = shallowRef()
 
+const explorerIndex = ref(undefined as undefined | number)
 const stage = ref('story' as 'story' | 'demo')
 const apiUrl = import.meta.env.VITE_APIURL
 
@@ -23,11 +25,14 @@ onMounted(() => {
       })
 })
 
+const updateExplorerIndex = (index: number) => explorerIndex.value = index;
+
 </script>
 
 <template>
-  <ScrollamaStory :all-images="allImages" :lines="lines"/>
-  <Explorer v-if="stage === 'demo'"/>
+  <ScrollamaStory :all-images="allImages" :lines="lines" v-if="stage === 'story'" v-on:show-demo="stage='demo'"/>
+  <Explorer v-if="stage === 'demo' && !explorerIndex" v-on:index="updateExplorerIndex" v-on:story="stage='story'"/>
+  <LocalView v-if="stage === 'demo' && explorerIndex" :index="explorerIndex" :all-images="allImages"  v-on:update-index="updateExplorerIndex"/>
 </template>
 
 <style scoped>

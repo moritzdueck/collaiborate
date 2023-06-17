@@ -11,7 +11,7 @@ import * as d3 from "d3";
 import useResizeObserver from "../../use/resizeObserver.js";
 
 const {resizeRef, resizeState} = useResizeObserver();
-const props = defineProps(['data', 'selection', 'scatterData', 'enableBrush'])
+const props = defineProps(['data', 'selection', 'scatterData', 'enableBrush', 'animateLineDraw'])
 const emit = defineEmits(['selection'])
 const svgRef = ref(null);
 
@@ -30,7 +30,7 @@ onMounted(() => {
 
     let filterF = () => true
 
-    const selection = props.selection.map(item => item.id)
+    const selection = props.selection
     if (selection.length > 0) {
       filterF = (item) => selection.includes(item.idx)
     }
@@ -102,35 +102,47 @@ onMounted(() => {
     }
 
     const svgPath = svg.selectAll("path")
-        .data(filteredData)
+        .data(props.data.items)
         .enter()
         .append("path")
+        .sort((a,b) => (selection?.includes(a.idx)? 1 : 0) - (selection?.includes(b.idx)? 1 : 0))
         .attr("class", function (d) {
           return "line " + d.y
         }) // 2 class for each line: 'line' and the group name
         .attr("d", path)
         .style("fill", "none")
         .style("stroke", function (d) {
-          return (color(d.layers[d.layers.length-1]))
+          if(!selection || selection.length === 0 || selection.includes(d.idx)){
+            return (color(d.layers[d.layers.length-1]))
+          }
+          return "rgba(212,212,212,0.34)"
         })
-        .style("stroke-width", filteredData.length > 100 ? 0.1 : 1)
+        .style("stroke-width", function (d) {
+          if(selection.includes(d.idx) && selection.length < 100){
+            return 1
+          }
+          return 0.1
+          // filteredData.length > 100 ? 0.1 : 1
+        })
         .style("opacity", 1)
 
     let lengths = []
 
-    svgPath
-        .each(function (d, i) {
-          lengths[i] = d3.select(this).node().getTotalLength();
-        })
-        .attr("stroke-dasharray", (d, i) => lengths[i] + " " + lengths[i])
-        .attr("stroke-dashoffset", (d, i) => lengths[i])
-        .transition()
-        .ease(d3.easeLinear)
-        .attr("stroke-dashoffset", 0)
-        .delay(function (d, i) {
-          return i;
-        })
-        .duration(2000)
+    if(props.animateLineDraw){
+      svgPath
+          .each(function (d, i) {
+            lengths[i] = d3.select(this).node().getTotalLength();
+          })
+          .attr("stroke-dasharray", (d, i) => lengths[i] + " " + lengths[i])
+          .attr("stroke-dashoffset", (d, i) => lengths[i])
+          .transition()
+          .ease(d3.easeLinear)
+          .attr("stroke-dashoffset", 0)
+          .delay(function (d, i) {
+            return i;
+          })
+          .duration(2000)
+    }
 
 
     svg.selectAll("myAxis")

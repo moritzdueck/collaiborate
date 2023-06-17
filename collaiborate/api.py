@@ -160,7 +160,7 @@ class Neighborhood(Resource):
 
     def get(self, sketch_index):
         result = []
-        for n in self.base_df.loc[sketch_index][0:1000]:
+        for n in self.base_df.loc[sketch_index][0:14000]:
             idx = self.base_df.iloc[n].name
             result.append(int(idx))
 

@@ -25,6 +25,13 @@
                           color="var(--blue)" :referenceLayer="layer3" :comparison-layer="0"/>
     </div>
 
+    <div :style="{width: '150px', position: 'absolute', right: '100px', bottom: '80px'}">
+      <span class="jump-section" @click="$emit('showDemo')">
+        Jump to Explorer
+      <img class="right" src="/arrow_right.svg">
+      </span>
+    </div>
+
     <div class="text-wrapper">
       <h1 style="word-wrap: break-word;">Neighbor&shy;hoods Explored</h1>
       <p style="font-size: 20px">A Journey into CNNs for Sketch Classification</p>
@@ -46,6 +53,10 @@ import {onMounted, onUnmounted, ref} from "vue";
 import SimpleNeighborhood from "./reusables/SimpleNeighborhood.vue";
 
 const props = defineProps(["allImages"])
+
+defineEmits({
+  showDemo: () => true
+})
 
 const n1 = ref(null)
 const n2 = ref(null)

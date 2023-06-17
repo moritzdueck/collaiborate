@@ -8,6 +8,7 @@
 import {onMounted, ref, shallowRef, watch} from "vue";
 import * as d3 from "d3";
 import useResizeObserver from "../../use/resizeObserver.js";
+import {getNeighborhoodForSample} from "../../utils/utils";
 
 const {resizeRef, resizeState} = useResizeObserver();
 const svgRef = ref(null);
@@ -196,15 +197,13 @@ function setupCircleView() {
 
 onMounted(() => {
 
-  fetch(apiUrl + "neighborhood/" + props.index)
+  getNeighborhoodForSample(props.index)
       .then(result => result.json())
       .then(json => {
         labels.value = json.labels
         neighborsData.value = json.layers;
         neighborsRef.value = json.layers[props.referenceLayer]
         neighborsRefBefore.value = json.layers[props.comparisonLayer]
-        watch(resizeRef, setupCircleView)
-        watch(() => props.allImages, setupCircleView)
 
         for (const n of Object.keys(labels.value)) {
           if (!angleLookup[n]) {
@@ -212,9 +211,31 @@ onMounted(() => {
           }
         }
 
+        watch(resizeRef, setupCircleView)
+        watch(() => props.allImages, setupCircleView)
         setupCircleView()
-
       })
+
+  watch(() => props.index, () => {
+    getNeighborhoodForSample(props.index)
+        .then(result => result.json())
+        .then(json => {
+          labels.value = json.labels
+          neighborsData.value = json.layers;
+          neighborsRef.value = json.layers[props.referenceLayer]
+          neighborsRefBefore.value = json.layers[props.comparisonLayer]
+
+          for (const n of Object.keys(labels.value)) {
+            if (!angleLookup[n]) {
+              angleLookup[n] = Math.random() * 2 * Math.PI
+            }
+          }
+
+          watch(resizeRef, setupCircleView)
+          watch(() => props.allImages, setupCircleView)
+          setupCircleView()
+        })
+  })
 
 })
 </script>

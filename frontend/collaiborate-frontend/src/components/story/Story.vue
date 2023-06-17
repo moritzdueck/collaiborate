@@ -1,21 +1,21 @@
 <template>
   <div style="position: relative">
     <div style="height: 100vh; width: 100vw;">
-      <LandingPage :all-images="allImages"></LandingPage>
+      <LandingPage :all-images="allImages" v-on:show-demo="$emit('showDemo')"></LandingPage>
     </div>
 
     <div
-        style="width:100%; height: 40vh; background-color: #d7d7d73d; backdrop-filter: blur(2px); display: flex; justify-content: center; align-items: end">
+        style="width:100%; height: 20vh; background-color: #d7d7d73d; backdrop-filter: blur(2px); display: flex; justify-content: center; align-items: end">
       <h3 style="margin-bottom: 20px">At any point, choose a different sample for the story:</h3>
     </div>
 
     <div
         style="position: sticky; top: 0; left: 0; padding: 10px; width: 100%; display: flex; align-items: center; justify-content: center; z-index: 999; backdrop-filter: blur(2px); background-color: #d7d7d73d;">
-      <SampleSidebar :all-images="allImages" v-model="sample"/>
+      <SampleSidebar :all-images="allImages" v-model="sample" v-show="displaySidebar"/>
     </div>
 
     <div
-        style="width:100%; height: 30vh; background-color: white; display: flex; justify-content: center; align-items: end">
+        style="width:100%; height: 20vh; background-color: white; display: flex; justify-content: center; align-items: end">
     </div>
 
     <div style="width:100vw; display: flex">
@@ -23,19 +23,21 @@
 
       <div id="story" style="position: sticky; top: 100px; height: 80vh; width: 60vw; background-color: white">
 
+<!--
         <div v-if="textIndex === 0" style=" height: 100%; width: 100%; border: 30px solid rgba(0,0,0,0);">
         </div>
+-->
 
-        <div v-if="textIndex === 1" style=" height: 100%; width: 100%; border: 30px solid rgba(0,0,0,0);">
+        <div v-show="textIndex === 1" style=" height: 100%; width: 100%; border: 30px solid rgba(0,0,0,0);">
           <DistancesStoryStep :sample="sample" :show-controls="true" :initial-layer="0"/>
         </div>
 
-        <div v-if="textIndex === 2" style=" height: 100%; width: 100%; border: 30px solid rgba(0,0,0,0);">
+        <div v-show="textIndex === 2" style=" height: 100%; width: 100%; border: 30px solid rgba(0,0,0,0);">
           <DistancesStoryStep :sample="sample" :show-controls="true" :initial-layer="13"/>
         </div>
 
         <div v-if="textIndex === 3" style=" height: 100%; width: 100%; border: 30px solid rgba(0,0,0,0);">
-          <SimpleNeighborhood v-if="allImages"
+          <SimpleNeighborhoodUnsorted v-if="allImages"
                               :transition-duration="1000"
                               :allImages="allImages" :index="sample" :num-samples="numSamples" :img-size="25"
                               color="var(--yellow)" :referenceLayer="0" :comparison-layer="0"/>
@@ -75,13 +77,55 @@
         <div v-if="textIndex === 9"
              style=" height: 100%; width: 100%; border: 30px solid rgba(0,0,0,0);">
 
-          <ParallelLines :data="lines" :selection="[]" v-on:selection="" :enable-brush="false"/>
+          <ParallelLines :animate-line-draw="currentDirection==='down'" :data="lines" :selection="[]" v-on:selection=""
+                         :enable-brush="false"/>
 
+        </div>
+
+        <div v-if="textIndex === 10"
+             style=" height: 100%; width: 100%; border: 30px solid rgba(0,0,0,0);">
+
+          <ParallelLines :animate-line-draw="false" :data="lines" v-if="lines"
+                         :selection="lines.items.filter(l => l.y === classes.indexOf('wine bottle')).map(item => item.idx)"
+                         v-on:selection="" :enable-brush="false"/>
+
+        </div>
+
+        <div v-if="textIndex === 11"
+             style=" height: 100%; width: 100%; border: 30px solid rgba(0,0,0,0);">
+
+          <ParallelLines :animate-line-draw="false" :data="lines" v-if="lines"
+                         :selection="lines.items.filter(l => l.y === classes.indexOf('wine bottle')).filter(l => l.mean > 71).map(item => item.idx)"
+                         v-on:selection="" :enable-brush="false"/>
+
+        </div>
+
+        <div v-if="textIndex === 12"
+             style=" height: 100%; width: 100%; border: 30px solid rgba(0,0,0,0);">
+
+          <ParallelLines :animate-line-draw="false" :data="lines" v-if="lines"
+                         :selection="lines.items.filter(l => l.y === classes.indexOf('wine bottle')).filter(l => l.mean < 35).map(item => item.idx)"
+                         v-on:selection="" :enable-brush="false"/>
+
+        </div>
+
+        <div v-if="textIndex === 13" style=" height: 100%; width: 100%; border: 30px solid rgba(0,0,0,0);">
+          <SimpleNeighborhoodUnsorted v-if="allImages"
+                              :transition-duration="1000"
+                              :allImages="allImages" :index="sample" :num-samples="numSamples" :img-size="25"
+                              color="var(--yellow)" :referenceLayer="0" :comparison-layer="0"/>
+        </div>
+
+        <div v-if="[14,15,16].includes(textIndex)" style=" height: 100%; width: 100%; border: 30px solid rgba(0,0,0,0);">
+          <SimpleNeighborhood v-if="allImages"
+                                      :transition-duration="1"
+                                      :allImages="allImages" :index="sample" :num-samples="numSamples" :img-size="25"
+                                      color="var(--yellow)" :referenceLayer="getRightLayer()" :comparison-layer="0"/>
         </div>
 
       </div>
       <div>
-        <div style="height: 30vh;" :class="'text-block'" id="84373847"></div>
+        <div style="height: 0;" :class="'text-block'" id="84373847"></div>
 
         <h2 style="padding: 20px">1. Distances</h2>
 
@@ -135,7 +179,7 @@
           <p></p>
         </div>
 
-        <h2 style="padding: 20px">2. Let's zoom in!</h2>
+        <h2 style="padding: 20px">2. Building a visualization</h2>
 
         <div :class="'text-block ' + ((activeText === '209834')? 'active' : '')" id="209834">
           <p>
@@ -193,13 +237,12 @@
               :src="'data:image/png;base64, ' + allImages[sample]" alt=""/></span>, we can thus record the following
             result:
 
-            {{ overlapCount }} of the {{ numSamples }} closest samples in the <span class="layer input"
+            <span class="text-highlight">{{ overlapCount }} of the {{ numSamples }} nearest neighbors in the <span class="layer input"
                                                                                     style="padding: 5px; margin: -5px;">input</span>
-            layer are still part of the {{ numSamples }} closest samples of the sketch in the intermediate
-            representation
-            after the
+            layer are still part of the {{ numSamples }} nearest neighbors after the
             <span style="padding: 5px" :class="'layer '+lineLayer.type">
-            {{ lineLayer.label }} </span> layer.
+            {{ lineLayer.label }} </span> layer </span>, i.e. in the intermediate latent space created by propagating all
+            samples through the network up to that layer.
           </p>
 
         </div>
@@ -224,9 +267,12 @@
             variation.
           </p>
         </div>
+
+        <h2 style="padding: 20px">3. Exploring our new visualization</h2>
+
         <div :class="'text-block ' + ((activeText === '965932')? 'active' : '')" id="965932">
           <p>
-            For the whole dataset, several things are noteworthy:
+            When we include the sketches from the whole dataset, several things are noteworthy:
           </p>
           <ul>
             <li>the number of remaining neighbors continuously decreases, confirming that <span class="text-highlight"> the network
@@ -246,25 +292,104 @@
         <div :class="'text-block ' + ((activeText === '758388')? 'active' : '')" id="758388">
           <p>
             We already established that the visualization depends on the data, now we are going to explore some
-            effects in more detail. Let's start by subsetting the data to only wine bottles.
+            effects in more detail. Let's start by subsetting the data to <span
+              class="text-highlight">only wine bottles</span>.
           </p>
           <p>
-            We see that they significantly differ from the other trajectories of other classes. Our hypothesis is
+            We see that they significantly differ from the other trajectories of other classes, many of the samples
+            keep many of their neighbors throughout the transformations of the network. Our hypothesis is
             that as there is little variation in the way people draw wine bottles, the numerical representations
-            are very similar to each other. Therfore, the mathematical operations performed by the network also
+            are very similar to each other. Therefore, the mathematical operations performed by the network also
             transform them in similar ways.
           </p>
         </div>
+
+
+        <div :class="'text-block ' + ((activeText === '2399230')? 'active' : '')" id="2399230">
+          <p>
+            Let's pick a few samples of wine bottles with trajectories indicating stable neighborhoods,
+            i.e. <span class="text-highlight">high numbers throughout</span>:
+          </p>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <span v-if="allImages && lines"
+                  v-for="s of lines.items.filter(l => l.y === classes.indexOf('wine bottle')).filter(l => l.mean > 71).map(item => item.idx)">
+              <img :src="'data:image/png;base64, ' + allImages[s]" alt=""/>
+            </span>
+          </div>
+
+          <p>
+            They tend to be very <span class="text-highlight">prototypical wine bottles</span>. This is in line with the argumentation above:
+            These samples potentially have other sketches surrounding them that are so similar, that they always stick together while being
+            transformed.
+          </p>
+        </div>
+
         <div :class="'text-block ' + ((activeText === '623811')? 'active' : '')" id="623811">
           <p>
-            Looking at the few outliers labelled as wine bottles, we can see some interesting cases. Once we
-            indeed see that
+            Looking at the other end of the spectrum within the sketches labelled as wine bottles, we can see some
+            interesting cases.
+            Here are the samples:
           </p>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <span v-if="allImages && lines"
+                  v-for="s of lines.items.filter(l => l.y === classes.indexOf('wine bottle')).filter(l => l.mean < 35).map(item => item.idx)">
+              <img :src="'data:image/png;base64, ' + allImages[s]" alt=""/>
+            </span>
+          </div>
+
           <p>
-            We see that they significantly differ from the other trajectories of other classes. Our hypothesis is
-            that as there is little variation in the way people draw wine bottles, the numerical representations
-            are very similar to each other. Therfore, the mathematical operations performed by the network also
-            transform them in similar ways.
+            The <span class="text-highlight">sketches with low numbers tend to be either mislabelled or wine bottles drawn in unusual ways</span>,
+            i.e. with a glass next to the bottle.
+            For these cases, the surrounding closest samples are less uniform and therefore we see more variation.
+          </p>
+        </div>
+
+        <h2 style="padding: 20px">4. Let's zoom in!</h2>
+
+        <div :class="'text-block ' + ((activeText === '3490339')? 'active' : '')" id="3490339">
+          <p>
+           Our global view allows us to find interesting sketches, yet up to know we had to speculate about what happens
+            concretely within the neighborhood of each sample. Now we will change this. We go back to the local neighborhood,
+            showing the {{numSamples}} nearest neighbors from all given sketches for our sketch.
+          </p>
+        </div>
+
+        <div :class="'text-block ' + ((activeText === '9439340')? 'active' : '')" id="9439340">
+          <p>
+           As we like it neat and tidy, we sort the neighbors by their label and put them into different sectors. The size
+            of each sector corresponds to the share of samples of this class in the neighborhood.
+
+            If you haven't changed the samples at the top so far, this is a good time to do so!
+          </p>
+        </div>
+
+        <div :class="'text-block ' + ((activeText === '124111')? 'active' : '')" id="124111">
+          <p>
+            Let's watch our sketches as their get transformed by the first layer of the network. We trace the movement of
+            the sketches with green when they move closer and red if they move away. The convolutional layer is an
+            interesting one to start with: Convolutional layers can be interpreted as filters in classical image processing
+            that respond to simple lines and shapes in early layers, and more and more complex features in later layers.
+            Can you generate an hypothesis why the samples move like they do right here?
+          </p>
+        </div>
+
+
+        <div :class="'text-block ' + ((activeText === '34099')? 'active' : '')" id="34099">
+          <p>
+            We can jump all the way to the end of the network now. There's a lot to explain here that I haven't put
+            into nice words yet!
+          </p>
+        </div>
+
+
+        <div :class="'text-block ' + ((activeText === '0348281')? 'active' : '')" id="0348281">
+          <p>
+            Feel free to explore for yourself now in our
+            <span class="jump-section" @click="$emit('showDemo')">
+               Explorer
+            <img class="right" src="/arrow_right.svg">
+            </span>
+
           </p>
         </div>
 
@@ -285,17 +410,24 @@ import ParallelLineStory from "./parallelLines/ParallelLineStory.vue";
 import DistancesStoryStep from "./distances/DistancesStoryStep.vue";
 import SimpleNeighborhood from "../reusables/SimpleNeighborhood.vue";
 import ParallelLines from "../shared/ParallelLines.vue";
+import SimpleNeighborhoodUnsorted from "../reusables/SimpleNeighborhoodUnsorted.vue";
 
 const props = defineProps({
   allImages: {} as any,
   lines: {}
 })
+
+defineEmits({
+  showDemo: () => true
+})
+
 const activeText = ref("")
 const textIndex = ref(0)
+const currentDirection = ref("down" as 'down' | 'up')
 const currentProgress = ref(0)
 const scroller = scrollama();
 const sample = ref(110635)
-
+const displaySidebar = ref(true)
 const lineLayer = ref(layers[1])
 const overlapCount = ref(0)
 const numSamples = ref(100)
@@ -309,6 +441,11 @@ onMounted(() => {
       .onStepEnter((e: any) => {
         activeText.value = e.element.id
         textIndex.value = e.index
+        currentDirection.value = e.direction
+
+
+        displaySidebar.value = textIndex.value < 8 || textIndex.value > 12
+
       })
       .onStepProgress((e: any) => {
         currentProgress.value = e.progress
@@ -327,6 +464,18 @@ const ordinalLayer = computed(() => {
 
 const sampleLabel = computed(() => samples[sample.value].label)
 
+
+const getRightLayer = () => {
+  if(textIndex.value === 14){
+    return 0
+  }
+  if(textIndex.value === 15){
+    return 1
+  }
+  if(textIndex.value === 16){
+    return 12
+  }
+}
 
 </script>
 
@@ -348,7 +497,7 @@ const sampleLabel = computed(() => samples[sample.value].label)
 }
 
 .text-block:last-of-type {
-  margin-bottom: 500px;
+  margin-bottom: 60vh;
 }
 
 .active {

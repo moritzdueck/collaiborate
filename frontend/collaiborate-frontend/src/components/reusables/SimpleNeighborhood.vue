@@ -89,6 +89,9 @@ function setupCircleView() {
       .attr('y', height / 2 - 15)
 
   const update = (selection) => {
+
+    d3.selectAll().transition("moveInOut").transition().duration(0)
+
     if(!props.allImages){
       return;
     }
@@ -204,12 +207,11 @@ function setupCircleView() {
         .attr("y1", d => scaleOld(neighborsRefBefore.value[d]) * r * Math.sin(angleLookup[d]) + height / 2)
         .attr("x2", d => scaleR(neighborsRef.value[d]) * r * Math.cos(angleLookup[d]) + width / 2)
         .attr("y2", d => scaleR(neighborsRef.value[d]) * r * Math.sin(angleLookup[d]) + height / 2)
-        .style("stroke", d => scaleOld(neighborsRefBefore.value[d]) > scaleR(neighborsRef.value[d]) ? "green" : "red")
-        .style("opacity", 0.1)
+        .style("stroke", d => scaleOld(neighborsRefBefore.value[d]) > scaleR(neighborsRef.value[d]) ? "var(--green)" : "var(--red)")
+        .style("opacity", 0.3)
         .attr("class", "move")
 
     // __________ SKETCHES _____________
-
     const radii = {}
     svg.selectAll('image.n')
         .data(Object.entries(neighbors).sort((a, b) => a[1] - b[1]).slice(0, 1000), item => item[0])
@@ -224,7 +226,7 @@ function setupCircleView() {
                 .attr('opacity', 0)
                 .each(d => radii[d[0]] = (scaleR(d[1]) * r))
                 .attr('class', 'n closer')
-                .transition()
+                .transition("moveInOut")
                 .ease(d3.easeLinear)
                 .duration(props.transitionDuration || 3000)
                 .attr('x', (d) => (scaleR(d[1]) * r * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize/2))
@@ -234,7 +236,7 @@ function setupCircleView() {
             update => update
                 .attr('x', (d) => (radiiBefore[d[0]] * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize/2))
                 .attr('y', (d) => (radiiBefore[d[0]] * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize/2))
-                .transition()
+                .transition("moveInOut")
                 .ease(d3.easeLinear)
                 .duration(props.transitionDuration || 3000)
                 .attr('x', (d) => (scaleR(d[1]) * r * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize/2))
@@ -245,7 +247,7 @@ function setupCircleView() {
             exit => exit
                 .attr('x', (d) => (radiiBefore[d[0]] * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize/2))
                 .attr('y', (d) => (radiiBefore[d[0]] * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize/2))
-                .transition()
+                .transition("moveInOut")
                 .ease(d3.easeLinear)
                 .duration(props.transitionDuration || 3000)
                 .attr('x', (d) => (scaleR(neighborsRef.value[d[0]]) * r * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize/2))

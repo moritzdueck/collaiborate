@@ -116,3 +116,35 @@ h1 {
   /*background-color: var(--grey);*/
   border: 3px solid var(--red);
 }
+
+.jump-section {
+  font-weight: bold;
+  font-size: large;
+  position: relative;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.jump-section > img.right {
+  position: absolute;
+  top: -34px;
+  right: -74px;
+  z-index: 1;
+  transition: right 0.3s ease;
+}
+
+.jump-section:hover > img.right  {
+  right: -84px;
+}
+
+.jump-section > img.up {
+  position: absolute;
+  top: -34px;
+  right: 56px;
+  z-index: -2;
+  transition: top 0.3s ease;
+}
+
+.jump-section:hover > img.up  {
+  top: -44px;
+}
