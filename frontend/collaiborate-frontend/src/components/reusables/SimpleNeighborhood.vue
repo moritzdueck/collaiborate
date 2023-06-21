@@ -18,6 +18,8 @@ const neighborsData = shallowRef([])
 const labels = shallowRef([])
 const counts = ref(undefined)
 
+const updateDone = ref(0)
+
 const props = defineProps(['allImages', 'index', 'numSamples', 'imgSize', 'color', 'referenceLayer', 'comparisonLayer', 'transitionDuration'])
 const emit = defineEmits(['index'])
 
@@ -79,7 +81,7 @@ function setupCircleView() {
       .attr("stroke-width", "3px")
 
   svg.selectAll("#center")
-      .data(['data:image/png;base64, '+ props.allImages[props.index]])
+      .data(['data:image/png;base64, ' + props.allImages[props.index]])
       .enter()
       .append('image')
       .attr('xlink:href', (d) => d)
@@ -92,7 +94,10 @@ function setupCircleView() {
 
     d3.selectAll().transition("moveInOut").transition().duration(0)
 
-    if(!props.allImages){
+    svg.selectAll('circle')
+        .attr("stroke", props.color)
+
+    if (!props.allImages) {
       return;
     }
 
@@ -218,9 +223,9 @@ function setupCircleView() {
         .join(
             enter => enter
                 .append('image')
-                .attr('xlink:href', (d) => 'data:image/png;base64, '+ props.allImages[d[0]])
-                .attr('x', (d) => ((scaleOld(neighborsRefBefore.value[d[0]]) * r) * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize/2))
-                .attr('y', (d) => ((scaleOld(neighborsRefBefore.value[d[0]]) * r) * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize/2))
+                .attr('xlink:href', (d) => 'data:image/png;base64, ' + props.allImages[d[0]])
+                .attr('x', (d) => ((scaleOld(neighborsRefBefore.value[d[0]]) * r) * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize / 2))
+                .attr('y', (d) => ((scaleOld(neighborsRefBefore.value[d[0]]) * r) * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize / 2))
                 .attr('width', imgSize)
                 .attr('height', imgSize)
                 .attr('opacity', 0)
@@ -229,29 +234,29 @@ function setupCircleView() {
                 .transition("moveInOut")
                 .ease(d3.easeLinear)
                 .duration(props.transitionDuration || 3000)
-                .attr('x', (d) => (scaleR(d[1]) * r * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize/2))
-                .attr('y', (d) => (scaleR(d[1]) * r * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize/2))
+                .attr('x', (d) => (scaleR(d[1]) * r * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize / 2))
+                .attr('y', (d) => (scaleR(d[1]) * r * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize / 2))
                 .attr('opacity', 1)
                 .selection(),
             update => update
-                .attr('x', (d) => (radiiBefore[d[0]] * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize/2))
-                .attr('y', (d) => (radiiBefore[d[0]] * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize/2))
+                .attr('x', (d) => (radiiBefore[d[0]] * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize / 2))
+                .attr('y', (d) => (radiiBefore[d[0]] * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize / 2))
                 .transition("moveInOut")
                 .ease(d3.easeLinear)
                 .duration(props.transitionDuration || 3000)
-                .attr('x', (d) => (scaleR(d[1]) * r * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize/2))
-                .attr('y', (d) => (scaleR(d[1]) * r * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize/2))
+                .attr('x', (d) => (scaleR(d[1]) * r * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize / 2))
+                .attr('y', (d) => (scaleR(d[1]) * r * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize / 2))
                 .each(d => radii[d[0]] = (scaleR(d[1]) * r))
                 .attr('class', d => scaleOld(neighborsBefore[d]) > scaleR(neighbors[d]) ? "closer n" : "away n")
                 .selection(),
             exit => exit
-                .attr('x', (d) => (radiiBefore[d[0]] * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize/2))
-                .attr('y', (d) => (radiiBefore[d[0]] * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize/2))
+                .attr('x', (d) => (radiiBefore[d[0]] * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize / 2))
+                .attr('y', (d) => (radiiBefore[d[0]] * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize / 2))
                 .transition("moveInOut")
                 .ease(d3.easeLinear)
                 .duration(props.transitionDuration || 3000)
-                .attr('x', (d) => (scaleR(neighborsRef.value[d[0]]) * r * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize/2))
-                .attr('y', (d) => (scaleR(neighborsRef.value[d[0]]) * r * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize/2))
+                .attr('x', (d) => (scaleR(neighborsRef.value[d[0]]) * r * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize / 2))
+                .attr('y', (d) => (scaleR(neighborsRef.value[d[0]]) * r * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize / 2))
                 .attr('opacity', 0)
                 .remove()
         );

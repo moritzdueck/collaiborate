@@ -159,12 +159,8 @@ class Neighborhood(Resource):
         self.base_df = kwargs['base_df']
 
     def get(self, sketch_index):
-        result = []
-        for n in self.base_df.loc[sketch_index][0:14000]:
-            idx = self.base_df.iloc[n].name
-            result.append(int(idx))
-
-        all_samples = set(result)
+        lookup = dict(zip(range(len(base_df.index)), list(base_df.index)))
+        all_samples = [lookup[x] for x in list(base_df.loc[sketch_index].unique())[:-1]]
 
         all_layers = {}
         for layer in range(14):

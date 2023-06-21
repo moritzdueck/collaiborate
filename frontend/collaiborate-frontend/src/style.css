@@ -64,30 +64,6 @@ h1 {
   color: black;
 }
 
-.input.active, .input:hover, .output.active, .output:hover {
-  background-color: var(--yellow);
-}
-
-.convolution.active, .convolution:hover {
-  background-color: var(--purple);
-}
-
-.relu.active, .relu:hover {
-  background-color: var(--teal);
-}
-
-.max-pooling.active, .max-pooling:hover {
-  background-color: var(--orange);
-}
-
-.flatten.active, .flatten:hover {
-  background-color: var(--blue);
-}
-
-.linear.active, .linear:hover {
-  background-color: var(--red);
-}
-
 .input, .output {
   border: 3px solid var(--yellow);
 }
@@ -117,6 +93,46 @@ h1 {
   border: 3px solid var(--red);
 }
 
+.convolution.passive-gray,
+.relu.passive-gray,
+.max-pooling.passive-gray,
+.flatten.passive-gray,
+.linear.passive-gray,
+.input.passive-gray,
+.output.passive-gray{
+  border: 3px solid var(--gray);
+}
+
+.input.active, .input:hover, .output.active, .output:hover {
+  /*background-color: var(--yellow);*/
+  border: 3px solid var(--yellow);
+}
+
+.convolution.active, .convolution:hover {
+  /*background-color: var(--purple);*/
+  border: 3px solid var(--purple);
+}
+
+.relu.active, .relu:hover {
+  /*background-color: var(--teal);*/
+  border: 3px solid var(--teal);
+}
+
+.max-pooling.active, .max-pooling:hover {
+  /*background-color: var(--orange);*/
+  border: 3px solid var(--orange);
+}
+
+.flatten.active, .flatten:hover {
+  /*background-color: var(--blue);*/
+  border: 3px solid var(--blue);
+}
+
+.linear.active, .linear:hover {
+  /*background-color: var(--red);*/
+  border: 3px solid var(--red);
+}
+
 .jump-section {
   font-weight: bold;
   font-size: large;
@@ -137,14 +153,14 @@ h1 {
   right: -84px;
 }
 
-.jump-section > img.up {
+.jump-section > img.left {
   position: absolute;
-  top: -34px;
-  right: 56px;
+  top: -30px;
+  left: -60px;
   z-index: -2;
-  transition: top 0.3s ease;
+  transition: left 0.3s ease;
 }
 
-.jump-section:hover > img.up  {
-  top: -44px;
+.jump-section:hover > img.left  {
+  left: -70px;
 }

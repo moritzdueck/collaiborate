@@ -1,13 +1,13 @@
 <template>
   <div class="distance-story-container">
     <div>
-      <Distances :layer="layer" :sample="sample"/>
-    </div>
-    <div>
       <div>
         <CnnLayers :style="{visibility: showControls? 'visible' : 'hidden'}" class="layer-selection" :initial-layer="layer"
                    v-on:selected-layer="l => layer = l"/>
       </div>
+    </div>
+    <div>
+      <Distances :layer="layer" :sample="sample"/>
     </div>
 
   </div>

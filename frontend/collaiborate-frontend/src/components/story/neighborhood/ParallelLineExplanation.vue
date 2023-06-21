@@ -8,7 +8,7 @@
 import {onMounted, ref, shallowRef, watch} from "vue";
 import * as d3 from "d3";
 import useResizeObserver from "../../../use/resizeObserver.js";
-import {getNeighborhoodForSample} from "../../../utils/utils.ts";
+import {getNeighborhoodForSample, layers} from "../../../utils/utils.ts";
 
 const {resizeRef, resizeState} = useResizeObserver();
 const svgRef = ref(null);
@@ -30,8 +30,6 @@ const timeouts = []
 
 
 function setupCircleView() {
-
-  console.log("setup")
 
   const margin = {top: 50, right: 50, bottom: 50, left: 50}
   const {width, height} = resizeState.dimensions;
@@ -261,8 +259,6 @@ function setupCircleView() {
     svgContainer.selectAll(".axis").remove()
 
 
-    console.log("realign")
-
     background.selectAll('.pie')
         .transition("connectAnimation")
         .ease(d3.easeCubicOut)
@@ -359,16 +355,6 @@ function setupCircleView() {
 
     d3.selectAll().interrupt("connectAnimation")
 
-    // svgContainer.selectAll("line.connect").interrupt()
-    // background1.selectAll('.pie').interrupt()
-    // background1.selectAll('circle').interrupt()
-    // svgContainer.selectAll("image").interrupt()
-    // background2.selectAll('.pie').interrupt()
-    // background2.selectAll('circle').interrupt()
-    // svgContainer.selectAll("image.n").interrupt()
-
-    console.log("shrink")
-
     background1.selectAll('.pie')
         .transition("connectAnimation")
         .ease(d3.easeCubicOut)
@@ -439,7 +425,7 @@ function setupCircleView() {
 
     let scale = d3.scaleLinear()
         .domain([0, props.numSamples])
-        .range([innerWidth, 0]);
+        .range([innerWidth, 50]);
 
     svgContainer.selectAll("line.connect")
         .transition("shrink")
@@ -472,6 +458,16 @@ function setupCircleView() {
         })
 
     axisSelection
+        .append("text")
+        .style("text-anchor", "end")
+        .attr("x", 30)
+        .attr("y", 0)
+        .text(function (d, i) {
+          return layers[1].label
+        })
+        .style("fill", "black")
+
+    axisSelection
         // Add axis title
         .append("circle")
         .attr("cx", scale(summaryCount.value))
@@ -495,8 +491,8 @@ function setupCircleView() {
     } else if (step === 2) {
       timeouts.forEach(t => clearTimeout(t));
 
-      realign(svg1, background1, height / 2 - 80)
-      realign(svg2, background2, 80)
+      realign(svg1, background1, innerHeight / 2 - 60 - 15)
+      realign(svg2, background2, 60 - 15)
       timeouts.push(setTimeout(connect, 1500));
     } else if (step === 3) {
       timeouts.forEach(t => clearTimeout(t));

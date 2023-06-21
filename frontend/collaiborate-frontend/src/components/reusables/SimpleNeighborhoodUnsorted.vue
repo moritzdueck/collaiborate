@@ -24,9 +24,16 @@ const emit = defineEmits(['index'])
 const classes = ['airplane', 'apple', 'bee', 'car', 'dragon', 'mosquito', 'moustache', 'mouth', 'pear', 'piano', 'pineapple', 'smiley face', 'train', 'umbrella', 'wine bottle']
 
 watch(() => props.referenceLayer, (layer) => {
-  neighborsRefBefore.value = neighborsRef.value
+  // neighborsRefBefore.value = neighborsRef.value
   neighborsRef.value = neighborsData.value[layer];
 })
+
+
+watch(() => props.comparisonLayer, (layer) => {
+  // neighborsRefBefore.value = neighborsRef.value
+  neighborsRefBefore.value = neighborsData.value[layer];
+})
+
 
 // watch(() => props.comparisonLayer, (layer) => {
 //   neighborsRefBefore.value = neighborsData.value[layer];
@@ -190,7 +197,7 @@ function setupCircleView() {
 
   update();
   watch(neighborsRef, update)
-  // watch(neighborsRefBefore, update)
+  watch(neighborsRefBefore, update)
   watch(() => props.numSamples, update)
 }
 

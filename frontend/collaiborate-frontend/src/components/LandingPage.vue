@@ -1,20 +1,20 @@
 <template>
-  <div style="overflow: hidden; position: relative; height: 100vh">
+  <div style="position: relative; height: 100vh; overflow: hidden">
 
     <div ref="n1" id="n1"
          :style="{width: '220px', height:'220px', position: 'absolute', cursor: 'grab'}">
       <SimpleNeighborhood v-if="allImages"
                           :transition-duration="100"
                           :allImages="allImages" index="146028" :num-samples="70" :img-size="15"
-                          color="var(--red)" :referenceLayer="layer1" :comparison-layer="0"/>
+                          color="var(--gray)" :referenceLayer="layer1" :comparison-layer="0"/>
     </div>
 
     <div ref="n2" id="n2"
          :style="{width: '600px', height:'600px', position: 'absolute', cursor: 'grab'}">
       <SimpleNeighborhood v-if="allImages"
-                          :transition-duration="100"
-                          :allImages="allImages" index="271551" :num-samples="samples" :img-size="25"
-                          color="var(--yellow)" :referenceLayer="layer2" :comparison-layer="0"/>
+                          :transition-duration="200"
+                          :allImages="allImages" index="271551" :num-samples="200" :img-size="25"
+                          color="var(--gray)" :referenceLayer="layer2" :comparison-layer="0"/>
     </div>
 
     <div ref="n3" id="n3"
@@ -22,7 +22,7 @@
       <SimpleNeighborhood v-if="allImages"
                           :transition-duration="100"
                           :allImages="allImages" index="101647" :num-samples="50" :img-size="15"
-                          color="var(--blue)" :referenceLayer="layer3" :comparison-layer="0"/>
+                          color="var(--gray)" :referenceLayer="layer3" :comparison-layer="0"/>
     </div>
 
     <div :style="{width: '150px', position: 'absolute', right: '100px', bottom: '80px'}">
@@ -93,7 +93,7 @@ onMounted(() => {
   layer1.value = Math.max(0, Math.min(Math.floor(((n1.value.offsetLeft + n1.value.clientWidth / 2) / window.innerWidth) * 13), 13))
 
   n2.value.style.left = window.innerWidth * 0.3 + "px"
-  n2.value.style.top = window.innerHeight * 0.5 + "px"
+  n2.value.style.top = window.innerHeight * 0.45 + "px"
   layer2.value = Math.max(0, Math.min(Math.floor(((n2.value.offsetLeft + n2.value.clientWidth / 2) / window.innerWidth) * 13), 13))
 
   n3.value.style.left = window.innerWidth * 0.7 + "px"

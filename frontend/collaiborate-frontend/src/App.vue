@@ -48,6 +48,7 @@ const updateExplorerIndex = (index: number) => explorerIndex.value = index;
   --purple: #BD7EBE;
   --lavender: #BEB9DB;
   --red: #FC7F6F;
+  --red-transparent: #FC7F6FB2;
   --rose: #FDCCE5;
   --orange: #FFB55A;
   --yellow: #FFEE65;

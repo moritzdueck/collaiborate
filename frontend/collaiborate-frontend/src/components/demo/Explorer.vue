@@ -1,21 +1,22 @@
 <template>
-  <div style="display: flex; flex-direction: column; height: 100vh; width: 100%; ">
+  <div style="display: flex; flex-direction: column; height: 100vh; width: 100%; overflow: hidden;">
     <div class="projection-container__menu">
 
-      <div>
-        <span class="jump-section" @click="$emit('story')">
-          Back to the story
-          <img class="up" src="/arrow_up.svg">
-        </span>
-      </div>
-
+      <span/>
       <span>Projection</span>
       <span>Visualization type</span>
       <span>Color points by</span>
       <span>Restrict Labels</span>
       <span>Restrict Predictions</span>
       <span></span>
-      <span></span>
+
+      <div style="padding-left: 50px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: -15px">
+        <span class="jump-section" @click="$emit('story')">
+          Back to the story
+          <img class="left" src="/arrow_left.svg">
+        </span>
+      </div>
+
       <Dropdown v-model="projection" editable :options="projectionOptions"
                 placeholder="Select a Projection"/>
 
@@ -67,7 +68,7 @@
           </div>
         </template>
       </MultiSelect>
-      <Button v-if="selection.length > 0" @click="selection = []">X</Button>
+      <span class="reset-button" v-if="selection.length > 0" @click="handleSelection([])">Reset</span>
     </div>
 
     <div class="explorer-container">
@@ -85,11 +86,6 @@
 
         <!--   Class mode   -->
 
-        <div class="legend__class" v-if="mode === 'class'">
-          <p>true class</p>
-          <p class="samples__wrong-prediction">prediction, in case it is wrong</p>
-        </div>
-
         <div class="samples-container" v-if="mode === 'class'">
           <div v-for="(sketch, i) of sketches" class="sample">
             <a @click="selection.length && emit('index', selection[i]?.id )"
@@ -97,7 +93,7 @@
             <span>{{ sketch[0].label }}</span>
             <span v-if="sketch[0].label === sketch[0].prediction"/>
             <span v-if="sketch[0].label !== sketch[0].prediction"
-                  class="samples__wrong-prediction">{{ sketch[0].prediction }}</span>
+                  class="samples__wrong-prediction">predicted: {{ sketch[0].prediction }}</span>
             <img class="samples__image" :src="sketch[1]"/>
           </div>
         </div>
@@ -210,8 +206,6 @@ const reloadData = (viewport: number[]) => {
           + '/' + viewport[3].toPrecision(8))
       : ''
 
-  console.log(viewportPath)
-
   if (selectedTrueClasses.value.length > 0 || selectedPredictedClasses.value.length > 0) {
 
     const filterString = 't' + selectedTrueClasses.value.join("-") + 'p' + selectedPredictedClasses.value.join("-")
@@ -269,6 +263,10 @@ const updateSelectionDisplay = () => {
       path = "lclknn/2000"
   }
 
+  if(selection.value.length === 0){
+    sketches.value = []
+  }
+
   Promise.all(selection.value.slice(0, 32).flatMap((item: any) => [
     fetch(apiUrl + "sketch/" + item.id).then(res => res.json()),
     fetch(apiUrl + "sketch/" + path + "/" + item.id).then(res => res.blob())
@@ -304,9 +302,10 @@ const updateSelectionDisplay = () => {
 
 .projection-container__menu {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 50px;
-  height: 60px;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 100px;
   padding-top: 15px;
+  padding-bottom: 10px;
+  background-color: var(--gray);
 }
 
 .projection-sample-container {
@@ -319,16 +318,19 @@ const updateSelectionDisplay = () => {
   width: 100%;
   flex-grow: 1;
   box-sizing: border-box;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
   gap: 2px;
   background-color: #f9f9f9;
   padding: 5px;
   align-content: start;
   overflow: auto;
+  border: 2px solid var(--gray);
 }
 
 .sample {
+  width: 120px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -341,6 +343,9 @@ const updateSelectionDisplay = () => {
 .sample > span {
   height: 20px;
   font-size: small;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .samples__image {
@@ -383,6 +388,21 @@ const updateSelectionDisplay = () => {
   grid-template-columns: 1fr 1fr 1fr 1fr;
   overflow: auto;
   max-height: 70px;
+}
+
+.reset-button {
+  display: inline-flex;
+  width: 100px;
+  height: 40px;
+  justify-content: center;
+  align-items: center;
+  border: 3px solid var(--red);
+  border-radius: 15px;
+  cursor: pointer;
+}
+
+.reset-button:hover {
+  background-color: var(--red-transparent);
 }
 
 </style>

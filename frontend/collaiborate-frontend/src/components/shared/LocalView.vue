@@ -171,14 +171,8 @@ function setupCircleView() {
     if(!props.allImages)
       return
 
-    console.log("update")
-    console.log(Object.entries(neighborsRef.value))
-
     neighbors = Object.fromEntries(Object.entries(neighborsRef.value).sort((a, b) => a[1] - b[1]).slice(0, 1000))
     neighborsBefore = Object.fromEntries(Object.entries(neighborsRefBefore.value).sort((a, b) => a[1] - b[1]).slice(0, 1000))
-
-    console.log(neighbors)
-    console.log(neighborsBefore)
 
     // __________ LABELS _____________
     const countsTmp = [
@@ -273,9 +267,6 @@ function setupCircleView() {
       }
     }
 
-    console.log(enterLines)
-    console.log(updateLines)
-    console.log(exitLines)
 
     background.selectAll('line')
         .remove()

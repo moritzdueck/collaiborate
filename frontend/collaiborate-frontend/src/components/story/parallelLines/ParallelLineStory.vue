@@ -46,7 +46,7 @@ onMounted(() => {
 
     const xScale = d3.scaleLinear()
         .domain([0, 100])
-        .range([innerWidth, 0])
+        .range([innerWidth, 50])
 
     const yScale = d3.scalePoint()
         .range([1, innerHeight - 1])
@@ -67,7 +67,7 @@ onMounted(() => {
 
       svg.selectAll("path.line").remove()
 
-      let color = () => "var(--blue)"
+      let color = () => "black"
       if(filteredData.length > 1){
        color = d3.scaleSequential().domain([-20, 60])
             .interpolator(d3.interpolateViridis);
@@ -112,11 +112,10 @@ onMounted(() => {
             .append("circle")
             .attr("class", "dot")
             .attr("cx", d => xScale(d))
-            .attr("r", 5)
-            .style("fill", (d, i) => layers[i + 1].color)
+            .attr("r", 2)
+            .style("fill", "black")
       }
 
-      console.log(filteredData.map(d => d.idx))
       svg.selectAll('image').remove()
       svg.selectAll('image')
           .data(filteredData)
@@ -144,12 +143,19 @@ onMounted(() => {
           return "translate(0," + innerHeight / 2 + ")";
         })
 
-    console.log(filteredData[0].layers)
 
 
     // And I build the axis with the call function
-    axis.each(function (d) {
-      d3.select(this).call(d3.axisTop().ticks(10).scale(xScale));
+    axis.each(function (d, i) {
+      d3.select(this).call(d3.axisTop().ticks(10).scale(xScale))
+          .append("text")
+          .style("text-anchor", "end")
+          .attr("x", 30)
+          .attr("y", 0)
+          .text(function (d) {
+            return layers[i+1].label
+          })
+          .style("fill", "black")
     })
 
     axis
@@ -166,8 +172,8 @@ onMounted(() => {
           .append("circle")
           .attr("class", "dot")
           .attr("cx", d => xScale(d))
-          .attr("r", 5)
-          .style("fill", (d, i) => layers[i + 1].color)
+          .attr("r", 3)
+          .style("fill", "black")
     }
 
 

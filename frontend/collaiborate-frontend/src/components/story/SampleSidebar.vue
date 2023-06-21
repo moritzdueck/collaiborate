@@ -27,6 +27,10 @@ const samples = ref([
 </script>
 
 <style scoped>
+.samples__image{
+  width: 45px;
+}
+
 .sample-sidebar {
   width: 100%;
   max-width: 600px;
@@ -34,6 +38,7 @@ const samples = ref([
   border-radius: 100px;
   display: flex;
   flex-direction: row;
+  gap: 10px;
   align-items: center;
   justify-content: space-around;
 }
@@ -43,13 +48,15 @@ const samples = ref([
   background-color: white;
   border-radius: 100px;
   display: inline-flex;
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
+  border: 3px solid white;
 }
 
 .sample-sidebar > span:hover, .sample-sidebar > span.active {
-  border: 5px solid var(--blue);
+  border: 3px solid var(--red);
 }
 </style>

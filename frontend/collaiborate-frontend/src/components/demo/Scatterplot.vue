@@ -1,6 +1,9 @@
 <template>
   <div ref="resizeRef" class="scatter-container">
     <svg ref="svgRef"/>
+    <div style="position: absolute; bottom: 0; right: 0">
+      Hold <span class="key">⇧ Shift</span>  to select samples
+    </div>
   </div>
 
 </template>
@@ -17,7 +20,7 @@ const emit = defineEmits(['selection', 'viewport'])
 const svgRef = ref(null);
 
 onMounted(() => {
-  const margin = {top: 10, right: 10, bottom: 10, left: 10}
+  const margin = {top: 0, right: 0, bottom: 0, left: 0}
   const myColor = d3.scaleOrdinal()
       .domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
       .range(['rgb(31, 119, 180)', 'rgb(174, 199, 232)', 'rgb(255, 127, 14)', 'rgb(255, 187, 120)',
@@ -201,8 +204,26 @@ onMounted(() => {
   width: 100%;
   height: 45vh;
   background-color: white;
-  padding: 20px;
   box-sizing: border-box;
+  border: 2px solid var(--gray);
+  position: relative;
+}
+
+.scatter-container > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.key {
+  border: 1px solid #aaa;
+  border-radius: 0.2em;
+  box-shadow: 0.1em 0.1em 0.2em rgba(0,0,0,0.1);
+  background-color: #f9f9f9;
+  background-image: linear-gradient(to bottom,#eee,#f9f9f9,#eee);
+  color: #000;
+  padding: 0.1em 0.3em;
+  font-family: inherit;
+  font-size: 0.85em;
 }
 
 </style>

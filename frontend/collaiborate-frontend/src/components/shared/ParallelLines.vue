@@ -9,6 +9,7 @@
 import {onMounted, ref, watch} from "vue";
 import * as d3 from "d3";
 import useResizeObserver from "../../use/resizeObserver.js";
+import {layers} from "../../utils/utils"
 
 const {resizeRef, resizeState} = useResizeObserver();
 const props = defineProps(['data', 'selection', 'scatterData', 'enableBrush', 'animateLineDraw'])
@@ -25,8 +26,6 @@ onMounted(() => {
     if (props.data?.length === 0 || !props.data) {
       return
     }
-
-    console.log(props.selection)
 
     let filterF = () => true
 
@@ -56,7 +55,7 @@ onMounted(() => {
     const dimensions = props.data.layers
     const xScale = d3.scaleLinear()
         .domain([0, 100])
-        .range([innerWidth, 0])
+        .range([innerWidth, 50])
 
     const yScale = d3.scalePoint()
         .range([1, innerHeight - 1])
@@ -84,7 +83,6 @@ onMounted(() => {
         .on('end', ({selection}) => brushEnd(selection, filteredData, dimensions, xScale, yScale))
 
     function brushEnd(selection, filteredData, dimensions, xScale, yScale) {
-      console.log(selection)
       const indices = filteredData.filter(item => dimensions
           .map((p, i) => [xScale(item.layers[i]), yScale(p)])
           .some(item => selection[0][0] < item[0] && selection[1][0] > item[0] && selection[0][1] < item[1] && selection[1][1] > item[1])
@@ -92,7 +90,6 @@ onMounted(() => {
 
       if (props.scatterData) {
         const items = props.scatterData.filter(item => indices.includes(item.id))
-        console.log(items)
         emit("selection", items)
       }
 
@@ -144,7 +141,6 @@ onMounted(() => {
           .duration(2000)
     }
 
-
     svg.selectAll("myAxis")
         // For each dimension of the dataset I add a 'g' element:
         .data(dimensions).enter()
@@ -160,10 +156,11 @@ onMounted(() => {
         })
         // Add axis title
         .append("text")
-        .style("text-anchor", "middle")
-        .attr("x", -9)
-        .text(function (d) {
-          return d;
+        .style("text-anchor", "end")
+        .attr("x", 30)
+        .attr("y", 0)
+        .text(function (d, i) {
+          return layers[i].label
         })
         .style("fill", "black")
 
