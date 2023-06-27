@@ -8,6 +8,7 @@
 <!--    <Dropdown v-model="referenceLayer" editable  :options="referenceLayerOptions" placeholder="Select Layer"/>-->
 <!--    <p>and show the change in distance compared to layer</p>-->
 <!--    <Dropdown v-model="comparisonLayer" editable :disabled="!referenceLayer" :options="comparisonLayerOptions" placeholder="Select Layer"/>-->
+    <div class="local-view-layer-option"><span class="layer-pin"/> <span>Choose representation</span></div>
     <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(0)" :class="(lastLayer === 0)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(0)">Input</Button></div>
     <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(1)" :class="(lastLayer === 1)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(1)">(0): Conv2d</Button></div>
     <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(2)" :class="(lastLayer === 2)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(2)">(1): ReLU</Button></div>
@@ -592,6 +593,14 @@ rect.selection {
   opacity: 1;
 }
 
+
+.local-view-layer-option {
+  display: flex;
+  align-items: center;
+}
+.local-view-layer-option > button {
+  width: 100%;
+}
 
 .menu-legend {
   display: flex;

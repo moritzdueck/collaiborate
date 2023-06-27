@@ -22,6 +22,7 @@ const samples = ref([
   185767, // pineapple where first conv reacts strongly to round shapes
   146028, // plane with two wings
   115656, //train where conv layers extract relevant features but linear layers undecided
+  // 32808 // ambigious car train
 ]);
 
 </script>

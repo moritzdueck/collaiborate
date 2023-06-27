@@ -19,6 +19,12 @@
             <p style="writing-mode: vertical-lr;">Sample</p>
             <SampleSidebar :all-images="allImages" v-model="sample"/>
           </div>
+          <div style="display: flex; align-items: center;" v-if="topMenu.showNumSamples">
+            <p style="width: 120px;">{{numSamples2}} neighbors</p>
+            <div style="width: 100%; padding: 10px">
+              <Slider v-model:model-value="numSamples2" :min="2" :max="750"/>
+            </div>
+          </div>
           <div style="display: flex; align-items: center;" v-if="topMenu.showNetwork">
             <p style="writing-mode: vertical-lr;">Representation</p>
             <CnnLayersShapes :initial-layer="layer" v-on:selected-layer="l => layer = l" :controlled="true"/>
@@ -411,9 +417,48 @@
 
         <div :class="'text-block ' + ((activeText === '34099')? 'active' : '')" id="34099">
           <p>
-            We can jump all the way to the end of the network now. There's a lot to explain here that I haven't put
-            into nice words yet!
+            We can jump all the way to the end of the network now.
           </p>
+
+          <SampleFocus :sample="sample" :all-images="allImages" v-if="sample === 110635">
+            We can see that the final neighborhood consists purely of cars. If the sample and sufficiently many
+            other samples of the same class are predicted with high certainty, the logits will be close
+            to each other in euclidean space.
+          </SampleFocus>
+
+          <SampleFocus :sample="sample" :all-images="allImages" v-if="sample === 101647">
+            We can see that the final neighborhood consists purely of wine bottles. This sample is arguably the easiest
+            to classify for the network, a simple KNN classifier in the input space would already clearly identify the
+            sample as a wine bottle.
+          </SampleFocus>
+
+          <SampleFocus :sample="sample" :all-images="allImages" v-if="sample === 272791">
+            This sample shows an interesting trajectory as the initial neighborhood contains a very low number of bees,
+            i.e. the pixel overlap with other bee sketches is rather low. As the drawing is propagated through the layers,
+            more and more bees enter.
+          </SampleFocus>
+
+          <SampleFocus :sample="sample" :all-images="allImages" v-if="sample === 271551">
+            Look at the closest samples to our mosquito from the bee class in the final representation.
+            They are arguably very similar sketches and I myself would classify these bees as a mosquito as well.
+            Good job network!
+          </SampleFocus>
+
+
+<!--          <SampleFocus :sample="sample" :all-images="allImages" v-if="sample === 185767">-->
+<!--            Look at the closest samples to our mosquito from the bee class in the final representation.-->
+<!--            They are arguably very similar sketches and I myself would classify these bees as a mosquito as well.-->
+<!--            Good job network!-->
+<!--          </SampleFocus>-->
+
+
+          <p>
+            Conceptually, the convolutional layers of a CNN are often regarded as feature extractors. One could argue
+            that the representation after the last maxpooling layer is how the network looks at and understands the sample.
+            Try exploring this representation and compare it to the final layers. Do the linear layers still participate in
+            feature extraction?
+          </p>
+
         </div>
 
 
@@ -470,7 +515,8 @@ const numSamples2 = ref(300)
 const redGreenLayer = ref(0)
 const topMenu = ref({
   showSample: true,
-  showNetwork: true
+  showNetwork: true,
+  showNumSamples: true
 })
 
 onMounted(() => {
@@ -486,6 +532,7 @@ onMounted(() => {
 
         topMenu.value.showSample = [0, 1, 2, 3, 4, 5, 6, 7, 13, 14, 15, 16].includes(textIndex.value)
         topMenu.value.showNetwork = [0, 1, 2, 13, 14, 15, 16].includes(textIndex.value)
+        topMenu.value.showNumSamples = [13, 14, 15, 16].includes(textIndex.value)
 
         if (textIndex.value === 1) {
           layer.value = 0

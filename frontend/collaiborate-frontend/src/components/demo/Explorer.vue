@@ -87,9 +87,8 @@
         <!--   Class mode   -->
 
         <div class="samples-container" v-if="mode === 'class'">
-          <div v-for="(sketch, i) of sketches" class="sample">
-            <a @click="selection.length && emit('index', selection[i]?.id )"
-               style="cursor: pointer">{{ selection.length > 0 ? selection[i]?.id : "" }}</a>
+          <div v-for="(sketch, i) of sketches" class="sample" @click="selection.length && emit('index', selection[i]?.id )">
+<!--            <a style="cursor: pointer">{{ selection.length > 0 ? selection[i]?.id : "" }}</a>-->
             <span>{{ sketch[0].label }}</span>
             <span v-if="sketch[0].label === sketch[0].prediction"/>
             <span v-if="sketch[0].label !== sketch[0].prediction"
@@ -321,7 +320,6 @@ const updateSelectionDisplay = () => {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  gap: 2px;
   background-color: #f9f9f9;
   padding: 5px;
   align-content: start;
@@ -338,6 +336,14 @@ const updateSelectionDisplay = () => {
   background-color: white;
   border-radius: 2px;
   padding: 10px;
+  margin: 4px;
+}
+
+.sample:hover {
+  width: 128px;
+  margin: 0;
+  border: 5px solid var(--blue);
+  cursor: pointer;
 }
 
 .sample > span {
