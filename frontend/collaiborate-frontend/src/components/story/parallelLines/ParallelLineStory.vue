@@ -66,6 +66,7 @@ onMounted(() => {
           .filter((item) => props.highlightedSample.includes(item.idx))
 
       svg.selectAll("path.line").remove()
+      svg.selectAll("path.hover").remove()
 
       let color = () => "black"
       if(filteredData.length > 1){
@@ -74,18 +75,50 @@ onMounted(() => {
       }
 
 
+      const o = svg.selectAll("path.hover")
+          .data(filteredData)
+          .enter()
+          .append("path")
+          .attr("d", path)
+          .attr('class', 'hover')
+          .style("fill", "none")
+          .style("stroke", d => color(d.layers[d.layers.length-1]))
+          .style("stroke-width", "30px")
+          .style("opacity", 0)
+          .on('mouseover', function(e,d){
+            svg.selectAll('.parallelLineImg').style('opacity', 0)
+            svg.selectAll('.parallelLineLine').style("stroke", d => '#ccc')
+            svg.selectAll('#line_'+d.idx).style("stroke", d => color(d.layers[d.layers.length-1]))
+            svg.select('#img_'+d.idx).style('opacity', 1)
+          })
+          .on('mouseout', d => {
+            svg.selectAll('.parallelLineImg').style('opacity', 1)
+            svg.selectAll('.parallelLineLine').style("stroke", d => color(d.layers[d.layers.length-1]))
+          })
+
       const svgPath = svg.selectAll("path.line")
           .data(filteredData)
           .enter()
           .append("path")
           .attr("class", function (d) {
-            return "line line " + d.y
+            return "parallelLineLine line line " + d.y
           }) // 2 class for each line: 'line' and the group name
           .attr("d", path)
           .style("fill", "none")
           .style("stroke", d => color(d.layers[d.layers.length-1]))
-          .style("stroke-width", "2px")
-          .style("opacity", 1)
+          .style("stroke-width", "10px")
+          .style("opacity", 0.5)
+          .on('mouseover', function(e,d){
+            svg.selectAll('.parallelLineImg').style('opacity', 0)
+            svg.selectAll('.parallelLineLine').style("stroke", d => '#ccc')
+            svg.selectAll('#line_'+d.idx).style("stroke", d => color(d.layers[d.layers.length-1]))
+            svg.select('#img_'+d.idx).style('opacity', 1)
+          })
+          .on('mouseout', d => {
+            svg.selectAll('.parallelLineImg').style('opacity', 1)
+            svg.selectAll('.parallelLineLine').style("stroke", d => color(d.layers[d.layers.length-1]))
+          })
+
 
       let lengths = []
 
@@ -98,6 +131,7 @@ onMounted(() => {
           .transition()
           .ease(d3.easeLinear)
           .attr("stroke-dashoffset", 0)
+          .attr('id', d => 'line_'+d.idx)
           .delay(function (d, i) {
             return delay + 100 * i;
           })
@@ -124,9 +158,10 @@ onMounted(() => {
           .attr('xlink:href', (d) => 'data:image/png;base64, ' + props.allImages[d.idx])
           .attr('width', 50)
           .attr('height', 50)
-          .attr('class', 'n closer')
-          .attr('x', (d) => xScale(d.layers[0]) -25)
-          .attr('y', (d) => -50)
+          .attr('class', 'parallelLineImg')
+          .attr('id', d => "img_"+d.idx)
+          .attr('x', (d) => xScale(d.layers[13]) -25)
+          .attr('y', (d) => innerHeight)
           .style('opacity', 1)
 
     }
@@ -153,7 +188,7 @@ onMounted(() => {
           .attr("x", 30)
           .attr("y", 0)
           .text(function (d) {
-            return layers[i+1].label
+            return layers[i].label
           })
           .style("fill", "black")
     })

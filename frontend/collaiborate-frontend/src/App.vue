@@ -45,6 +45,7 @@ const updateExplorerIndex = (index: number) => explorerIndex.value = index;
   --blue-transparent: #7EB0D6B2;
   --teal: #8BD3C7;
   --green: #B2E061;
+  --green-transparent: #B2E061B2;
   --purple: #BD7EBE;
   --lavender: #BEB9DB;
   --red: #FC7F6F;
@@ -55,4 +56,19 @@ const updateExplorerIndex = (index: number) => explorerIndex.value = index;
   --gray: #EFEFEF;
   --gray-transparent: #EFEFEFB2;
 }
+
+/*  Navive UI*/
+
+.p-slider .p-slider-range {
+  background: var(--blue) !important;
+}
+.p-slider .p-slider-handle {
+  border: 2px solid var(--blue) !important;
+}
+
+.p-slider:not(.p-disabled) .p-slider-handle:hover {
+  background: var(--blue) !important;
+  border-color: var(--blue) !important;
+}
+
 </style>

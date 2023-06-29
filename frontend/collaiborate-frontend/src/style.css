@@ -153,6 +153,17 @@ h1 {
   right: -84px;
 }
 
+.jump-section > img.down {
+  position: absolute;
+  top: -34px;
+  right: -154px;
+  transition: top 0.3s ease;
+}
+
+.jump-section:hover > img.down  {
+  top: -24px;
+}
+
 .jump-section > img.left {
   position: absolute;
   top: -30px;

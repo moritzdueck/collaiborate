@@ -55,12 +55,12 @@ class ParallelLines(Resource):
 
     def get(self):
         return {
-            'layers': ['Conv2d(1, 16, 3)', 'relu1', 'maxpool1', 'Conv2d(16, 32, 3)', 'relu2',
+            'layers': ['Input', 'Conv2d(1, 16, 3)', 'relu1', 'maxpool1', 'Conv2d(16, 32, 3)', 'relu2',
                        'maxpool2', 'Conv2d(32, 32, 3)', 'relu3', 'maxpool3', 'flatten',
                        'Linear(288, 128)', 'relu4', 'Linear(128, len(classes))'],
             'items': list(lines_df.apply(lambda x: {
                 'idx': x.name,
-                'layers': [x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9], x[10], x[11], x[12]],
+                'layers': [100, x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9], x[10], x[11], x[12]],
                 'y': x[13],
                 'y_hat': x[14],
                 'mean': x[15],

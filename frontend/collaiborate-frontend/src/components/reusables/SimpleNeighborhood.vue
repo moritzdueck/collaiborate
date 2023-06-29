@@ -20,7 +20,7 @@ const counts = ref(undefined)
 
 const updateDone = ref(0)
 
-const props = defineProps(['allImages', 'index', 'numSamples', 'imgSize', 'color', 'referenceLayer', 'comparisonLayer', 'transitionDuration'])
+const props = defineProps(['allImages', 'index', 'numSamples', 'imgSize', 'color', 'referenceLayer', 'comparisonLayer', 'transitionDuration', 'colorSector'])
 const emit = defineEmits(['index'])
 
 const classes = ['airplane', 'apple', 'bee', 'car', 'dragon', 'mosquito', 'moustache', 'mouth', 'pear', 'piano', 'pineapple', 'smiley face', 'train', 'umbrella', 'wine bottle']
@@ -147,12 +147,24 @@ function setupCircleView() {
 
     for (const n of Object.entries(neighbors)) {
       const arc = pie.find(arc => arc.index === labels.value[n[0]])
-      angleLookup[n[0]] = Math.random() * (arc.endAngle - arc.startAngle) * 0.8 + arc.startAngle + (arc.endAngle - arc.startAngle) * 0.1 - (Math.PI / 2)
+
+      if(arc.endAngle - arc.startAngle < (Math.PI / 180 * 8)){
+        // if we have less than 8 degrees, we do not leave space
+        angleLookup[n[0]] = Math.random() * (arc.endAngle - arc.startAngle) + arc.startAngle - (Math.PI / 2)
+      } else {
+        angleLookup[n[0]] = Math.random() * ((arc.endAngle - arc.startAngle) - 6*(Math.PI/180)) + arc.startAngle + 3 * (Math.PI/180) - (Math.PI / 2)
+      }
+
     }
 
     for (const n of Object.entries(neighborsBefore)) {
       const arc = pie.find(arc => arc.index === labels.value[n[0]])
-      angleLookup[n[0]] = Math.random() * (arc.endAngle - arc.startAngle) * 0.8 + arc.startAngle + (arc.endAngle - arc.startAngle) * 0.1 - (Math.PI / 2)
+      if(arc.endAngle - arc.startAngle < (Math.PI / 180 * 8)){
+        // if we have less than 8 degrees, we do not leave space
+        angleLookup[n[0]] = Math.random() * (arc.endAngle - arc.startAngle) + arc.startAngle - (Math.PI / 2)
+      } else {
+        angleLookup[n[0]] = Math.random() * ((arc.endAngle - arc.startAngle) - 6*(Math.PI/180)) + arc.startAngle + 3 * (Math.PI/180) - (Math.PI / 2)
+      }
     }
 
     // __________ Pie chart class distribution _____________
@@ -167,7 +179,8 @@ function setupCircleView() {
             .innerRadius(r * 0.5)
             .outerRadius(r * 1.5)
         )
-        .attr('fill', "none")
+        .attr('fill', (d,i) => (props.colorSector !== undefined && i === props.colorSector)? 'gray' : 'none')
+        .attr('fill-opacity', 0.05)
         .attr("stroke", props.color)
         .attr("transform", "translate(" + (width / 2) + "," + (height / 2) + ")")
         .style("stroke-width", "3px")
@@ -212,54 +225,85 @@ function setupCircleView() {
         .attr("y1", d => scaleOld(neighborsRefBefore.value[d]) * r * Math.sin(angleLookup[d]) + height / 2)
         .attr("x2", d => scaleR(neighborsRef.value[d]) * r * Math.cos(angleLookup[d]) + width / 2)
         .attr("y2", d => scaleR(neighborsRef.value[d]) * r * Math.sin(angleLookup[d]) + height / 2)
-        .style("stroke", d => scaleOld(neighborsRefBefore.value[d]) > scaleR(neighborsRef.value[d]) ? "var(--green)" : "var(--red)")
+        .style("stroke", d => scaleOld(neighborsRefBefore.value[d]) > scaleR(neighborsRef.value[d]) ? "var(--blue)" : "var(--orange)")
         .style("opacity", 0.3)
         .attr("class", "move")
 
     // __________ SKETCHES _____________
     const radii = {}
-    svg.selectAll('image.n')
-        .data(Object.entries(neighbors).sort((a, b) => a[1] - b[1]).slice(0, 1000), item => item[0])
-        .join(
-            enter => enter
-                .append('image')
-                .attr('xlink:href', (d) => 'data:image/png;base64, ' + props.allImages[d[0]])
-                .attr('x', (d) => ((scaleOld(neighborsRefBefore.value[d[0]]) * r) * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize / 2))
-                .attr('y', (d) => ((scaleOld(neighborsRefBefore.value[d[0]]) * r) * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize / 2))
-                .attr('width', imgSize)
-                .attr('height', imgSize)
-                .attr('opacity', 0)
-                .each(d => radii[d[0]] = (scaleR(d[1]) * r))
-                .attr('class', 'n closer')
-                .transition("moveInOut")
-                .ease(d3.easeLinear)
-                .duration(props.transitionDuration || 3000)
-                .attr('x', (d) => (scaleR(d[1]) * r * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize / 2))
-                .attr('y', (d) => (scaleR(d[1]) * r * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize / 2))
-                .attr('opacity', 1)
-                .selection(),
-            update => update
-                .attr('x', (d) => (radiiBefore[d[0]] * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize / 2))
-                .attr('y', (d) => (radiiBefore[d[0]] * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize / 2))
-                .transition("moveInOut")
-                .ease(d3.easeLinear)
-                .duration(props.transitionDuration || 3000)
-                .attr('x', (d) => (scaleR(d[1]) * r * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize / 2))
-                .attr('y', (d) => (scaleR(d[1]) * r * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize / 2))
-                .each(d => radii[d[0]] = (scaleR(d[1]) * r))
-                .attr('class', d => scaleOld(neighborsBefore[d]) > scaleR(neighbors[d]) ? "closer n" : "away n")
-                .selection(),
-            exit => exit
-                .attr('x', (d) => (radiiBefore[d[0]] * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize / 2))
-                .attr('y', (d) => (radiiBefore[d[0]] * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize / 2))
-                .transition("moveInOut")
-                .ease(d3.easeLinear)
-                .duration(props.transitionDuration || 3000)
-                .attr('x', (d) => (scaleR(neighborsRef.value[d[0]]) * r * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize / 2))
-                .attr('y', (d) => (scaleR(neighborsRef.value[d[0]]) * r * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize / 2))
-                .attr('opacity', 0)
-                .remove()
-        );
+    if (props.transitionDuration) {
+      svg.selectAll('image.n')
+          .data(Object.entries(neighbors).sort((a, b) => a[1] - b[1]).slice(0, 1000), item => item[0])
+          .join(
+              enter => enter
+                  .append('image')
+                  .attr('xlink:href', (d) => 'data:image/png;base64, ' + props.allImages[d[0]])
+                  .attr('x', (d) => ((scaleOld(neighborsRefBefore.value[d[0]]) * r) * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize / 2))
+                  .attr('y', (d) => ((scaleOld(neighborsRefBefore.value[d[0]]) * r) * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize / 2))
+                  .attr('width', imgSize)
+                  .attr('height', imgSize)
+                  .attr('opacity', 0)
+                  .each(d => radii[d[0]] = (scaleR(d[1]) * r))
+                  .attr('class', 'n closer')
+                  .transition("moveInOut")
+                  .ease(d3.easeLinear)
+                  .duration(props.transitionDuration || 0)
+                  .attr('x', (d) => (scaleR(d[1]) * r * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize / 2))
+                  .attr('y', (d) => (scaleR(d[1]) * r * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize / 2))
+                  .attr('opacity', 1)
+                  .selection(),
+              update => update
+                  .attr('x', (d) => (radiiBefore[d[0]] * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize / 2))
+                  .attr('y', (d) => (radiiBefore[d[0]] * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize / 2))
+                  .transition("moveInOut")
+                  .ease(d3.easeLinear)
+                  .duration(props.transitionDuration || 0)
+                  .attr('x', (d) => (scaleR(d[1]) * r * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize / 2))
+                  .attr('y', (d) => (scaleR(d[1]) * r * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize / 2))
+                  .each(d => radii[d[0]] = (scaleR(d[1]) * r))
+                  .attr('class', d => scaleOld(neighborsBefore[d]) > scaleR(neighbors[d]) ? "closer n" : "away n")
+                  .selection(),
+              exit => exit
+                  .attr('x', (d) => (radiiBefore[d[0]] * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize / 2))
+                  .attr('y', (d) => (radiiBefore[d[0]] * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize / 2))
+                  .transition("moveInOut")
+                  .ease(d3.easeLinear)
+                  .duration(props.transitionDuration || 0)
+                  .attr('x', (d) => (scaleR(neighborsRef.value[d[0]]) * r * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize / 2))
+                  .attr('y', (d) => (scaleR(neighborsRef.value[d[0]]) * r * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize / 2))
+                  .attr('opacity', 0)
+                  .remove()
+          );
+    } else {
+      svg.selectAll('image.n')
+          .data(Object.entries(neighbors).sort((a, b) => a[1] - b[1]).slice(0, 1000), item => item[0])
+          .join(
+              enter => enter
+                  .append('image')
+                  .attr('xlink:href', (d) => 'data:image/png;base64, ' + props.allImages[d[0]])
+                  .attr('width', imgSize)
+                  .attr('height', imgSize)
+                  .attr('opacity', 0)
+                  .each(d => radii[d[0]] = (scaleR(d[1]) * r))
+                  .attr('class', 'n closer')
+                  .attr('x', (d) => (scaleR(d[1]) * r * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize / 2))
+                  .attr('y', (d) => (scaleR(d[1]) * r * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize / 2))
+                  .attr('opacity', 1)
+                  .selection(),
+              update => update
+                  .attr('x', (d) => (scaleR(d[1]) * r * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize / 2))
+                  .attr('y', (d) => (scaleR(d[1]) * r * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize / 2))
+                  .each(d => radii[d[0]] = (scaleR(d[1]) * r))
+                  .attr('class', d => scaleOld(neighborsBefore[d]) > scaleR(neighbors[d]) ? "closer n" : "away n")
+                  .selection(),
+              exit => exit
+                  .attr('x', (d) => (scaleR(neighborsRef.value[d[0]]) * r * Math.cos(angleLookup[d[0]])) + width / 2 - (imgSize / 2))
+                  .attr('y', (d) => (scaleR(neighborsRef.value[d[0]]) * r * Math.sin(angleLookup[d[0]])) + height / 2 - (imgSize / 2))
+                  .attr('opacity', 0)
+                  .remove()
+          );
+    }
+
     radiiBefore = radii;
 
   }

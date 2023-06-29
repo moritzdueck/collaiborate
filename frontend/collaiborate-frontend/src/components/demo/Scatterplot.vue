@@ -23,10 +23,10 @@ onMounted(() => {
   const margin = {top: 0, right: 0, bottom: 0, left: 0}
   const myColor = d3.scaleOrdinal()
       .domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
-      .range(['rgb(31, 119, 180)', 'rgb(174, 199, 232)', 'rgb(255, 127, 14)', 'rgb(255, 187, 120)',
-        'rgb(214, 39, 40)', 'rgb(44, 160, 44)', 'rgb(152, 223, 138)', 'rgb(255, 152, 150)',
-        'rgb(148, 103, 189)', 'rgb(197, 176, 213)', 'rgb(140, 86, 75)', 'rgb(196, 156, 148)',
-        'rgb(227, 119, 194)', 'rgb(247, 182, 210)', 'rgb(127, 127, 127)', 'rgb(199, 199, 199)',
+      .range(['rgb(47,170,255)', 'rgb(181,205,241)', 'rgb(255,165,83)', 'rgb(255,220,185)',
+        'rgb(255,45,46)', 'rgb(44, 160, 44)', 'rgb(152, 223, 138)', 'rgb(255,152,152)',
+        'rgb(148, 103, 189)', 'rgb(197, 176, 213)', 'rgb(198,134,126)', 'rgb(186,136,128)',
+        'rgb(227, 119, 194)', 'rgb(255,97,156)', 'rgb(62,255,168)', 'rgb(245,255,250)',
         'rgb(188, 189, 34)', 'rgb(219, 219, 141)', 'rgb(23, 190, 207)', 'rgb(158, 218, 229)']);
 
   const update = () => {
@@ -91,6 +91,7 @@ onMounted(() => {
     let zx = xScale
     let zy = yScale
     const gGrid = svg.append("g");
+    let r = 1
 
     let zoomed = ({transform}) => {
       svg.call(brush.move, null);
@@ -99,9 +100,10 @@ onMounted(() => {
 
       //emit("viewport", [zx.domain()[0], zx.domain()[1], zy.domain()[0], zy.domain()[1]])
 
+      r = transform.k
       dot.attr("transform", transform)
-          .attr("stroke-width", 0.3 * transform.k)
-          .attr("r", 1 * transform.k)
+          .attr("stroke-width", 0.3 * r)
+          .attr("r", 1 * r)
           .attr("transform", d => `translate(${zx(d.x)},${zy(d.y)})`)
       gGrid.call(grid, zx, zy);
     }
@@ -152,9 +154,12 @@ onMounted(() => {
       } else {
         if (props.selection.length > 0) {
           const selectedIds = props.selection.map(item => item.id)
-          dot.style("stroke", "white")
+          dot.style("stroke", "gray")
+              .attr("r",  r)
               .filter(d => selectedIds.includes(d.id))
               .style("stroke", getColor)
+              .attr("r",  2 * r)
+              .style("stroke-width",  r)
         } else {
           dot.style("stroke", getColor)
         }
@@ -207,11 +212,13 @@ onMounted(() => {
   box-sizing: border-box;
   border: 2px solid var(--gray);
   position: relative;
+  color: white;
 }
 
 .scatter-container > svg {
   width: 100%;
   height: 100%;
+  background-color: #2c2c2c
 }
 
 .key {

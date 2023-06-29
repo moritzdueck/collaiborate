@@ -1,6 +1,6 @@
 <template>
 
-  <div class="description"><span>Changes between <img src="/pin.svg" alt="pin" style="width: 20px; display: inline-block; vertical-align: middle"/> <span style="color: var(--blue)">{{ layers[lastLayer] }}</span> and {{ layers[currentLayer] }}</span></div>
+  <div class="description"><span>Changes between <img src="/pin_red.svg" alt="pin" style="width: 20px; display: inline-block; vertical-align: middle"/> <span style="color: var(--red)">{{ layers[lastLayer] }}</span> and {{ layers[currentLayer] }}</span></div>
 
   <div class="menu">
 
@@ -9,23 +9,23 @@
 <!--    <p>and show the change in distance compared to layer</p>-->
 <!--    <Dropdown v-model="comparisonLayer" editable :disabled="!referenceLayer" :options="comparisonLayerOptions" placeholder="Select Layer"/>-->
     <div class="local-view-layer-option"><span class="layer-pin"/> <span>Choose representation</span></div>
-    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(0)" :class="(lastLayer === 0)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(0)">Input</Button></div>
-    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(1)" :class="(lastLayer === 1)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(1)">(0): Conv2d</Button></div>
-    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(2)" :class="(lastLayer === 2)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(2)">(1): ReLU</Button></div>
-    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(3)" :class="(lastLayer === 3)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(3)">(2): MaxPool2d</Button></div>
-    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(4)" :class="(lastLayer === 4)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(4)">(3): Conv2d</Button></div>
-    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(5)" :class="(lastLayer === 5)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(5)">(4): ReLU</Button></div>
-    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(6)" :class="(lastLayer === 6)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(6)">(5): MaxPool2d</Button></div>
-    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(7)" :class="(lastLayer === 7)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(7)">(6): Conv2d</Button></div>
-    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(8)" :class="(lastLayer === 8)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(8)">(7): ReLU</Button></div>
-    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(9)" :class="(lastLayer === 9)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(9)">(8): MaxPool2d</Button></div>
-    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(10)" :class="(lastLayer === 10)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(10)">(9): Flatten</Button></div>
-    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(11)" :class="(lastLayer === 11)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(11)">(10): Linear</Button></div>
-    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(12)" :class="(lastLayer === 12)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(12)">(11): ReLU</Button></div>
-    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(13)" :class="(lastLayer === 13)? 'active-pin' : ''"><img src="/pin.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(13)">(12): Linear</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(0)" :class="(lastLayer === 0)? 'active-pin' : ''"><img src="/pin_red.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(0)">Input</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(1)" :class="(lastLayer === 1)? 'active-pin' : ''"><img src="/pin_red.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(1)">(0): Conv2d</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(2)" :class="(lastLayer === 2)? 'active-pin' : ''"><img src="/pin_red.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(2)">(1): ReLU</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(3)" :class="(lastLayer === 3)? 'active-pin' : ''"><img src="/pin_red.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(3)">(2): MaxPool2d</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(4)" :class="(lastLayer === 4)? 'active-pin' : ''"><img src="/pin_red.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(4)">(3): Conv2d</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(5)" :class="(lastLayer === 5)? 'active-pin' : ''"><img src="/pin_red.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(5)">(4): ReLU</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(6)" :class="(lastLayer === 6)? 'active-pin' : ''"><img src="/pin_red.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(6)">(5): MaxPool2d</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(7)" :class="(lastLayer === 7)? 'active-pin' : ''"><img src="/pin_red.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(7)">(6): Conv2d</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(8)" :class="(lastLayer === 8)? 'active-pin' : ''"><img src="/pin_red.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(8)">(7): ReLU</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(9)" :class="(lastLayer === 9)? 'active-pin' : ''"><img src="/pin_red.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(9)">(8): MaxPool2d</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(10)" :class="(lastLayer === 10)? 'active-pin' : ''"><img src="/pin_red.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(10)">(9): Flatten</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(11)" :class="(lastLayer === 11)? 'active-pin' : ''"><img src="/pin_red.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(11)">(10): Linear</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(12)" :class="(lastLayer === 12)? 'active-pin' : ''"><img src="/pin_red.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(12)">(11): ReLU</Button></div>
+    <div class="local-view-layer-option"><span class="layer-pin"  @click="updateLastLayer(13)" :class="(lastLayer === 13)? 'active-pin' : ''"><img src="/pin_red.svg" alt="pin"/></span> <Button outlined severity="secondary" @click="updateLayer(13)">(12): Linear</Button></div>
 
     <div class="menu-legend">
-      <img src="/pin.svg" alt="pin" style="width: 30px"/>
+      <img src="/pin_red.svg" alt="pin" style="width: 30px"/>
       <span>initial layer</span>
     </div>
 
@@ -218,12 +218,22 @@ function setupCircleView() {
 
     for (const n of Object.entries(neighbors)) {
       const arc = pie.find(arc => arc.index === labels.value[n[0]])
-      angleLookup[n[0]] = Math.random() * (arc.endAngle - arc.startAngle) * 0.8 + arc.startAngle + (arc.endAngle - arc.startAngle) * 0.1 - (Math.PI / 2)
+      if(arc.endAngle - arc.startAngle < (Math.PI / 180 * 8)){
+        // if we have less than 8 degrees, we do not leave space
+        angleLookup[n[0]] = Math.random() * (arc.endAngle - arc.startAngle) + arc.startAngle - (Math.PI / 2)
+      } else {
+        angleLookup[n[0]] = Math.random() * ((arc.endAngle - arc.startAngle) - 6*(Math.PI/180)) + arc.startAngle + 3 * (Math.PI/180) - (Math.PI / 2)
+      }
     }
 
     for (const n of Object.entries(neighborsBefore)) {
       const arc = pie.find(arc => arc.index === labels.value[n[0]])
-      angleLookup[n[0]] = Math.random() * (arc.endAngle - arc.startAngle) * 0.8 + arc.startAngle + (arc.endAngle - arc.startAngle) * 0.1 - (Math.PI / 2)
+      if(arc.endAngle - arc.startAngle < (Math.PI / 180 * 5)){
+        // if we have less than 8 degrees, we do not leave space
+        angleLookup[n[0]] = Math.random() * (arc.endAngle - arc.startAngle) + arc.startAngle - (Math.PI / 2)
+      } else {
+        angleLookup[n[0]] = Math.random() * ((arc.endAngle - arc.startAngle) - 6*(Math.PI/180)) + arc.startAngle + 3 * (Math.PI/180) - (Math.PI / 2)
+      }
     }
 
     // __________ Pie chart class distribution _____________
@@ -283,7 +293,7 @@ function setupCircleView() {
         .attr("y1", d => scaleOld(neighborsRefBefore.value[d]) * r * Math.sin(angleLookup[d]) + height / 2)
         .attr("x2", d => scaleR(neighborsRef.value[d]) * r * Math.cos(angleLookup[d]) + width / 2)
         .attr("y2", d => scaleR(neighborsRef.value[d]) * r * Math.sin(angleLookup[d]) + height / 2)
-        .style("stroke", d => scaleOld(neighborsRefBefore.value[d]) > scaleR(neighborsRef.value[d]) ? "var(--green)" : "var(--red)")
+        .style("stroke", d => scaleOld(neighborsRefBefore.value[d]) > scaleR(neighborsRef.value[d]) ? "var(--blue)" : "var(--orange)")
         .style("opacity", 0.2)
         .attr("class", "move")
 
@@ -353,7 +363,7 @@ function setupCircleView() {
         .attr("y1", d => (innerHeight - 60) + d.factor * 30)
         .attr("x2", (d, i) => scaleX(i))
         .attr("y2", () => (innerHeight - 60))
-        .style("stroke", d => d.factor > 0 ? "var(--green)" : "var(--red)")
+        .style("stroke", d => d.factor > 0 ? "var(--blue)" : "var(--orange)")
         .style("opacity", 0.5)
         .attr("class", "other")
 
@@ -386,7 +396,7 @@ function setupCircleView() {
           if(!f(d)){
             return "var(--gray)"
           }
-          return scaleOld(neighborsRefBefore.value[d]) > scaleR(neighborsRef.value[d]) ? "var(--green)" : "var(--red)"
+          return scaleOld(neighborsRefBefore.value[d]) > scaleR(neighborsRef.value[d]) ? "var(--blue)" : "var(--orange)"
         })
 
         svg.selectAll('image.n').attr('opacity', (d) => f(d[0])? 1: 0.1)

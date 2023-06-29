@@ -20,14 +20,20 @@
             <SampleSidebar :all-images="allImages" v-model="sample"/>
           </div>
           <div style="display: flex; align-items: center;" v-if="topMenu.showNumSamples">
-            <p style="width: 120px;">{{numSamples2}} neighbors</p>
+            <p style="width: 120px;">{{ numSamples2 }} neighbors</p>
             <div style="width: 100%; padding: 10px">
               <Slider v-model:model-value="numSamples2" :min="2" :max="750"/>
             </div>
           </div>
           <div style="display: flex; align-items: center;" v-if="topMenu.showNetwork">
             <p style="writing-mode: vertical-lr;">Representation</p>
-            <CnnLayersShapes :initial-layer="layer" v-on:selected-layer="l => layer = l" :controlled="true"/>
+            <CnnLayersShapes :show-pin="[16, 17].includes(textIndex)" :initial-layer="layer"
+                             v-on:selected-layer="l => layer = l" :controlled="true"/>
+          </div>
+          <div v-if="[3,4,5,6,7].includes(textIndex)" style="display: flex; align-items: center;">
+            <p style="writing-mode: vertical-lr;">Representation</p>
+            <CnnLayersShapesPassive :show-input="[3,4,5,6].includes(textIndex)"
+                                    :show-conv="[4,5,6,7].includes(textIndex)"/>
           </div>
         </div>
 
@@ -43,10 +49,10 @@
           <SimpleNeighborhoodUnsorted v-if="allImages"
                                       :transition-duration="1000"
                                       :allImages="allImages" :index="sample" :num-samples="numSamples" :img-size="25"
-                                      color="var(--gray)" :referenceLayer="0" :comparison-layer="0"/>
+                                      color="var(--yellow)" :referenceLayer="0" :comparison-layer="0"/>
         </div>
 
-        <div v-if="textIndex === 4 || textIndex === 5 || textIndex === 6"
+        <div v-if="textIndex === 4 || textIndex === 5 || textIndex === 6 || textIndex === 7"
              class="story-illustration-container">
 
           <div style="position: absolute; top:33%" v-if="textIndex === 4 || textIndex === 5">
@@ -73,18 +79,18 @@
 
         </div>
 
-        <div v-if="textIndex === 7 || textIndex === 8"
+        <div v-if="textIndex === 8 || textIndex === 9"
              class="story-illustration-container">
 
           <div style="position: absolute; left:0; width: 100%; height: 100%;">
             <ParallelLineStory :lines="lines" :all-images="allImages"
-                               :highlighted-sample="textIndex === 7? [sample] : [110635,101647,272791,271551,185767,146028,115656]"/>
+                               :highlighted-sample="textIndex === 8? [sample] : [110635,101647,272791,271551,185767,146028,115656]"/>
           </div>
 
 
         </div>
 
-        <div v-if="textIndex === 9"
+        <div v-if="textIndex === 10"
              class="story-illustration-container">
 
           <div style="position: absolute; width: 100%; height: 100%;">
@@ -96,7 +102,7 @@
 
         </div>
 
-        <div v-if="textIndex === 10"
+        <div v-if="textIndex === 11"
              class="story-illustration-container">
           <div style="position: absolute; left:0; width: 100%; height: 100%;">
             <ParallelLines :animate-line-draw="false" :data="lines" v-if="lines"
@@ -106,7 +112,7 @@
 
         </div>
 
-        <div v-if="textIndex === 11"
+        <div v-if="textIndex === 12"
              class="story-illustration-container">
           <div style="position: absolute; left:0; width: 100%; height: 100%;">
             <ParallelLines :animate-line-draw="false" :data="lines" v-if="lines"
@@ -116,7 +122,7 @@
 
         </div>
 
-        <div v-if="textIndex === 12"
+        <div v-if="textIndex === 13"
              class="story-illustration-container">
 
           <div style="position: absolute; left:0; width: 100%; height: 100%;">
@@ -127,7 +133,7 @@
 
         </div>
 
-        <div v-if="textIndex === 13" class="story-illustration-container">
+        <div v-if="textIndex === 14" class="story-illustration-container">
           <div style="display: flex; height: 100%">
             <SimpleNeighborhoodUnsorted v-if="allImages"
                                         :transition-duration="1"
@@ -137,14 +143,15 @@
           </div>
         </div>
 
-        <div v-if="[14,15,16].includes(textIndex)"
+        <div v-if="[15,16,17].includes(textIndex)"
              class="story-illustration-container">
           <div style="display: flex; height: 100%">
             <SimpleNeighborhood v-if="allImages"
-                                :transition-duration="1"
+                                :transition-duration="0"
+                                :color-sector="lines.items.find((i:any) => i.idx === sample).y"
                                 :allImages="allImages" :index="sample" :num-samples="numSamples2" :img-size="25"
                                 color="var(--gray)" :referenceLayer="layer"
-                                :comparison-layer="textIndex === 14? layer : 0"/>
+                                :comparison-layer="textIndex === 15? layer : 0"/>
           </div>
 
         </div>
@@ -243,7 +250,16 @@
         </div>
         <div :class="'text-block ' + ((activeText === '457838')? 'active' : '')" id="457838">
           <p>
-            <span class="text-highlight">Let's line up all samples from the two representations and count pairs</span>.
+            We can project the samples back to one dimension – still sorted by distance – and compare the two
+            representations.
+            <span class="text-highlight"> We draw a line between
+            samples that are present in both representations.</span>
+          </p>
+
+        </div>
+        <div :class="'text-block ' + ((activeText === '3499233')? 'active' : '')" id="3499233">
+          <p>
+            <span class="text-highlight">Let's count pairs</span>.
             Intuitively, the higher the count,
             the less the network impacted the neighborhood.
             In this case, {{ overlapCount }} samples of {{ numSamples }} in total are present in both representations.
@@ -404,9 +420,16 @@
 
         <div :class="'text-block ' + ((activeText === '124111')? 'active' : '')" id="124111">
           <p>
-            Let's watch our sketches as their get transformed by the first layer of the network. We trace the movement
-            of
-            the sketches with green when they move closer and red if they move away. The convolutional layer is an
+            Let's watch our sketches as their get transformed by the first layer of the network.
+            We will always compare the change in euclidean distances <span class="text-highlight"> with respect to distances in the
+            Input</span> representation, signaled by the pin
+            <img src="/pin_red.svg" alt="pin"
+                 style="width: 25px; vertical-align: middle; display: inline-block; writing-mode: vertical-lr;"/>.
+            We trace the movement of the sketches with  <span class="text-highlight"> <span style="color: var(--blue); font-weight: bold">blue</span>
+            when they move closer
+            and
+            <span style="color: var(--orange); font-weight: bold">orange</span> if they move away </span>. The convolutional
+            layer is an
             interesting one to start with: Convolutional layers can be interpreted as filters in classical image
             processing
             that respond to simple lines and shapes in early layers, and more and more complex features in later layers.
@@ -434,7 +457,8 @@
 
           <SampleFocus :sample="sample" :all-images="allImages" v-if="sample === 272791">
             This sample shows an interesting trajectory as the initial neighborhood contains a very low number of bees,
-            i.e. the pixel overlap with other bee sketches is rather low. As the drawing is propagated through the layers,
+            i.e. the pixel overlap with other bee sketches is rather low. As the drawing is propagated through the
+            layers,
             more and more bees enter.
           </SampleFocus>
 
@@ -445,17 +469,19 @@
           </SampleFocus>
 
 
-<!--          <SampleFocus :sample="sample" :all-images="allImages" v-if="sample === 185767">-->
-<!--            Look at the closest samples to our mosquito from the bee class in the final representation.-->
-<!--            They are arguably very similar sketches and I myself would classify these bees as a mosquito as well.-->
-<!--            Good job network!-->
-<!--          </SampleFocus>-->
+          <!--          <SampleFocus :sample="sample" :all-images="allImages" v-if="sample === 185767">-->
+          <!--            Look at the closest samples to our mosquito from the bee class in the final representation.-->
+          <!--            They are arguably very similar sketches and I myself would classify these bees as a mosquito as well.-->
+          <!--            Good job network!-->
+          <!--          </SampleFocus>-->
 
 
           <p>
             Conceptually, the convolutional layers of a CNN are often regarded as feature extractors. One could argue
-            that the representation after the last maxpooling layer is how the network looks at and understands the sample.
-            Try exploring this representation and compare it to the final layers. Do the linear layers still participate in
+            that the representation after the last maxpooling layer is how the network looks at and understands the
+            sample.
+            Try exploring this representation and compare it to the final layers. Do the linear layers still participate
+            in
             feature extraction?
           </p>
 
@@ -491,6 +517,7 @@ import SimpleNeighborhoodUnsorted from "../reusables/SimpleNeighborhoodUnsorted.
 import CnnLayersShapes from "../reusables/CnnLayersShapes.vue";
 import Distances from "./distances/Distances.vue";
 import SampleFocus from "./SampleFocus.vue";
+import CnnLayersShapesPassive from "../reusables/CnnLayersShapesPassive.vue";
 
 const props = defineProps({
   allImages: {} as any,
@@ -516,7 +543,8 @@ const redGreenLayer = ref(0)
 const topMenu = ref({
   showSample: true,
   showNetwork: true,
-  showNumSamples: true
+  showNumSamples: true,
+  showPassiveNetwork: true,
 })
 
 onMounted(() => {
@@ -530,9 +558,9 @@ onMounted(() => {
         textIndex.value = e.index
         currentDirection.value = e.direction
 
-        topMenu.value.showSample = [0, 1, 2, 3, 4, 5, 6, 7, 13, 14, 15, 16].includes(textIndex.value)
-        topMenu.value.showNetwork = [0, 1, 2, 13, 14, 15, 16].includes(textIndex.value)
-        topMenu.value.showNumSamples = [13, 14, 15, 16].includes(textIndex.value)
+        topMenu.value.showSample = [0, 1, 2, 3, 4, 5, 6, 7, 8, 14, 15, 16, 17].includes(textIndex.value)
+        topMenu.value.showNetwork = [0, 1, 2, 14, 15, 16, 17].includes(textIndex.value)
+        topMenu.value.showNumSamples = [14, 15, 16, 17].includes(textIndex.value)
 
         if (textIndex.value === 1) {
           layer.value = 0
@@ -541,16 +569,16 @@ onMounted(() => {
           layer.value = 13
         }
 
-        if (textIndex.value === 13) {
-          layer.value = 0
-        }
         if (textIndex.value === 14) {
           layer.value = 0
         }
         if (textIndex.value === 15) {
-          layer.value = 1
+          layer.value = 0
         }
         if (textIndex.value === 16) {
+          layer.value = 1
+        }
+        if (textIndex.value === 17) {
           layer.value = 13
         }
 

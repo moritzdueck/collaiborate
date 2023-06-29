@@ -27,13 +27,20 @@
 
     <div :style="{width: '150px', position: 'absolute', right: '100px', bottom: '80px'}">
       <span class="jump-section" @click="$emit('showDemo')">
-        Jump to Explorer
+        Skip to Explorer
       <img class="right" src="/arrow_right.svg">
       </span>
     </div>
 
+    <div :style="{width: '150px', position: 'absolute', left: '100px', bottom: '80px'}">
+      <span class="jump-section" style="cursor: s-resize;">
+        Scroll to read story
+      <img class="down" src="/arrow_down.svg">
+      </span>
+    </div>
+
     <div class="text-wrapper">
-      <h1 style="word-wrap: break-word;">Neighbor&shy;hoods Explored</h1>
+      <h1 style="word-wrap: break-word;">Neighborhood Segregation</h1>
       <p style="font-size: 20px">A Journey into CNNs for Sketch Classification</p>
       <p style="text-align: justify;">Convolutional Neural Networks (CNNs) have transformed image classification. But
         the inner workings of these networks trained on datasets like QuickDraw remain hard to understand for humans. In
@@ -51,6 +58,7 @@
 <script setup>
 import {onMounted, onUnmounted, ref} from "vue";
 import SimpleNeighborhood from "./reusables/SimpleNeighborhood.vue";
+import Explorer from "../App.vue";
 
 const props = defineProps(["allImages"])
 

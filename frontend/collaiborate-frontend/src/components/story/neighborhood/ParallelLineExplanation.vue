@@ -255,7 +255,7 @@ function setupCircleView() {
 
   }
 
-  function realign(svg, background, height) {
+  function realign(svg, background, height, order) {
     svgContainer.selectAll(".axis").remove()
 
 
@@ -283,11 +283,15 @@ function setupCircleView() {
         .remove()
 
     svg.selectAll("image.n")
-        .order(x => x.i)
+        .sort((x,y) => {
+          console.log(x[0])
+          console.log(order.indexOf(x[0]))
+          return (order.indexOf(x[0])||101) - (order.indexOf(y[0])||101)
+        })
         .transition("connectAnimation")
         .ease(d3.easeExpIn)
         .duration(1200)
-        .attr("x", (d, i) => i * innerWidth / props.numSamples)
+        .attr("x", (d, i) => 40 + (i * (innerWidth-50) / props.numSamples))
         .attr("y", height)
         .style("opacity", 1)
 
@@ -486,15 +490,33 @@ function setupCircleView() {
     if (step === 1) {
       timeouts.forEach(t => clearTimeout(t));
 
-      update(height / 2, svg1, background1, getNeighbors(props.layer1), props.color1);
-      update(height / 2, svg2, background2, getNeighbors(props.layer2), props.color2);
+      let neighbors1 = getNeighbors(props.layer1);
+      let neighbors2 = getNeighbors(props.layer2);
+      update(height / 2, svg1, background1, neighbors1, props.color1);
+      update(height / 2, svg2, background2, neighbors2, props.color2);
     } else if (step === 2) {
       timeouts.forEach(t => clearTimeout(t));
 
-      realign(svg1, background1, innerHeight / 2 - 60 - 15)
-      realign(svg2, background2, 60 - 15)
+      const keys1 = Object.keys(getNeighbors(props.layer1)).sort((a, b) => neighborsData.value[props.layer1][a] -  neighborsData.value[props.layer1][b])
+      const keys2 = Object.keys(getNeighbors(props.layer2)).sort((a, b) => neighborsData.value[props.layer2][a] -  neighborsData.value[props.layer2][b])
+
+      realign(svg1, background1, innerHeight / 2 - 60 - 15, keys1)
+      realign(svg2, background2, 60 - 15, keys2)
       timeouts.push(setTimeout(connect, 1500));
-    } else if (step === 3) {
+    }
+
+    else if (step === 3) {
+      timeouts.forEach(t => clearTimeout(t));
+
+      const keys1 = Object.keys(getNeighbors(props.layer1)).sort((a, b) => neighborsData.value[props.layer1][a] -  neighborsData.value[props.layer1][b])
+          .map(x => Object.keys(getNeighbors(props.layer2)).includes(x)? x : 0)
+          .map(x => ""+x)
+
+      realign(svg1, background1, innerHeight / 2 - 60 - 15, keys1)
+      realign(svg2, background2, 60 - 15, keys1)
+      timeouts.push(setTimeout(connect, 1500));
+    }
+    else if (step === 4) {
       timeouts.forEach(t => clearTimeout(t));
       shrinkAndAddAxis()
     }

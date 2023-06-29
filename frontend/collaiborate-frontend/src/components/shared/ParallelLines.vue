@@ -22,7 +22,6 @@ onMounted(() => {
 
 
   const update = () => {
-
     if (props.data?.length === 0 || !props.data) {
       return
     }
@@ -98,8 +97,15 @@ onMounted(() => {
     function brushed(e) {
     }
 
+    let items = props.data.items
+
+    console.log(props.data.items)
+    if (props.scatterData) {
+      items = props.data.items.filter(item => props.scatterData.some(i => i.id === item.idx))
+    }
+
     const svgPath = svg.selectAll("path")
-        .data(props.data.items)
+        .data(items)
         .enter()
         .append("path")
         .sort((a,b) => (selection?.includes(a.idx)? 1 : 0) - (selection?.includes(b.idx)? 1 : 0))
@@ -177,6 +183,7 @@ onMounted(() => {
   }
 
   watch(props, update)
+  watch( () => props.scatterData?.length, update)
   update()
 
 })

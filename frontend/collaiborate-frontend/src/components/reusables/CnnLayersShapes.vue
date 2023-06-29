@@ -4,6 +4,7 @@
     <div class="network">
 
         <div @mouseover="hoverLayer = 0" @mouseout="hoverLayer = undefined" :class="'shape-layer shape-input ' + (active===0? 'active' : '')" @click="setLayer(0)">
+          <img v-if="showPin" src="/pin_red.svg" alt="pin" class="layer-pin"/>
           <img style="margin: 0 -10px; width: 80px" :src="(hoverLayer === 0 || active === 0)? '/layers/input_active.svg' : '/layers/input.svg'" alt="input"/>
           <span>Input</span>
         </div>
@@ -71,7 +72,7 @@ import {onMounted, ref, watch} from "vue";
 
 const active = ref(0)
 const emit = defineEmits(['selectedLayer'])
-const props = defineProps(['initialLayer', 'controlled', 'locked'])
+const props = defineProps(['initialLayer', 'controlled', 'locked', 'showPin'])
 const hoverLayer = ref(undefined)
 
 const setLayer = (layer) => {
@@ -119,6 +120,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   cursor: pointer;
+  position: relative;
 }
 
 .shape-layer > span {
@@ -135,6 +137,14 @@ onMounted(() => {
 
 .shape-layer.active > span {
   color: var(--red);
+}
+
+.layer-pin {
+  width: 40px;
+  display: inline-block;
+  transform: rotate(70deg);
+  writing-mode: vertical-lr;
+  position: absolute;
 }
 
 </style>
