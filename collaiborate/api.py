@@ -37,16 +37,6 @@ class UmapProjection(Resource):
                     .apply(lambda x: {'x': x[1], 'y': x[2], 'c': x[3], 'c_hat': x[5], 'id': x[0]}, axis=1))[0:length]
 
 
-class UmapProjectionXY(Resource):
-
-    def __init__(self, **kwargs):
-        self.df = kwargs['umap_df']
-
-    def get(self, length, xmin=-1, xmax=-1, ymin=-1, ymax=-1):
-        return list(self.df
-                    [(self.df.x > xmin) & (self.df.x < xmax) & (self.df.y > ymin) & (self.df.y < ymax)]
-                    .apply(lambda x: {'x': x[1], 'y': x[2], 'c': x[3], 'c_hat': x[5], 'id': x[0]}, axis=1))[0:length]
-
 
 class ParallelLines(Resource):
 
@@ -90,7 +80,6 @@ class UmapProjectionFiltered(Resource):
                 pred_filter_to_classes = list(map(lambda n: int(n), pred_filter_string.split('-')))
                 pred_filter = lambda x: x['c_hat'] in pred_filter_to_classes
 
-            print(self.df.head())
             return list(
                 filter(
                     lambda x: label_filter(x) & pred_filter(x),
@@ -110,7 +99,19 @@ class UmapProjectionCL(Resource):
 
     def get(self, length):
         return list(self.df
+                    .filter(items=list(lines_df.index), axis=0)
                     .apply(lambda x: {'x': x[7], 'y': x[8], 'c': x[3], 'c_hat': x[5], 'id': x[0]}, axis=1))[0:length]
+
+
+class UmapProjectionLogits(Resource):
+
+    def __init__(self, **kwargs):
+        self.df = kwargs['umap_df']
+
+    def get(self, length):
+        return list(self.df
+                    .filter(items=list(lines_df.index), axis=0)
+                    .apply(lambda x: {'x': x[9], 'y': x[10], 'c': x[3], 'c_hat': x[5], 'id': x[0]}, axis=1))[0:length]
 
 
 class UmapProjectionCLFiltered(Resource):
@@ -137,7 +138,44 @@ class UmapProjectionCLFiltered(Resource):
             return list(
                 filter(
                     lambda x: label_filter(x) & pred_filter(x),
-                    list(self.df.apply(lambda x: {'x': x[7], 'y': x[8], 'c': x[3], 'c_hat': x[5], 'id': x[0]}, axis=1))
+                    list(
+                        self.df
+                        .filter(items=list(lines_df.index), axis=0)
+                        .apply(lambda x: {'x': x[7], 'y': x[8], 'c': x[3], 'c_hat': x[5], 'id': x[0]}, axis=1)
+                    )
+                )
+            )[0:length]
+
+
+class UmapProjectionLogitsFiltered(Resource):
+
+    def __init__(self, **kwargs):
+        self.df = kwargs['umap_df']
+
+    def get(self, restricted_classes, length):
+        match = re.match(r't((?:[0-9]+-?)+)?p((?:[0-9]+-?)+)?', restricted_classes)
+        if match is not None:
+            label_filter_string = re.match(r't((?:[0-9]+-?)+)?p((?:[0-9]+-?)+)?', restricted_classes).group(1)
+            pred_filter_string = re.match(r't((?:[0-9]+-?)+)?p((?:[0-9]+-?)+)?', restricted_classes).group(2)
+
+            label_filter = lambda x: True
+            if label_filter_string is not None:
+                label_filter_to_classes = list(map(lambda n: int(n), label_filter_string.split('-')))
+                label_filter = lambda x: x['c'] in label_filter_to_classes
+
+            pred_filter = lambda x: True
+            if pred_filter_string is not None:
+                pred_filter_to_classes = list(map(lambda n: int(n), pred_filter_string.split('-')))
+                pred_filter = lambda x: x['c_hat'] in pred_filter_to_classes
+
+            return list(
+                filter(
+                    lambda x: label_filter(x) & pred_filter(x),
+                    list(
+                        self.df
+                        .filter(items=list(lines_df.index), axis=0)
+                        .apply(lambda x: {'x': x[9], 'y': x[10], 'c': x[3], 'c_hat': x[5], 'id': x[0]}, axis=1)
+                    )
                 )
             )[0:length]
 
@@ -188,6 +226,7 @@ class Neighborhood(Resource):
             "layers": all_layers,
             "labels": labels,
         }
+
 
 class AllImages(Resource):
 
@@ -383,7 +422,7 @@ def index():
 
 @app.after_request
 def add_header(response: Response):
-    response.cache_control.max_age = 3600*24*365
+    response.cache_control.max_age = 3600 * 24 * 365
     response.access_control_allow_origin = "*"
     response.access_control_allow_headers = "*"
     return response
@@ -394,20 +433,21 @@ api.add_resource(SketchMetadata, "/sketch/<int:sketch_index>")
 api.add_resource(UmapProjection,
                  "/umap/<int:length>",
                  resource_class_kwargs={'umap_df': umap_df})
-api.add_resource(UmapProjectionXY,
-                 "/umap/<int:length>/<float(signed=True):xmin>/<float(signed=True):xmax>/<float(signed=True):ymin>/<float(signed=True):ymax>",
-                 resource_class_kwargs={'umap_df': umap_df})
 
 api.add_resource(ParallelLines,
                  "/lines",
                  resource_class_kwargs={'lines_df': lines_df})
 
 api.add_resource(UmapProjectionCL, "/umap-cl/<int:length>", resource_class_kwargs={'umap_df': umap_df})
+api.add_resource(UmapProjectionLogits, "/umap-logits/<int:length>", resource_class_kwargs={'umap_df': umap_df})
 api.add_resource(UmapProjectionFiltered,
                  "/umap_filtered/<string:restricted_classes>/<int:length>",
                  resource_class_kwargs={'umap_df': umap_df})
 api.add_resource(UmapProjectionCLFiltered,
                  "/umap-cl_filtered/<string:restricted_classes>/<int:length>",
+                 resource_class_kwargs={'umap_df': umap_df})
+api.add_resource(UmapProjectionLogitsFiltered,
+                 "/umap-logits_filtered/<string:restricted_classes>/<int:length>",
                  resource_class_kwargs={'umap_df': umap_df})
 
 api.add_resource(Neighborhood,

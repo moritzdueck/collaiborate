@@ -86,6 +86,16 @@ onMounted(() => {
         .attr("transform", d => `translate(${xScale(d.x)},${yScale(d.y)})`)
         .attr("r", 1);
 
+    const dotMirror = svg.append("g")
+        .attr("fill", "none")
+        .attr("stroke-width", 0.3)
+        .selectAll("circle")
+        .data(props.data)
+        .attr("stroke", d => d ? (d.c === d.c_hat ? 'rgb(59, 130, 246)' : 'rgb(235, 64, 52)') : 'rgb(59, 130, 246)')
+        .join("circle")
+        .attr("transform", d => `translate(${xScale(d.x)},${yScale(d.y)})`)
+        .attr("r", 1);
+
     svg.call(brush);
 
     let zx = xScale
@@ -105,6 +115,12 @@ onMounted(() => {
           .attr("stroke-width", 0.3 * r)
           .attr("r", 1 * r)
           .attr("transform", d => `translate(${zx(d.x)},${zy(d.y)})`)
+
+      dotMirror.attr("transform", transform)
+          .attr("stroke-width", 0.3 * r)
+          .attr("r", 1 * r)
+          .attr("transform", d => `translate(${zx(d.x)},${zy(d.y)})`)
+
       gGrid.call(grid, zx, zy);
     }
 
@@ -151,6 +167,13 @@ onMounted(() => {
             .filter(d => x0 <= zx(d.x) && zx(d.x) < x1 && y0 <= zy(d.y) && zy(d.y) < y1)
             .style("stroke", getColor)
             .data();
+
+        dotMirror
+            .style("stroke", "none")
+            .filter(d => x0 <= zx(d.x) && zx(d.x) < x1 && y0 <= zy(d.y) && zy(d.y) < y1)
+            .style("stroke", getColor)
+            .data();
+
       } else {
         if (props.selection.length > 0) {
           const selectedIds = props.selection.map(item => item.id)
@@ -160,8 +183,16 @@ onMounted(() => {
               .style("stroke", getColor)
               .attr("r",  2 * r)
               .style("stroke-width",  r)
+
+          dotMirror.style("stroke", "none")
+              .attr("r",  r)
+              .filter(d => selectedIds.includes(d.id))
+              .style("stroke", getColor)
+              .attr("r",  2 * r)
+              .style("stroke-width",  r)
         } else {
           dot.style("stroke", getColor)
+          dotMirror.style("stroke", getColor)
         }
       }
       svg.property("value", value).dispatch("input");
@@ -219,18 +250,6 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   background-color: #2c2c2c
-}
-
-.key {
-  border: 1px solid #aaa;
-  border-radius: 0.2em;
-  box-shadow: 0.1em 0.1em 0.2em rgba(0,0,0,0.1);
-  background-color: #f9f9f9;
-  background-image: linear-gradient(to bottom,#eee,#f9f9f9,#eee);
-  color: #000;
-  padding: 0.1em 0.3em;
-  font-family: inherit;
-  font-size: 0.85em;
 }
 
 </style>

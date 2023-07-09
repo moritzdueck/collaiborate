@@ -543,8 +543,8 @@ const redGreenLayer = ref(0)
 const topMenu = ref({
   showSample: true,
   showNetwork: true,
-  showNumSamples: true,
-  showPassiveNetwork: true,
+  showNumSamples: false,
+  showPassiveNetwork: false,
 })
 
 onMounted(() => {

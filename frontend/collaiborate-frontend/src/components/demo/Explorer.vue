@@ -10,7 +10,8 @@
       <span>Restrict Predictions</span>
       <span></span>
 
-      <div style="padding-left: 50px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: -15px">
+      <div
+          style="padding-left: 50px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: -15px">
         <span class="jump-section" @click="$emit('story')">
           Back to the story
           <img class="left" src="/arrow_left.svg">
@@ -18,16 +19,17 @@
       </div>
 
       <Dropdown v-model="projection" editable :options="projectionOptions"
-                placeholder="Select a Projection"/>
+                placeholder="Select a Projection" id="projection-dropdown"/>
 
       <Dropdown v-model="analysisType" editable :options="analysisTypeOptions" v-on:change="updateSelectionDisplay"
-                placeholder="Select a Visualization"/>
+                placeholder="Select a Visualization" id="analysis-type-dropdown"/>
 
-      <Dropdown v-model="colorStrategy" editable :options="colorStrategyOptions"
+      <Dropdown v-model="colorStrategy" editable :options="colorStrategyOptions" id="color-strategy-dropdown"
                 placeholder="Color Strategy">
       </Dropdown>
 
-      <MultiSelect v-model="selectedTrueClasses" :options="trueClassOptions" option-label="label" option-value="value"
+      <MultiSelect v-model="selectedTrueClasses" :options="trueClassOptions" id="label-dropdown"
+                   option-label="label" option-value="value"
                    placeholder="Select Classes">
         <template #value="slotProps">
           <div v-if="slotProps.value" class="multi-select-options-grid">
@@ -47,6 +49,7 @@
         </template>
       </MultiSelect>
       <MultiSelect v-model="selectedPredictedClasses" :options="predictedClassOptions" option-label="label"
+                   id="prediction-dropdown"
                    option-value="value"
                    placeholder="Select Classes">
         <template #value="slotProps">
@@ -68,12 +71,12 @@
           </div>
         </template>
       </MultiSelect>
-      <span class="reset-button" v-if="selection.length > 0" @click="handleSelection([])">Reset</span>
+      <span class="reset-button" v-if="selection.length > 0" @click="handleSelection([])" id="reset-button">Reset</span>
     </div>
 
     <div class="explorer-container">
       <div class="projection-container">
-        <div style="flex-grow: 1; width: 100%; height: 100%;">
+        <div style="flex-grow: 1; width: 100%; height: 100%;" id="parallel-lines-component">
           <ParallelLines :data="linesData" :selection="selection.map((s:any) => s.id)" :scatterData="data"
                          v-on:selection="handleSelection" :enable-brush="true"/>
         </div>
@@ -81,14 +84,15 @@
       <div class="projection-sample-container">
 
         <Scatterplot :data="data" :color-strategy="colorStrategy" v-on:selection="handleSelection"
-                     :selection="selection"
+                     :selection="selection" id="scatter-plot-component"
                      v-on:viewport="handleViewport"></Scatterplot>
 
         <!--   Class mode   -->
 
-        <div class="samples-container" v-if="mode === 'class'">
-          <div v-for="(sketch, i) of sketches" class="sample" @click="selection.length && emit('index', selection[i]?.id )">
-<!--            <a style="cursor: pointer">{{ selection.length > 0 ? selection[i]?.id : "" }}</a>-->
+        <div class="samples-container" v-if="mode === 'class'" id="samples-component">
+          <div v-for="(sketch, i) of sketches" class="sample" :id="'sample_'+i"
+               @click="selection.length && emit('index', selection[i]?.id )">
+            <!--            <a style="cursor: pointer">{{ selection.length > 0 ? selection[i]?.id : "" }}</a>-->
             <span>{{ sketch[0].label }}</span>
             <span v-if="sketch[0].label === sketch[0].prediction"/>
             <span v-if="sketch[0].label !== sketch[0].prediction"
@@ -110,7 +114,10 @@
 import Scatterplot from "./Scatterplot.vue";
 import {computed, onMounted, ref, shallowRef, watch} from "vue";
 import * as d3 from "d3";
+import introJs from "intro.js";
+import "intro.js/introjs.css";
 import ParallelLines from "../shared/ParallelLines.vue";
+import {introJsConfig} from "./introJsConfig";
 
 console.log(import.meta.env.MODE)
 console.log(import.meta.env.VITE_APIURL)
@@ -126,8 +133,9 @@ const selection = shallowRef([] as any)
 const mode = ref('class' as 'class' | 'no_class')
 const analysisType = ref('sketch only' as 'sketch only' | 'predicted probabilities' | 'vanilla gradients' | 'grad cam' | 'occlusion' | 'knn');
 const analysisTypeOptions = ref(['sketch only', 'predicted probabilities', 'vanilla gradients', 'grad cam', 'occlusion', 'knn'])
-const projection = ref('input images' as 'input images' | 'last conv layer')
-const projectionOptions = ref(['input images', 'last conv layer'])
+const projection = ref('input images' as 'input images' | 'last conv layer' | 'output')
+const projectionOptions = ref(['input images', 'last conv layer', 'output'])
+const firstUpdate = ref(true)
 
 const trueClassOptions = ref([
   {label: 'airplane', value: 0},
@@ -181,11 +189,17 @@ const colorStrategyOptions = ref(['by_class', 'by_prediction', 'true/false'])
 
 
 onMounted(() => {
-  const projectionPath = projection.value === 'last conv layer' ? 'umap-cl' : 'umap'
+  const projectionPath = {
+    'input images': 'umap',
+    'last conv layer': 'umap-cl',
+    'output': 'umap-logits'
+  }[projection.value]
+
   fetch(apiUrl + projectionPath + "/10000")
       .then(res => res.json())
       .then(d => {
         data.value = d
+        handleSelection(d.filter((item: any) => [110635, 101647, 272791, 271551, 185767, 146028, 115656].includes(item.id)));
       })
 
   fetch(apiUrl + 'lines')
@@ -197,7 +211,11 @@ onMounted(() => {
 
 const reloadData = (viewport: number[]) => {
 
-  const projectionPath = projection.value === 'last conv layer' ? 'umap-cl' : 'umap'
+  const projectionPath = {
+    'input images': 'umap',
+    'last conv layer': 'umap-cl',
+    'output': 'umap-logits'
+  }[projection.value]
   const viewportPath = (viewport.length == 4)
       ? ('/' + viewport[0].toPrecision(8)
           + '/' + viewport[1].toPrecision(8)
@@ -262,7 +280,7 @@ const updateSelectionDisplay = () => {
       path = "lclknn/2000"
   }
 
-  if(selection.value.length === 0){
+  if (selection.value.length === 0) {
     sketches.value = []
   }
 
@@ -275,6 +293,13 @@ const updateSelectionDisplay = () => {
     sketches.value = meta.map(function (e: any, i: number) {
       return [e, images[i]];
     });
+
+    if (firstUpdate.value) {
+      setTimeout(() => {
+        introJs().setOptions(introJsConfig).start();
+      }, 500)
+      firstUpdate.value = false
+    }
   })
 
 }
