@@ -120,7 +120,7 @@ const currentLayer = ref(13)
 const brushFilter = ref(() => true)
 const firstUpdate = ref(true)
 
-const props = defineProps(['index', 'allImages'])
+const props = defineProps(['index', 'allImages', 'lines'])
 const emit = defineEmits(['updateIndex'])
 
 const classes = ['airplane', 'apple', 'bee', 'car', 'dragon', 'mosquito', 'moustache', 'mouth', 'pear', 'piano', 'pineapple', 'smiley face', 'train', 'umbrella', 'wine bottle']
@@ -283,6 +283,8 @@ function setupCircleView() {
 
     // __________ Pie chart class distribution _____________
 
+    const colorSector = props.lines.items.find(item => item.idx === props.index).y;
+
     background.selectAll('.pie').remove()
     background.selectAll('whatever')
         .data(pie)
@@ -293,7 +295,7 @@ function setupCircleView() {
             .innerRadius(30)
             .outerRadius(r * 1.5)
         )
-        .attr('fill', "none")
+        .attr('fill', (d, i) => (colorSector !== undefined && i === colorSector) ? '#dcdcdc' : 'none')
         .attr("stroke", "#ccc")
         .attr("transform", "translate(" + (width / 2) + "," + (height / 2) + ")")
         .style("stroke-width", "2px")

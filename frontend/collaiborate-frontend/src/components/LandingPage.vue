@@ -40,13 +40,13 @@
     </div>
 
     <div class="text-wrapper">
-      <h1 style="word-wrap: break-word;">Neighborhood Segregation</h1>
+      <h1 style="word-wrap: break-word;">Mrs. Bees neighborhood is changing</h1>
       <p style="font-size: 20px">A Journey into CNNs for Sketch Classification</p>
       <p style="text-align: justify;">Convolutional Neural Networks (CNNs) have transformed image classification. But
         the inner workings of these networks trained on datasets like QuickDraw remain hard to understand for humans. In
-        this interactive article, we explore the importance of neighbourhoods of samples in CNNs, building some
-        intuition on what these networks learn by observing how they transform space. Join us as we dive into the topic
-        and explore for yourself.</p>
+        this interactive article, we explore the importance of neighborhoods of samples in CNNs, building some intuition
+        on what these networks learn by observing how they transform space. Join us as we dive into the topic and
+        explore for yourself.</p>
     </div>
 
 

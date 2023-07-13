@@ -99,7 +99,6 @@ onMounted(() => {
 
     let items = props.data.items
 
-    console.log(props.data.items)
     if (props.scatterData) {
       items = props.data.items.filter(item => props.scatterData.some(i => i.id === item.idx))
     }
@@ -108,20 +107,20 @@ onMounted(() => {
         .data(items)
         .enter()
         .append("path")
-        .sort((a,b) => (selection?.includes(a.idx)? 1 : 0) - (selection?.includes(b.idx)? 1 : 0))
+        .sort((a, b) => (selection?.includes(a.idx) ? 1 : 0) - (selection?.includes(b.idx) ? 1 : 0))
         .attr("class", function (d) {
           return "line " + d.y
         }) // 2 class for each line: 'line' and the group name
         .attr("d", path)
         .style("fill", "none")
         .style("stroke", function (d) {
-          if(!selection || selection.length === 0 || selection.includes(d.idx)){
-            return (color(d.layers[d.layers.length-1]))
+          if (!selection || selection.length === 0 || selection.includes(d.idx)) {
+            return (color(d.layers[d.layers.length - 1]))
           }
           return "rgba(212,212,212,0.34)"
         })
         .style("stroke-width", function (d) {
-          if(selection.includes(d.idx) && selection.length < 100){
+          if (selection.includes(d.idx) && selection.length < 100) {
             return 1
           }
           return 0.1
@@ -131,7 +130,7 @@ onMounted(() => {
 
     let lengths = []
 
-    if(props.animateLineDraw){
+    if (props.animateLineDraw) {
       svgPath
           .each(function (d, i) {
             lengths[i] = d3.select(this).node().getTotalLength();
@@ -183,7 +182,7 @@ onMounted(() => {
   }
 
   watch(props, update)
-  watch( () => props.scatterData?.length, update)
+  watch(() => props.scatterData?.length, update)
   update()
 
 })

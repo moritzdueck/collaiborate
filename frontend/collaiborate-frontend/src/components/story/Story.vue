@@ -5,6 +5,75 @@
     </div>
 
     <div
+        style="min-height: 100vh; width: 100vw; padding: 50px; background-color: var(--gray); display: flex; justify-content: center">
+      <div style="max-width: 1280px; font-size: larger">
+        <h2>Background</h2>
+        <p>
+          We analyze a convolutional neural network that is trained to classify images of the QuickDraw dataset. The
+          dataset contains over 50 million drawings of people depicting everyday objects, grouped into 345 categories.
+          We
+          will focus on the following 15 categories to keep things simple: airplane, apple, bee, car, dragon, mosquito,
+          moustache, mouth, pear, piano, pineapple, smiley face, train, umbrella and wine bottle. In order to have a
+          perfectly balanced dataset, we sampled 100.000 instances of each class. The network should learn to classify
+          these training samples correctly. We used 80% of the data for training and the other 20%, amounting to 300.000
+          samples across the fifteen categories, representing our test data we use for probing and analyzing the model
+          in
+          the following.
+        </p>
+
+        <p>
+          The model was trained using PyTorch and has the following architecture:
+        </p>
+
+        <code>
+<pre>
+  nn.Sequential(
+    nn.Conv2d(1, 16, 3, padding='same'),
+    nn.ReLU(),
+    nn.MaxPool2d(2),
+    nn.Conv2d(16, 32, 3, padding='same'),
+    nn.ReLU(),
+    nn.MaxPool2d(2),
+    nn.Conv2d(32, 32, 3, padding='same'),
+    nn.ReLU(),
+    nn.MaxPool2d(2),
+    nn.Flatten(),
+    nn.Linear(288, 128),
+    nn.ReLU(),
+    nn.Linear(128, len(classes)),
+  )
+</pre>
+        </code>
+
+        <p>
+          For many machine learning models, visually analyzing latent spaces provides interesting insights into the
+          inner workings of general deep learning models <span v-html="getCitation('embeddingComparator')"/>, <span
+            v-html="getCitation('latentSpaceCartography')"/>
+          or language models <span v-html="getCitation('embComp')"/>, <span v-html="getCitation('LMFingerprints')"/>,
+          <span v-html="getCitation('NeuralWordEmbeddings')"/>. In this work, we treat each layer of the CNN as a
+          function whose multidimensional output range can be interpreted as a latent space. Within each of these latent
+          spaces, we can analyze our whole dataset and investigate the distances between individual samples.
+          <span v-html="getCitation('dKNN')"/> has
+          used the idea of calculating the k nearest neighbors across layer representation for CNN model robustness,
+          demonstrating that these neighborhoods contain useful information. Embeddings can stem from a variety of
+          models and techniques, so other authors focus on analyzing embeddings irrespective of data and model
+          specifics. <span v-html="getCitation('embComp')"/> uses local neighborhood information together with global
+          patterns to compare embeddings in a
+          visual system, focusing on the comparison of any two different embeddings of the same data. Inspired by these
+          contributions, our investigation is motivated by the following questions: Focusing on a CNN image
+          classification model, is the locality within its latent spaces meaningful? Can such an investigation help
+          explain how the model behaves and what it has learnt? And how do individual network layers affect and
+          transform these spaces as samples are propagated through the model? This last aspect is specific to our work
+          due to the well-defined relation between the spaces through the mathematical operations performed by the
+          model.
+        </p>
+
+        <p>Let's embark on this journey!</p>
+
+      </div>
+    </div>
+
+    <div
         style="width:100%; height: 50vh; display: flex; justify-content: left; align-items: end;">
       <h3 style="margin-bottom: 20px; margin-left: 20px">At any point, you can interact with this menu:</h3>
     </div>
@@ -146,7 +215,7 @@
         <div v-if="[15,16,17].includes(textIndex)"
              class="story-illustration-container">
           <div style="display: flex; height: 100%">
-            <SimpleNeighborhood v-if="allImages"
+            <SimpleNeighborhood v-if="allImages && lines"
                                 :transition-duration="0"
                                 :color-sector="lines.items.find((i:any) => i.idx === sample).y"
                                 :allImages="allImages" :index="sample" :num-samples="numSamples2" :img-size="25"
@@ -425,10 +494,12 @@
             Input</span> representation, signaled by the pin
             <img src="/pin_red.svg" alt="pin"
                  style="width: 25px; vertical-align: middle; display: inline-block; writing-mode: vertical-lr;"/>.
-            We trace the movement of the sketches with  <span class="text-highlight"> <span style="color: var(--blue); font-weight: bold">blue</span>
+            We trace the movement of the sketches with <span class="text-highlight"> <span
+              style="color: var(--blue); font-weight: bold">blue</span>
             when they move closer
             and
-            <span style="color: var(--orange); font-weight: bold">orange</span> if they move away </span>. The convolutional
+            <span style="color: var(--orange); font-weight: bold">orange</span> if they move away </span>. The
+            convolutional
             layer is an
             interesting one to start with: Convolutional layers can be interpreted as filters in classical image
             processing
@@ -501,6 +572,85 @@
 
       </div>
     </div>
+
+
+    <div
+        style="min-height: 100vh; width: 100vw; padding: 50px; background-color: var(--gray); display: flex; justify-content: center">
+      <div style="max-width: 1280px; font-size: larger">
+        <h2>Summary</h2>
+        <p>
+          In this paper we contributed the following three visualizations:
+        </p>
+
+        <div class="display-visualization">
+          <div style="position: relative">
+            <img src="/visualizations/distanceToAll.svg"/>
+            <div style="position: absolute; top: 5px; left: 20px">
+              <p>
+                <span
+                    style="width: 20px; height: 20px; border: 3px solid var(--blue); display: inline-block; vertical-align: middle; background-color: var(--blue-transparent);"></span>
+                Sketches from the same class</p>
+              <p>
+                <span
+                    style="width: 20px; height: 20px; border: 3px solid var(--gray); display: inline-block; vertical-align: middle; background-color: var(--gray-transparent);"></span>
+                Sketches from another class
+              </p>
+            </div>
+          </div>
+          <div>
+            <h3>1. Single sample distances to other samples per layer</h3>
+            Questions answered by this visualization:
+            <ol>
+              <li>Does the network learn to encode class probabilities in Euclidean space?</li>
+              <li>How well separated is the target class after each layer?</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="display-visualization">
+
+          <div>
+            <h3>2. Global neighborhood stability plot</h3>
+            Questions answered by this visualization:
+            <ol>
+              <li>How strongly do neighborhoods of samples in the dataset get affected by each layer?</li>
+              <li>How do the trajectories of different samples or groups of samples compare?</li>
+            </ol>
+          </div>
+
+          <img src="/visualizations/localSlim.svg"/>
+        </div>
+
+        <div class="display-visualization">
+
+          <img src="/visualizations/local.svg"/>
+
+          <div>
+            <h3>3. Local neighborhood transformation plot</h3>
+            Questions answered by this visualization:
+            <ol>
+              <li>Which samples does the network pull closer in Euclidean spaces and which samples are pushed away
+                throughout the layers?
+              </li>
+            </ol>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: center;">
+      <div class="citations">
+        <span></span>
+        <h3>References</h3>
+
+        <template v-for="reference of references">
+          <span>{{ '[' + references.findIndex(citation => citation.id === reference.id) + ']' }}</span>
+          <p :id="reference.id"></p>
+        </template>
+      </div>
+    </div>
+
   </div>
 </template>
 <script setup lang="ts">
@@ -518,11 +668,39 @@ import CnnLayersShapes from "../reusables/CnnLayersShapes.vue";
 import Distances from "./distances/Distances.vue";
 import SampleFocus from "./SampleFocus.vue";
 import CnnLayersShapesPassive from "../reusables/CnnLayersShapesPassive.vue";
+import {addCitations} from "../../citationHelper";
 
 const props = defineProps({
   allImages: {} as any,
   lines: {} as any
 })
+
+const references = [
+  {
+    id: 'embeddingComparator',
+    doi: '10.1145/3490099.3511122',
+  },
+  {
+    id: 'latentSpaceCartography',
+    doi: '10.1111/cgf.13672'
+  },
+  {
+    id: 'embComp',
+    doi: '10.48550/arXiv.1912.04853'
+  },
+  {
+    id: 'LMFingerprints',
+    doi: '10.1111/cgf.14541'
+  },
+  {
+    id: 'NeuralWordEmbeddings',
+    doi: '10.1109/TVCG.2017.2745141'
+  },
+  {
+    id: 'dKNN',
+    doi: '10.48550/arXiv.1803.04765'
+  },
+] as { id: string, doi: string }[];
 
 defineEmits({
   showDemo: () => true
@@ -589,6 +767,11 @@ onMounted(() => {
       .onStepExit((response: any) => {
         // { element, index, direction }
       });
+
+  setTimeout(() => {
+    addCitations(references)
+  }, 1000)
+
 })
 
 const ordinalLayer = computed(() => {
@@ -600,6 +783,10 @@ const ordinalLayer = computed(() => {
 
 const sampleLabel = computed(() => samples[sample.value].label)
 
+
+const getCitation = (id: string): string => {
+  return '<a href=\"#' + id + '\">[' + references.findIndex(citation => citation.id === id) + ']</a>'
+}
 
 const getRightColor = (layer: number) => {
   return layers[layer].color
@@ -701,6 +888,31 @@ const getRightColor = (layer: number) => {
 .story-menu > div:last-of-type {
   padding-bottom: 15px;
   border-bottom: 3px solid var(--gray);
+}
+
+.citations {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  padding: 20px;
+  align-items: baseline;
+  column-gap: 10px;
+  max-width: 1280px;
+  margin-bottom: 200px;
+}
+
+.display-visualization {
+  background-color: white;
+  padding: 30px;
+  display: grid;
+  grid-template-columns: 50% 50%;
+  margin-bottom: 70px;
+  column-gap: 10px;
+  border-radius: 5px;
+}
+
+.display-visualization > img {
+  width: 100%;
+  max-height: 600px;
 }
 
 </style>

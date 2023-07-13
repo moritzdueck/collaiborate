@@ -32,7 +32,8 @@ const updateExplorerIndex = (index: number) => explorerIndex.value = index;
 <template>
   <ScrollamaStory :all-images="allImages" :lines="lines" v-if="stage === 'story'" v-on:show-demo="stage='demo'"/>
   <Explorer v-if="stage === 'demo' && !explorerIndex" v-on:index="updateExplorerIndex" v-on:story="stage='story'"/>
-  <LocalView v-if="stage === 'demo' && explorerIndex" :index="explorerIndex" :all-images="allImages"  v-on:update-index="updateExplorerIndex"/>
+  <LocalView v-if="stage === 'demo' && explorerIndex" :lines="lines" :index="explorerIndex" :all-images="allImages"
+             v-on:update-index="updateExplorerIndex"/>
 </template>
 
 <style scoped>
@@ -62,6 +63,7 @@ const updateExplorerIndex = (index: number) => explorerIndex.value = index;
 .p-slider .p-slider-range {
   background: var(--blue) !important;
 }
+
 .p-slider .p-slider-handle {
   border: 2px solid var(--blue) !important;
 }
