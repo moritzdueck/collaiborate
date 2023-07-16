@@ -5,70 +5,62 @@
     </div>
 
     <div
-        style="min-height: 100vh; width: 100vw; padding: 50px; background-color: var(--gray); display: flex; justify-content: center">
-      <div style="max-width: 1280px; font-size: larger">
-        <h2>Background</h2>
-        <p>
-          We analyze a convolutional neural network that is trained to classify images of the QuickDraw dataset. The
-          dataset contains over 50 million drawings of people depicting everyday objects, grouped into 345 categories.
-          We
-          will focus on the following 15 categories to keep things simple: airplane, apple, bee, car, dragon, mosquito,
-          moustache, mouth, pear, piano, pineapple, smiley face, train, umbrella and wine bottle. In order to have a
-          perfectly balanced dataset, we sampled 100.000 instances of each class. The network should learn to classify
-          these training samples correctly. We used 80% of the data for training and the other 20%, amounting to 300.000
-          samples across the fifteen categories, representing our test data we use for probing and analyzing the model
-          in
-          the following.
-        </p>
+        style=" width: 100vw; padding: 50px; background-color: var(--gray); display: flex; justify-content: center">
+      <div style="max-width: 1280px; width: 100%; font-size: larger">
+        <h2 @click="showBackground = !showBackground" class="background-toggle">Background <img
+            :class="showBackground? 'rotated' : ''" src="/plus.svg"/></h2>
+        <template v-if="showBackground">
 
-        <p>
-          The model was trained using PyTorch and has the following architecture:
-        </p>
+          <p>
+            We analyze a convolutional neural network that is trained to classify images of the QuickDraw dataset. The
+            dataset contains over 50 million drawings of people depicting everyday objects, grouped into 345 categories.
+            We
+            will focus on the following 15 categories to keep things simple: airplane, apple, bee, car, dragon,
+            mosquito,
+            moustache, mouth, pear, piano, pineapple, smiley face, train, umbrella and wine bottle. In order to have a
+            perfectly balanced dataset, we sampled 100.000 instances of each class. The network should learn to classify
+            these training samples correctly. We used 80% of the data for training and the other 20%, amounting to
+            300.000
+            samples across the fifteen categories, representing our test data we use for probing and analyzing the model
+            in
+            the following.
+          </p>
 
-        <code>
-<pre>
-  nn.Sequential(
-    nn.Conv2d(1, 16, 3, padding='same'),
-    nn.ReLU(),
-    nn.MaxPool2d(2),
-    nn.Conv2d(16, 32, 3, padding='same'),
-    nn.ReLU(),
-    nn.MaxPool2d(2),
-    nn.Conv2d(32, 32, 3, padding='same'),
-    nn.ReLU(),
-    nn.MaxPool2d(2),
-    nn.Flatten(),
-    nn.Linear(288, 128),
-    nn.ReLU(),
-    nn.Linear(128, len(classes)),
-  )
-</pre>
-        </code>
+          <p>
+            The model was trained using PyTorch and has the following architecture:
+          </p>
 
-        <p>
-          For many machine learning models, visually analyzing latent spaces provides interesting insights into the
-          inner workings of general deep learning models <span v-html="getCitation('embeddingComparator')"/>, <span
-            v-html="getCitation('latentSpaceCartography')"/>
-          or language models <span v-html="getCitation('embComp')"/>, <span v-html="getCitation('LMFingerprints')"/>,
-          <span v-html="getCitation('NeuralWordEmbeddings')"/>. In this work, we treat each layer of the CNN as a
-          function whose multidimensional output range can be interpreted as a latent space. Within each of these latent
-          spaces, we can analyze our whole dataset and investigate the distances between individual samples.
-          <span v-html="getCitation('dKNN')"/> has
-          used the idea of calculating the k nearest neighbors across layer representation for CNN model robustness,
-          demonstrating that these neighborhoods contain useful information. Embeddings can stem from a variety of
-          models and techniques, so other authors focus on analyzing embeddings irrespective of data and model
-          specifics. <span v-html="getCitation('embComp')"/> uses local neighborhood information together with global
-          patterns to compare embeddings in a
-          visual system, focusing on the comparison of any two different embeddings of the same data. Inspired by these
-          contributions, our investigation is motivated by the following questions: Focusing on a CNN image
-          classification model, is the locality within its latent spaces meaningful? Can such an investigation help
-          explain how the model behaves and what it has learnt? And how do individual network layers affect and
-          transform these spaces as samples are propagated through the model? This last aspect is specific to our work
-          due to the well-defined relation between the spaces through the mathematical operations performed by the
-          model.
-        </p>
+          <img style="width: 100%;" src="/cnnCollaiborate.svg"/>
 
-        <p>Let's embark on this journey!</p>
+          <p>
+            For many machine learning models, visually analyzing latent spaces provides interesting insights into the
+            inner workings of general deep learning models [<span v-html="getCitation('embeddingComparator')"/>, <span
+              v-html="getCitation('latentSpaceCartography')"/>]
+            or language models [<span v-html="getCitation('LMFingerprints')"/>,
+            <span v-html="getCitation('NeuralWordEmbeddings')"/>]. In this work, we treat each layer of the CNN as a
+            function whose multidimensional output range can be interpreted as a latent space. Within each of these
+            latent
+            spaces, we can analyze our whole dataset and investigate the distances between individual samples.
+            Papernot et al. [<span v-html="getCitation('dKNN')"/>] has
+            used the idea of calculating the k nearest neighbors across layer representation for CNN model robustness,
+            demonstrating that these neighborhoods contain useful information. Embeddings can stem from a variety of
+            models and techniques, so other authors focus on analyzing embeddings irrespective of data and model
+            specifics. Boggust et al. [<span v-html="getCitation('embeddingComparator')"/>] use local neighborhood
+            information together with global
+            patterns to compare embeddings in a
+            visual system, focusing on the comparison of any two different embeddings of the same data. Inspired by
+            these
+            contributions, our investigation is motivated by the following questions: Focusing on a CNN image
+            classification model, is the locality within its latent spaces meaningful? Can such an investigation help
+            explain how the model behaves and what it has learnt? And how do individual network layers affect and
+            transform these spaces as samples are propagated through the model? This last aspect is specific to our work
+            due to the well-defined relation between the spaces through the mathematical operations performed by the
+            model.
+          </p>
+
+          <p>Let's embark on this journey!</p>
+
+        </template>
 
       </div>
     </div>
@@ -685,10 +677,6 @@ const references = [
     doi: '10.1111/cgf.13672'
   },
   {
-    id: 'embComp',
-    doi: '10.48550/arXiv.1912.04853'
-  },
-  {
     id: 'LMFingerprints',
     doi: '10.1111/cgf.14541'
   },
@@ -724,6 +712,7 @@ const topMenu = ref({
   showNumSamples: false,
   showPassiveNetwork: false,
 })
+const showBackground = ref(false)
 
 onMounted(() => {
   scroller
@@ -785,7 +774,7 @@ const sampleLabel = computed(() => samples[sample.value].label)
 
 
 const getCitation = (id: string): string => {
-  return '<a href=\"#' + id + '\">[' + references.findIndex(citation => citation.id === id) + ']</a>'
+  return '<a href=\"#' + id + '\">' + references.findIndex(citation => citation.id === id) + '</a>'
 }
 
 const getRightColor = (layer: number) => {
@@ -913,6 +902,29 @@ const getRightColor = (layer: number) => {
 .display-visualization > img {
   width: 100%;
   max-height: 600px;
+}
+
+.background-toggle {
+  cursor: pointer;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+}
+
+.background-toggle:hover {
+}
+
+.background-toggle > img {
+  transform: rotate(0deg);
+  transition: all 0.3s ease;
+  pointer-events: none;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+}
+
+.background-toggle > img.rotated {
+  transform: rotate(45deg);
 }
 
 </style>
