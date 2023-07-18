@@ -4,6 +4,7 @@
       <LandingPage :all-images="allImages" v-on:show-demo="$emit('showDemo')"></LandingPage>
     </div>
 
+    <!--  Background  -->
     <div
         style=" width: 100vw; padding: 50px; background-color: var(--gray); display: flex; justify-content: center">
       <div style="max-width: 1280px; width: 100%; font-size: larger">
@@ -14,16 +15,12 @@
           <p>
             We analyze a convolutional neural network that is trained to classify images of the QuickDraw dataset. The
             dataset contains over 50 million drawings of people depicting everyday objects, grouped into 345 categories.
-            We
-            will focus on the following 15 categories to keep things simple: airplane, apple, bee, car, dragon,
-            mosquito,
-            moustache, mouth, pear, piano, pineapple, smiley face, train, umbrella and wine bottle. In order to have a
-            perfectly balanced dataset, we sampled 100.000 instances of each class. The network should learn to classify
-            these training samples correctly. We used 80% of the data for training and the other 20%, amounting to
-            300.000
-            samples across the fifteen categories, representing our test data we use for probing and analyzing the model
-            in
-            the following.
+            We will focus on the following 15 categories to keep things simple: airplane, apple, bee, car, dragon,
+            mosquito, moustache, mouth, pear, piano, pineapple, smiley face, train, umbrella and wine bottle. In order
+            to have a perfectly balanced dataset, we sampled 100.000 instances of each class. The network should learn
+            to classify these training samples correctly. We used 80% of the data for training and the other 20%,
+            amounting to 300.000 samples across the fifteen categories, representing our test data we use for probing
+            and analyzing the model in the following.
           </p>
 
           <p>
@@ -39,17 +36,14 @@
             or language models [<span v-html="getCitation('LMFingerprints')"/>,
             <span v-html="getCitation('NeuralWordEmbeddings')"/>]. In this work, we treat each layer of the CNN as a
             function whose multidimensional output range can be interpreted as a latent space. Within each of these
-            latent
-            spaces, we can analyze our whole dataset and investigate the distances between individual samples.
+            latent spaces, we can analyze our whole dataset and investigate the distances between individual samples.
             Papernot et al. [<span v-html="getCitation('dKNN')"/>] has
             used the idea of calculating the k nearest neighbors across layer representation for CNN model robustness,
             demonstrating that these neighborhoods contain useful information. Embeddings can stem from a variety of
             models and techniques, so other authors focus on analyzing embeddings irrespective of data and model
             specifics. Boggust et al. [<span v-html="getCitation('embeddingComparator')"/>] use local neighborhood
-            information together with global
-            patterns to compare embeddings in a
-            visual system, focusing on the comparison of any two different embeddings of the same data. Inspired by
-            these
+            information together with global patterns to compare embeddings in a visual system, focusing on the
+            comparison of any two different embeddings of the same data. Inspired by these
             contributions, our investigation is motivated by the following questions: Focusing on a CNN image
             classification model, is the locality within its latent spaces meaningful? Can such an investigation help
             explain how the model behaves and what it has learnt? And how do individual network layers affect and
@@ -65,503 +59,550 @@
       </div>
     </div>
 
-    <div
-        style="width:100%; height: 50vh; display: flex; justify-content: left; align-items: end;">
-      <h3 style="margin-bottom: 20px; margin-left: 20px">At any point, you can interact with this menu:</h3>
+    <div style="display: flex; justify-content: center">
+      <div
+          style="max-width: 1920px; width:100%; height: 50vh; display: flex; justify-content: left; align-items: end;">
+        <h3 style="margin-bottom: 20px; margin-left: 20px">At any point, you can interact with this menu:</h3>
+      </div>
     </div>
 
-    <div style="width:100vw; display: flex;">
 
+    <div style="display: flex; justify-content: center">
+      <div style="width:100vw; display: flex; max-width: 1920px;">
+        <div id="story" class="story-container">
 
-      <div id="story" class="story-container">
-
-        <div class="story-menu">
-          <div style="display: flex; align-items: center;" v-if="topMenu.showSample">
-            <p style="writing-mode: vertical-lr;">Sample</p>
-            <SampleSidebar :all-images="allImages" v-model="sample"/>
-          </div>
-          <div style="display: flex; align-items: center;" v-if="topMenu.showNumSamples">
-            <p style="width: 120px;">{{ numSamples2 }} neighbors</p>
-            <div style="width: 100%; padding: 10px">
-              <Slider v-model:model-value="numSamples2" :min="2" :max="750"/>
+          <div class="story-menu">
+            <div style="display: flex; align-items: center;" v-if="topMenu.showSample">
+              <p style="writing-mode: vertical-lr;">Sample</p>
+              <SampleSidebar :all-images="allImages" v-model="sample"/>
+            </div>
+            <div style="display: flex; align-items: center;" v-if="topMenu.showNumSamples">
+              <p style="width: 120px;">{{ numSamples2 }} neighbors</p>
+              <div style="width: 100%; padding: 10px">
+                <Slider v-model:model-value="numSamples2" :min="2" :max="750"/>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center;" v-if="topMenu.showNetwork">
+              <p style="writing-mode: vertical-lr;">Representation</p>
+              <CnnLayersShapes :show-pin="[16, 17].includes(textIndex)" :initial-layer="layer"
+                               v-on:selected-layer="l => layer = l" :controlled="true"/>
+            </div>
+            <div v-if="[3,4,5,6,7].includes(textIndex)" style="display: flex; align-items: center;">
+              <p style="writing-mode: vertical-lr;">Representation</p>
+              <CnnLayersShapesPassive :show-input="[3,4,5,6].includes(textIndex)"
+                                      :show-conv="[4,5,6,7].includes(textIndex)"/>
             </div>
           </div>
-          <div style="display: flex; align-items: center;" v-if="topMenu.showNetwork">
-            <p style="writing-mode: vertical-lr;">Representation</p>
-            <CnnLayersShapes :show-pin="[16, 17].includes(textIndex)" :initial-layer="layer"
-                             v-on:selected-layer="l => layer = l" :controlled="true"/>
-          </div>
-          <div v-if="[3,4,5,6,7].includes(textIndex)" style="display: flex; align-items: center;">
-            <p style="writing-mode: vertical-lr;">Representation</p>
-            <CnnLayersShapesPassive :show-input="[3,4,5,6].includes(textIndex)"
-                                    :show-conv="[4,5,6,7].includes(textIndex)"/>
-          </div>
-        </div>
 
-        <div v-show="textIndex === 1" class="story-illustration-container">
-          <Distances :layer="layer" :sample="sample"/>
-        </div>
-
-        <div v-show="textIndex === 2" class="story-illustration-container">
-          <Distances :layer="layer" :sample="sample"/>
-        </div>
-
-        <div v-if="textIndex === 3" class="story-illustration-container">
-          <SimpleNeighborhoodUnsorted v-if="allImages"
-                                      :transition-duration="1000"
-                                      :allImages="allImages" :index="sample" :num-samples="numSamples" :img-size="25"
-                                      color="var(--yellow)" :referenceLayer="0" :comparison-layer="0"/>
-        </div>
-
-        <div v-if="textIndex === 4 || textIndex === 5 || textIndex === 6 || textIndex === 7"
-             class="story-illustration-container">
-
-          <div style="position: absolute; top:33%" v-if="textIndex === 4 || textIndex === 5">
-            <div class="layer input">Input</div>
-          </div>
-          <div style="position: absolute; bottom:33%" v-if="textIndex === 4 || textIndex === 5">
-            <div :class="'layer ' + lineLayer.type ">{{ lineLayer.label }}</div>
+          <div v-show="textIndex === 1" class="story-illustration-container">
+            <Distances :layer="layer" :sample="sample"/>
           </div>
 
-
-          <div style="position: absolute; left:0px; width: 100%; height: 100%;">
-            <ParallelLineExplanation :step="textIndex - 3"
-                                     :allImages="allImages"
-                                     :index="sample"
-                                     :num-samples="numSamples"
-                                     :img-size="20"
-                                     color1="var(--yellow)"
-                                     :color2="lineLayer.color"
-                                     :layer1="0"
-                                     :layer2="lineLayer.value"
-                                     v-on:overlap-count="c => overlapCount = c"
-                                     style="height: 100%;"/>
+          <div v-show="textIndex === 2" class="story-illustration-container">
+            <Distances :layer="layer" :sample="sample"/>
           </div>
 
-        </div>
-
-        <div v-if="textIndex === 8 || textIndex === 9"
-             class="story-illustration-container">
-
-          <div style="position: absolute; left:0; width: 100%; height: 100%;">
-            <ParallelLineStory :lines="lines" :all-images="allImages"
-                               :highlighted-sample="textIndex === 8? [sample] : [110635,101647,272791,271551,185767,146028,115656]"/>
-          </div>
-
-
-        </div>
-
-        <div v-if="textIndex === 10"
-             class="story-illustration-container">
-
-          <div style="position: absolute; width: 100%; height: 100%;">
-            <ParallelLines :animate-line-draw="currentDirection==='down'" :data="lines" :selection="[]"
-                           v-on:selection=""
-                           :enable-brush="false"/>
-          </div>
-
-
-        </div>
-
-        <div v-if="textIndex === 11"
-             class="story-illustration-container">
-          <div style="position: absolute; left:0; width: 100%; height: 100%;">
-            <ParallelLines :animate-line-draw="false" :data="lines" v-if="lines"
-                           :selection="lines.items.filter((l:any) => l.y === classes.indexOf('wine bottle')).map((item:any) => item.idx)"
-                           v-on:selection="" :enable-brush="false"/>
-          </div>
-
-        </div>
-
-        <div v-if="textIndex === 12"
-             class="story-illustration-container">
-          <div style="position: absolute; left:0; width: 100%; height: 100%;">
-            <ParallelLines :animate-line-draw="false" :data="lines" v-if="lines"
-                           :selection="lines.items.filter((l:any) => l.y === classes.indexOf('wine bottle')).filter((l:any) => l.mean > 71).map((item:any) => item.idx)"
-                           v-on:selection="" :enable-brush="false"/>
-          </div>
-
-        </div>
-
-        <div v-if="textIndex === 13"
-             class="story-illustration-container">
-
-          <div style="position: absolute; left:0; width: 100%; height: 100%;">
-            <ParallelLines :animate-line-draw="false" :data="lines" v-if="lines"
-                           :selection="lines.items.filter((l:any) => l.y === classes.indexOf('wine bottle')).filter((l:any) => l.mean < 35).map((item:any) => item.idx)"
-                           v-on:selection="" :enable-brush="false"/>
-          </div>
-
-        </div>
-
-        <div v-if="textIndex === 14" class="story-illustration-container">
-          <div style="display: flex; height: 100%">
+          <div v-if="textIndex === 3" class="story-illustration-container">
             <SimpleNeighborhoodUnsorted v-if="allImages"
-                                        :transition-duration="1"
-                                        :allImages="allImages" :index="sample" :num-samples="numSamples2" :img-size="25"
-                                        color="var(--gray)" :referenceLayer="layer"
-                                        :comparison-layer="layer"/>
-          </div>
-        </div>
-
-        <div v-if="[15,16,17].includes(textIndex)"
-             class="story-illustration-container">
-          <div style="display: flex; height: 100%">
-            <SimpleNeighborhood v-if="allImages && lines"
-                                :transition-duration="0"
-                                :color-sector="lines.items.find((i:any) => i.idx === sample).y"
-                                :allImages="allImages" :index="sample" :num-samples="numSamples2" :img-size="25"
-                                color="var(--gray)" :referenceLayer="layer"
-                                :comparison-layer="textIndex === 15? layer : 0"/>
+                                        :transition-duration="1000"
+                                        :allImages="allImages" :index="sample" :num-samples="numSamples" :img-size="25"
+                                        color="var(--yellow)" :referenceLayer="0" :comparison-layer="0"/>
           </div>
 
+          <div v-if="textIndex === 4 || textIndex === 5 || textIndex === 6 || textIndex === 7"
+               class="story-illustration-container">
+
+            <div style="position: absolute; top:33%" v-if="textIndex === 4 || textIndex === 5">
+              <div class="layer input">Input</div>
+            </div>
+            <div style="position: absolute; bottom:33%" v-if="textIndex === 4 || textIndex === 5">
+              <div :class="'layer ' + lineLayer.type ">{{ lineLayer.label }}</div>
+            </div>
+
+
+            <div style="position: absolute; left:0px; width: 100%; height: 100%;">
+              <ParallelLineExplanation :step="textIndex - 3"
+                                       :allImages="allImages"
+                                       :index="sample"
+                                       :num-samples="numSamples"
+                                       :img-size="20"
+                                       color1="var(--yellow)"
+                                       :color2="lineLayer.color"
+                                       :layer1="0"
+                                       :layer2="lineLayer.value"
+                                       v-on:overlap-count="c => overlapCount = c"
+                                       style="height: 100%;"/>
+            </div>
+
+          </div>
+
+          <div v-if="textIndex === 8 || textIndex === 9"
+               class="story-illustration-container">
+
+            <div style="position: absolute; left:0; width: 100%; height: 100%;">
+              <ParallelLineStory :lines="lines" :all-images="allImages"
+                                 :highlighted-sample="textIndex === 8? [sample] : [110635,101647,272791,271551,185767,146028,115656]"/>
+            </div>
+
+
+          </div>
+
+          <div v-if="textIndex === 10"
+               class="story-illustration-container">
+
+            <div style="position: absolute; width: 100%; height: 100%;">
+              <ParallelLines :animate-line-draw="currentDirection==='down'" :data="lines" :selection="[]"
+                             v-on:selection=""
+                             :enable-brush="false"/>
+            </div>
+
+
+          </div>
+
+          <div v-if="textIndex === 11"
+               class="story-illustration-container">
+            <div style="position: absolute; left:0; width: 100%; height: 100%;">
+              <ParallelLines :animate-line-draw="false" :data="lines" v-if="lines"
+                             :selection="lines.items.filter((l:any) => l.y === classes.indexOf('wine bottle')).map((item:any) => item.idx)"
+                             v-on:selection="" :enable-brush="false"/>
+            </div>
+
+          </div>
+
+          <div v-if="textIndex === 12"
+               class="story-illustration-container">
+            <div style="position: absolute; left:0; width: 100%; height: 100%;">
+              <ParallelLines :animate-line-draw="false" :data="lines" v-if="lines"
+                             :selection="lines.items.filter((l:any) => l.y === classes.indexOf('wine bottle')).filter((l:any) => l.mean > 71).map((item:any) => item.idx)"
+                             v-on:selection="" :enable-brush="false"/>
+            </div>
+
+          </div>
+
+          <div v-if="textIndex === 13"
+               class="story-illustration-container">
+
+            <div style="position: absolute; left:0; width: 100%; height: 100%;">
+              <ParallelLines :animate-line-draw="false" :data="lines" v-if="lines"
+                             :selection="lines.items.filter((l:any) => l.y === classes.indexOf('wine bottle')).filter((l:any) => l.mean < 35).map((item:any) => item.idx)"
+                             v-on:selection="" :enable-brush="false"/>
+            </div>
+
+          </div>
+
+          <div v-if="textIndex === 14" class="story-illustration-container">
+            <div style="display: flex; height: 100%">
+              <SimpleNeighborhoodUnsorted v-if="allImages"
+                                          :transition-duration="1"
+                                          :allImages="allImages" :index="sample" :num-samples="numSamples2"
+                                          :img-size="25"
+                                          color="var(--gray)" :referenceLayer="layer"
+                                          :comparison-layer="layer"/>
+            </div>
+          </div>
+
+          <div v-if="[15,16,17].includes(textIndex)"
+               class="story-illustration-container">
+            <div style="display: flex; height: 100%">
+              <SimpleNeighborhood v-if="allImages && lines"
+                                  :transition-duration="0"
+                                  :color-sector="lines.items.find((i:any) => i.idx === sample).y"
+                                  :allImages="allImages" :index="sample" :num-samples="numSamples2" :img-size="25"
+                                  color="var(--gray)" :referenceLayer="layer"
+                                  :comparison-layer="textIndex === 15? layer : 0"/>
+            </div>
+
+          </div>
+
         </div>
+        <div>
+          <div style="height: 50vh;" :class="'text-block'" id="84373847"></div>
 
-      </div>
-      <div>
-        <div style="height: 50vh;" :class="'text-block'" id="84373847"></div>
+          <h2 style="padding: 20px">1. Distances</h2>
 
-        <h2 style="padding: 20px">1. Distances</h2>
+          <div :class="'text-block ' + ((activeText === '984398')? 'active' : '')" id="984398">
+            <p>
+              Let’s calculate the euclidean distance of our {{ sampleLabel }} sketch <span v-if="allImages"
+                                                                                           class="icon-in-text"><img
+                :src="'data:image/png;base64, ' + allImages[sample]" alt=""/></span> to all other samples in our
+              test dataset. Here, we
+              are using the <span class="text-layer-highlight">Input</span>
+              representation, i.e. the pixel values of our sketches.
 
-        <div :class="'text-block ' + ((activeText === '984398')? 'active' : '')" id="984398">
-          <p>
-            Let’s calculate the euclidean distance of our {{ sampleLabel }} sketch <span v-if="allImages"
-                                                                                         class="icon-in-text"><img
-              :src="'data:image/png;base64, ' + allImages[sample]" alt=""/></span> to all other samples in our
-            validation dataset.
-            We might start
-            by asking if other {{ sampleLabel }}s are closer in space than let’s say
-            {{ classes.filter(c => c !== sampleLabel)[0] }}s or {{ classes.filter(c => c !== sampleLabel)[1] }}s. The
-            blue
-            distribution shows the
-            distances to other {{ sampleLabel }}s, while all grey distributions show the distances to samples of other
-            classes. Here, we
-            are using the <span class="text-layer-highlight">Input</span>
-            representation, i.e. the pixel values of our sketches.
-          </p>
+              Samples from the same class can already be numerically similar in the input representation. For example,
+              many people
+              will draw a car in a similar way:
 
-          <SampleFocus :all-images="allImages" :sample="sample" v-if="[110635,101647].includes(sample)">
-            While a few other {{ sampleLabel }}s are already close to our sketch in euclidean space, we see that the
-            distributions still overlap heavily, so not all {{ sampleLabel }}s are very similar.
-          </SampleFocus>
+            </p>
+
+            <span v-if="allImages" class="icon-in-text"><img :src="'data:image/png;base64, ' + allImages[62252]"
+                                                             alt=""/></span>
+            <span v-if="allImages" class="icon-in-text"><img :src="'data:image/png;base64, ' + allImages[168945]"
+                                                             alt=""/></span>
+            <span v-if="allImages" class="icon-in-text"><img :src="'data:image/png;base64, ' + allImages[89829]"
+                                                             alt=""/></span>
+            <span v-if="allImages" class="icon-in-text"><img :src="'data:image/png;base64, ' + allImages[270910]"
+                                                             alt=""/></span>
+            <span v-if="allImages" class="icon-in-text"><img :src="'data:image/png;base64, ' + allImages[150474]"
+                                                             alt=""/></span>
+
+            <p>
+              With that in mind, we might start
+              by asking if for our specific sample <span v-if="allImages"
+                                                         class="icon-in-text"><img
+                :src="'data:image/png;base64, ' + allImages[sample]" alt=""/></span>, other {{ sampleLabel }}s are
+              closer in space than, let’s say,
+              {{ classes.filter(c => c !== sampleLabel)[0] }}s or {{ classes.filter(c => c !== sampleLabel)[1] }}s.
 
 
-          <SampleFocus :all-images="allImages" :sample="sample"
-                       v-if="[146028,115656,272791,271551,185767].includes(sample)">
-            We see that by just looking at the black and white squares that the image is made up of and comparing them,
-            other {{ sampleLabel }}s are not necessarily closer to our sketch than any other sketch in the dataset.
-          </SampleFocus>
+              <span class="text-highlight">The blue distribution shows the distances to other {{ sampleLabel }}s</span>,
+              while all gray distributions show the distances to samples of other
+              classes.
+            </p>
 
-        </div>
-        <div :class="'text-block ' + ((activeText === '490029')? 'active' : '')" id="490029">
-          <p>If we jump all the way to the end of the network, the output of the
-            <span class="text-layer-highlight">Linear</span> layer, we get quite a
-            different picture.
-            Calculating the distances between samples, we see that {{ sampleLabel }}s are now generally closer in space,
-            while samples from other categories moved away from the sketch.</p>
-          <p>In order for our network to accurately classify all samples, the output of the final layer, often referred
-            to
-            as logits, will be a vector of dimensions corresponding to the number of classes (15 in this case). The
-            ideal
-            behavior of the network is to produce a value of 1 at the index corresponding to the correct label and 0 for
-            all other indices. If the network achieved perfect classification for every sample, we would hence see the
-            distributions completely collapsed into these two points. Yet, this will not happen for any real dataset
-            as there are ambiguous sketches and labelling errors. (optional mention: overfitting)</p>
-          <p>Now, what happens in between these two extremes? If you are curios, you can already look at the
-            effects by stepping through the layers on the left.</p>
-          <p></p>
-        </div>
+            <SampleFocus :all-images="allImages" :sample="sample" v-if="[110635,101647].includes(sample)">
+              While the closest samples to our {{ sampleLabel }} are other {{ sampleLabel }}s, a large part of the
+              distribution overlaps with the distances to other classes, so for most {{ sampleLabel }}s the initial
+              distance does not tell us anything about the class label.
+            </SampleFocus>
 
-        <h2 style="padding: 20px">2. Building a visualization</h2>
 
-        <div :class="'text-block ' + ((activeText === '209834')? 'active' : '')" id="209834">
-          <p>
-            For understanding the neighborhood of a single sketch, we look at the distances we computed before and only
-            take the first few samples that are the closest to our sketch.
-            Here, we see <span class="text-highlight"> the {{ numSamples }} closest samples to the
+            <SampleFocus :all-images="allImages" :sample="sample"
+                         v-if="[146028,115656,272791,271551,185767].includes(sample)">
+              We see that by just looking at the black and white squares that the image is made up of and comparing
+              them,
+              other {{ sampleLabel }}s are not necessarily closer to our sketch than any other sketch in the dataset.
+            </SampleFocus>
+
+          </div>
+          <div :class="'text-block ' + ((activeText === '490029')? 'active' : '')" id="490029">
+            <p>If we jump all the way to the end of the network, the output of the
+              <span class="text-layer-highlight">Linear</span> layer, we get quite a
+              different picture.
+
+              After calculating the distances from our source image to all other samples, <span class="text-highlight">we see that the other
+              {{ sampleLabel }}s moved closer in space</span> , while samples from other categories moved away from the
+              sketch. But be careful: this separation does not work equally well for all samples.
+            </p>
+
+
+            <p>
+              The output of the final layer will be a vector of dimensions corresponding to the number of classes (15 in
+              this case). The ideal behavior of the network is to produce a high positive value at the index
+              corresponding
+              to the correct label while setting all other values far below zero. As neural networks tend to produce
+              smooth representations, this incentive is enough to observe samples of the target class moving closer to
+              each other. Now, what happens in between these two extremes? If you are curious, you can already look at
+              the
+              effects by stepping through the layers on the left.
+            </p>
+          </div>
+
+          <h2 style="padding: 20px">2. Building a visualization</h2>
+
+          <div :class="'text-block ' + ((activeText === '209834')? 'active' : '')" id="209834">
+            <p>
+              For understanding the neighborhood of a single sketch, we look at the distances we computed before and
+              only
+              take the first few samples that are the closest to our sketch.
+              Here, we see <span class="text-highlight"> the {{ numSamples }} closest samples to the
           selected {{ sampleLabel }}</span>.
-          </p>
+            </p>
 
-          <p>
-            Note: Our validation dataset has 300.000 samples, from here on we use a randomly subsampled dataset of
-            10.000 samples. This has computational advantages but also makes the neighborhoods easier to analyse
-            visually
-            as
-            samples from other classes enter the neighborhood earlier.
-          </p>
+            <p>
+              Note: Our validation dataset has 300.000 samples, from here on we use a randomly subsampled dataset of
+              10.000 samples. This has computational advantages but also makes the neighborhoods easier to analyse
+              visually as samples from other classes enter the neighborhood earlier.
+            </p>
 
 
-        </div>
-        <div :class="'text-block ' + ((activeText === '230920')? 'active' : '')" id="230920">
-          <p>
-            As our data is processed by the network, each layer will transform the numerical representation of each
-            sketch. With that, the neighborhood of the sketch will change.
-            When <span class="text-highlight"> we compare the neighborhood in the
+          </div>
+          <div :class="'text-block ' + ((activeText === '230920')? 'active' : '')" id="230920">
+            <p>
+              As our data is processed by the network, each layer will transform the numerical representation of each
+              sketch. With that, the neighborhood of the sketch will change.
+              When <span class="text-highlight"> we compare the neighborhood in the
           <span class="layer input" style="padding: 5px; margin: -5px;">input</span>
           representation to the one produced by the {{ ordinalLayer }} layer:
-            <!--          <LayerDropdownSelect v-model="lineLayer"/>-->
+              <!--          <LayerDropdownSelect v-model="lineLayer"/>-->
             <span class="layer convolution" style="padding: 5px; margin: -5px;">{{ lineLayer.label }}</span>
           </span>
-            , can we summarize the effects on the
-            neighborhood in a concise way?
-          </p>
-          <p>
-            A simple approximation is looking at the overlap of the neighborhood before and after the transformation.
-          </p>
-        </div>
-        <div :class="'text-block ' + ((activeText === '457838')? 'active' : '')" id="457838">
-          <p>
-            We can project the samples back to one dimension – still sorted by distance – and compare the two
-            representations.
-            <span class="text-highlight"> We draw a line between
+              , can we summarize the effects on the
+              neighborhood in a concise way?
+            </p>
+            <p>
+              A simple approximation is looking at the overlap of the neighborhood before and after the transformation.
+            </p>
+          </div>
+          <div :class="'text-block ' + ((activeText === '457838')? 'active' : '')" id="457838">
+            <p>
+              We can project the samples back to one dimension – still sorted by distance – and compare the two
+              representations.
+              <span class="text-highlight"> We draw a line between
             samples that are present in both representations.</span>
-          </p>
+            </p>
 
-        </div>
-        <div :class="'text-block ' + ((activeText === '3499233')? 'active' : '')" id="3499233">
-          <p>
-            <span class="text-highlight">Let's count pairs</span>.
-            Intuitively, the higher the count,
-            the less the network impacted the neighborhood.
-            In this case, {{ overlapCount }} samples of {{ numSamples }} in total are present in both representations.
-          </p>
+          </div>
+          <div :class="'text-block ' + ((activeText === '3499233')? 'active' : '')" id="3499233">
+            <p>
+              <span class="text-highlight">Let's count pairs</span>.
+              Intuitively, the higher the count,
+              the less the network impacted the neighborhood.
+              In this case, {{ overlapCount }} samples of {{ numSamples }} in total are present in both representations.
+            </p>
 
-          <SampleFocus :sample="sample" :all-images="allImages" v-if="overlapCount > 80">
-            This is a rather high value and other samples will be impacted much stronger. This indicates that the
-            current sample has a stable neighborhood.
-          </SampleFocus>
+            <SampleFocus :sample="sample" :all-images="allImages" v-if="overlapCount > 80">
+              This is a rather high value and other samples will be impacted much stronger. This indicates that the
+              current sample has a stable neighborhood.
+            </SampleFocus>
 
-          <SampleFocus :sample="sample" :all-images="allImages" v-if="(overlapCount <= 80 && overlapCount > 60)">
-            This is an average number, for many other samples the neighborhood changes with similar strength.
-          </SampleFocus>
+            <SampleFocus :sample="sample" :all-images="allImages" v-if="(overlapCount <= 80 && overlapCount > 60)">
+              This is an average number, for many other samples the neighborhood changes with similar strength.
+            </SampleFocus>
 
-          <SampleFocus :sample="sample" :all-images="allImages" v-if="overlapCount <= 60">
-            This is an relatively low number, do you already have some ideas what this might mean for this sample?
-          </SampleFocus>
+            <SampleFocus :sample="sample" :all-images="allImages" v-if="overlapCount <= 60">
+              This is an relatively low number, do you already have some ideas what this might mean for this sample?
+            </SampleFocus>
 
-        </div>
-        <div :class="'text-block ' + ((activeText === '148832')? 'active' : '')" id="148832">
-          <p>
-            For the sketch <span v-if="allImages" class="icon-in-text"><img
-              :src="'data:image/png;base64, ' + allImages[sample]" alt=""/></span>, we can thus record the following
-            result:
+          </div>
+          <div :class="'text-block ' + ((activeText === '148832')? 'active' : '')" id="148832">
+            <p>
+              For the sketch <span v-if="allImages" class="icon-in-text"><img
+                :src="'data:image/png;base64, ' + allImages[sample]" alt=""/></span>, we can thus record the following
+              result:
 
-            <span class="text-highlight">{{ overlapCount }} of the {{ numSamples }} nearest neighbors in the <span
-                class="layer input"
-                style="padding: 5px; margin: -5px;">input</span>
+              <span class="text-highlight">{{ overlapCount }} of the {{ numSamples }} nearest neighbors in the <span
+                  class="layer input"
+                  style="padding: 5px; margin: -5px;">input</span>
             layer are still part of the {{ numSamples }} nearest neighbors after the
             <span style="padding: 5px" :class="'layer '+lineLayer.type">
             {{ lineLayer.label }} </span> layer </span>, i.e. in the intermediate latent space created by propagating
-            all
-            samples through the network up to that layer.
-          </p>
+              all
+              samples through the network up to that layer.
+            </p>
 
-        </div>
-        <div :class="'text-block ' + ((activeText === '563234')? 'active' : '')" id="563234">
-          <p>
-            If we repeat this analysis for each layer, we can see a trajectory of our sample throughout the network
-            telling us
-            how many of the initial neighbors are left after each transformation.
-          </p>
-        </div>
-        <div :class="'text-block ' + ((activeText === '298048')? 'active' : '')" id="298048">
-          <p>
-            We can then compare multiple samples using this visualization to see patterns in the data.
-            We color the lines according to the number of samples that are present in both the
-            <span class="layer input" style="padding: 5px; margin: -5px;">input</span>
-            and after the last <span class="layer linear" style="padding: 5px; margin: -5px;">linear</span> layer.
-            We can observe that the car and wine bottle keep many of their inital neighbors whereas the train and the
-            plane
-            quickly lose most of their initial neighborhood. A good explanation could be that the first two sketches are
-            very prototypical for their class and are surrounded by many similar samples that get transformed in similar
-            ways. For the latter, it is likely that there aren't a lot of similar sketches which is why we observe more
-            variation.
-          </p>
-        </div>
+          </div>
+          <div :class="'text-block ' + ((activeText === '563234')? 'active' : '')" id="563234">
+            <p>
+              If we repeat this analysis for each layer, we can see a trajectory of our sample throughout the network
+              telling us
+              how many of the initial neighbors are left after each transformation.
+            </p>
+          </div>
+          <div :class="'text-block ' + ((activeText === '298048')? 'active' : '')" id="298048">
+            <p>
+              We can then compare multiple samples using this visualization to see patterns in the data.
+              We color the lines according to the number of samples that are present in both the
+              <span class="layer input" style="padding: 5px; margin: -5px;">input</span>
+              and after the last <span class="layer linear" style="padding: 5px; margin: -5px;">linear</span> layer.
+              We can observe that the car and wine bottle keep many of their inital neighbors whereas the train and the
+              plane
+              quickly lose most of their initial neighborhood. A good explanation could be that the first two sketches
+              are
+              very prototypical for their class and are surrounded by many similar samples that get transformed in
+              similar
+              ways. For the latter, it is likely that there aren't a lot of similar sketches which is why we observe
+              more
+              variation.
+            </p>
+          </div>
 
-        <h2 style="padding: 20px">3. Exploring our new visualization</h2>
+          <h2 style="padding: 20px">3. Exploring our new visualization</h2>
 
-        <div :class="'text-block ' + ((activeText === '965932')? 'active' : '')" id="965932">
-          <p>
-            When we include the sketches from the whole dataset, several things are noteworthy:
-          </p>
-          <ul>
-            <li>the number of remaining neighbors continuously decreases, confirming that <span class="text-highlight"> the network
-            is transforming the space with each layer step by step </span>. If instead, the pattern would exhibit
-              much more variance, then we would likely conclude that we cannot look at CNNs as a continuous
-              transformation
-              of space – rather at any point, any layer could significantly and unexpectedly transform one neighborhood
-              but not the other.
-            </li>
-            <li>there is correlation that samples which neighborhoods are not heavily impacted by one layer will likely
-              not be strongly impacted by other layers too – and vice versa. This indicates that
-              <span class="text-highlight"> the visualization depends on
-            the data characteristics </span> and not solely on the selected model architecture.
-            </li>
-          </ul>
-        </div>
-        <div :class="'text-block ' + ((activeText === '758388')? 'active' : '')" id="758388">
-          <p>
-            We already established that the visualization depends on the data, now we are going to explore some
-            effects in more detail. Let's start by subsetting the data to <span
-              class="text-highlight">only wine bottles</span>.
-          </p>
-          <p>
-            We see that they significantly differ from the other trajectories of other classes, many of the samples
-            keep many of their neighbors throughout the transformations of the network. Our hypothesis is
-            that as there is little variation in the way people draw wine bottles, the numerical representations
-            are very similar to each other. Therefore, the mathematical operations performed by the network also
-            transform them in similar ways.
-          </p>
-        </div>
+          <div :class="'text-block ' + ((activeText === '965932')? 'active' : '')" id="965932">
+            <p>
+              When we include the sketches from the whole dataset, several things are noteworthy:
+            </p>
+            <ul>
+              <li>
+                the number of remaining neighbors continuously decreases, confirming that <span class="text-highlight">the network is transforming the space with each layer step by step</span>.
+                If instead, the numbers for one sample would fluctuate with high variance it would mean that at any
+                point, any layer could significantly and unexpectedly transform one neighborhood but not the other,
+                rendering any global analysis of effects impossible.
+              </li>
+              <li>
+                Secondly, there is a correlation that samples keeping most of their neighbors in one layer are also
+                keeping many of their neighbors in other layers – and vice versa. Visually, this corresponds to colors
+                staying separated. This indicates that <span class="text-highlight">the visualization depends on the data characteristics</span>
+                and not solely on the selected model architecture.
+              </li>
+            </ul>
+          </div>
+          <div :class="'text-block ' + ((activeText === '758388')? 'active' : '')" id="758388">
+            <p>
+              We already established that the visualization depends on the data, now we are going to explore some
+              effects in more detail. Let's start by subsetting the data to <span
+                class="text-highlight">only wine bottles</span>.
+            </p>
+            <p>
+              We see that they significantly differ from the other trajectories of other classes: Many of the samples
+              keep many of their neighbors throughout the transformations of the network. Our hypothesis is that, as
+              there is little variation in the way people draw wine bottles, the numerical representations are very
+              similar to each other. Therefore, the mathematical operations performed by the network transform them in
+              similar ways, keeping clusters closer together than for other classes.
+            </p>
+          </div>
 
 
-        <div :class="'text-block ' + ((activeText === '2399230')? 'active' : '')" id="2399230">
-          <p>
-            Let's pick a few samples of wine bottles with trajectories indicating stable neighborhoods,
-            i.e. <span class="text-highlight">high numbers throughout</span>:
-          </p>
-          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <div :class="'text-block ' + ((activeText === '2399230')? 'active' : '')" id="2399230">
+            <p>
+              Let's pick a few samples of wine bottles with trajectories indicating stable neighborhoods,
+              i.e. <span class="text-highlight">high numbers throughout</span>:
+            </p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <span v-if="allImages && lines"
                   v-for="s of lines.items.filter((l:any) => l.y === classes.indexOf('wine bottle')).filter((l:any) => l.mean > 71).map((item:any) => item.idx)">
               <img :src="'data:image/png;base64, ' + allImages[s]" alt=""/>
             </span>
+            </div>
+
+            <p>
+              They tend to be very <span class="text-highlight">prototypical wine bottles</span>. This is in line with
+              the
+              argumentation above:
+              These samples potentially have other sketches surrounding them that are so similar, that they always stick
+              together while being
+              transformed.
+            </p>
           </div>
 
-          <p>
-            They tend to be very <span class="text-highlight">prototypical wine bottles</span>. This is in line with the
-            argumentation above:
-            These samples potentially have other sketches surrounding them that are so similar, that they always stick
-            together while being
-            transformed.
-          </p>
-        </div>
-
-        <div :class="'text-block ' + ((activeText === '623811')? 'active' : '')" id="623811">
-          <p>
-            Looking at the other end of the spectrum within the sketches labelled as wine bottles, we can see some
-            interesting cases.
-            Here are the samples:
-          </p>
-          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <div :class="'text-block ' + ((activeText === '623811')? 'active' : '')" id="623811">
+            <p>
+              Looking at the other end of the spectrum within the sketches labelled as wine bottles, we can see some
+              interesting cases.
+              Here are the samples:
+            </p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <span v-if="allImages && lines"
                   v-for="s of lines.items.filter((l:any) => l.y === classes.indexOf('wine bottle')).filter((l:any) => l.mean < 35).map((item:any) => item.idx)">
               <img :src="'data:image/png;base64, ' + allImages[s]" alt=""/>
             </span>
+            </div>
+
+            <p>
+              The <span class="text-highlight">sketches with low numbers tend to be either mislabelled or wine bottles drawn in unusual ways</span>,
+              i.e. with a glass next to the bottle.
+              For these cases, the surrounding closest samples are less uniform and therefore we see more variation.
+            </p>
           </div>
 
-          <p>
-            The <span class="text-highlight">sketches with low numbers tend to be either mislabelled or wine bottles drawn in unusual ways</span>,
-            i.e. with a glass next to the bottle.
-            For these cases, the surrounding closest samples are less uniform and therefore we see more variation.
-          </p>
-        </div>
+          <h2 style="padding: 20px">4. Let's zoom in!</h2>
 
-        <h2 style="padding: 20px">4. Let's zoom in!</h2>
+          <div :class="'text-block ' + ((activeText === '3490339')? 'active' : '')" id="3490339">
+            <p>
+              Our global view allows us to find interesting sketches, yet up to now we had to speculate about what
+              happens
+              concretely within the neighborhood of each sample. Now we will change this. We go back to the local
+              neighborhood,
+              showing the {{ numSamples2 }} nearest neighbors from all given sketches for our sketch.
+            </p>
+          </div>
 
-        <div :class="'text-block ' + ((activeText === '3490339')? 'active' : '')" id="3490339">
-          <p>
-            Our global view allows us to find interesting sketches, yet up to now we had to speculate about what
-            happens
-            concretely within the neighborhood of each sample. Now we will change this. We go back to the local
-            neighborhood,
-            showing the {{ numSamples2 }} nearest neighbors from all given sketches for our sketch.
-          </p>
-        </div>
+          <div :class="'text-block ' + ((activeText === '9439340')? 'active' : '')" id="9439340">
+            <p>
+              As we like it neat and tidy, we sort the neighbors by their label and put them into different sectors. The
+              size
+              of each sector corresponds to the share of samples of this class in the neighborhood.
 
-        <div :class="'text-block ' + ((activeText === '9439340')? 'active' : '')" id="9439340">
-          <p>
-            As we like it neat and tidy, we sort the neighbors by their label and put them into different sectors. The
-            size
-            of each sector corresponds to the share of samples of this class in the neighborhood.
+              If you haven't changed the samples at the top so far, this is a good time to do so!
+            </p>
+          </div>
 
-            If you haven't changed the samples at the top so far, this is a good time to do so!
-          </p>
-        </div>
-
-        <div :class="'text-block ' + ((activeText === '124111')? 'active' : '')" id="124111">
-          <p>
-            Let's watch our sketches as their get transformed by the first layer of the network.
-            We will always compare the change in euclidean distances <span class="text-highlight"> with respect to distances in the
+          <div :class="'text-block ' + ((activeText === '124111')? 'active' : '')" id="124111">
+            <p>
+              Let's watch our sketches as their get transformed by the first layer of the network.
+              We will always compare the change in euclidean distances <span class="text-highlight"> with respect to distances in the
             Input</span> representation, signaled by the pin
-            <img src="/pin_red.svg" alt="pin"
-                 style="width: 25px; vertical-align: middle; display: inline-block; writing-mode: vertical-lr;"/>.
-            We trace the movement of the sketches with <span class="text-highlight"> <span
-              style="color: var(--blue); font-weight: bold">blue</span>
+              <img src="/pin_red.svg" alt="pin"
+                   style="width: 25px; vertical-align: middle; display: inline-block; writing-mode: vertical-lr;"/>.
+              We trace the movement of the sketches with <span class="text-highlight"> <span
+                style="color: var(--blue); font-weight: bold">blue</span>
             when they move closer
             and
-            <span style="color: var(--orange); font-weight: bold">orange</span> if they move away </span>. The
-            convolutional
-            layer is an
-            interesting one to start with: Convolutional layers can be interpreted as filters in classical image
-            processing
-            that respond to simple lines and shapes in early layers, and more and more complex features in later layers.
-            Can you generate an hypothesis why the samples move like they do right here?
-          </p>
-        </div>
+            <span style="color: var(--orange); font-weight: bold">orange</span> if they move away</span>. The
+              convolutional
+              layer is an
+              interesting one to start with: Convolutional layers can be interpreted as filters in classical image
+              processing
+              that respond to simple lines and shapes in early layers, and more and more complex features in later
+              layers.
+              Can you generate a hypothesis why the samples move like they do right here?
+            </p>
+          </div>
 
 
-        <div :class="'text-block ' + ((activeText === '34099')? 'active' : '')" id="34099">
-          <p>
-            We can jump all the way to the end of the network now.
-          </p>
+          <div :class="'text-block ' + ((activeText === '34099')? 'active' : '')" id="34099">
+            <p>
+              We can jump all the way to the end of the network now.
+            </p>
 
-          <SampleFocus :sample="sample" :all-images="allImages" v-if="sample === 110635">
-            We can see that the final neighborhood consists purely of cars. If the sample and sufficiently many
-            other samples of the same class are predicted with high certainty, the logits will be close
-            to each other in euclidean space.
-          </SampleFocus>
+            <SampleFocus :sample="sample" :all-images="allImages" v-if="sample === 110635">
+              We can see that the final neighborhood consists purely of cars. If the sample and sufficiently many
+              other samples of the same class are predicted with high certainty, the logits will be close
+              to each other in euclidean space.
+            </SampleFocus>
 
-          <SampleFocus :sample="sample" :all-images="allImages" v-if="sample === 101647">
-            We can see that the final neighborhood consists purely of wine bottles. This sample is arguably the easiest
-            to classify for the network, a simple KNN classifier in the input space would already clearly identify the
-            sample as a wine bottle.
-          </SampleFocus>
+            <SampleFocus :sample="sample" :all-images="allImages" v-if="sample === 101647">
+              We can see that the final neighborhood consists purely of wine bottles. This sample is arguably the
+              easiest
+              to classify for the network, a simple KNN classifier in the input space would already clearly identify the
+              sample as a wine bottle.
+            </SampleFocus>
 
-          <SampleFocus :sample="sample" :all-images="allImages" v-if="sample === 272791">
-            This sample shows an interesting trajectory as the initial neighborhood contains a very low number of bees,
-            i.e. the pixel overlap with other bee sketches is rather low. As the drawing is propagated through the
-            layers,
-            more and more bees enter.
-          </SampleFocus>
+            <SampleFocus :sample="sample" :all-images="allImages" v-if="sample === 272791">
+              This sample shows an interesting trajectory as the initial neighborhood contains a very low number of
+              bees,
+              i.e. the pixel overlap with other bee sketches is rather low. As the drawing is propagated through the
+              layers,
+              more and more bees enter.
+            </SampleFocus>
 
-          <SampleFocus :sample="sample" :all-images="allImages" v-if="sample === 271551">
-            Look at the closest samples to our mosquito from the bee class in the final representation.
-            They are arguably very similar sketches and I myself would classify these bees as a mosquito as well.
-            Good job network!
-          </SampleFocus>
+            <SampleFocus :sample="sample" :all-images="allImages" v-if="sample === 271551">
+              Look at the closest samples to our mosquito from the bee class in the final representation.
+              They are arguably very similar sketches and I myself would classify these bees as a mosquito as well.
+              Good job network!
+            </SampleFocus>
+
+            <SampleFocus :sample="sample" :all-images="allImages" v-if="sample === 185767">
+              For this sample, the network is also able to clear the neighborhood of any samples that are not
+              pineapples.
+              Interestingly, the first few layers reposition this sample closer to wine bottles and pears rather than
+              pineapples. Later layers then clearly revert this early trend.
+            </SampleFocus>
+
+            <SampleFocus :sample="sample" :all-images="allImages" v-if="sample === 146028">
+              We see that some mosquitos are left in the final neighborhood. Visually, that seems quite plausible.
+              Interestingly, the sample still has a large number of trains in the neighborhood after the convolutional
+              layers – the linear layers then reshape the neighborhood significantly.
+            </SampleFocus>
+
+            <SampleFocus :sample="sample" :all-images="allImages" v-if="sample === 115656">
+              Here, the final neighborhood is much more diverse than for the other examples. From the color patterns, we
+              can also tell that the network is pulling samples from other classes closer, for example dragons or cars.
+            </SampleFocus>
+
+            <p>
+              Conceptually, the convolutional layers of a CNN are often regarded as feature extractors, so the output of
+              the last max-pooling layer is often used for analyzing the model’s latent understanding of the data. Try
+              exploring this representation and compare it to the final layers. Can you identify a change in behavior of
+              the model when switching from the convolutional to the linear layers?
+            </p>
+
+          </div>
 
 
-          <!--          <SampleFocus :sample="sample" :all-images="allImages" v-if="sample === 185767">-->
-          <!--            Look at the closest samples to our mosquito from the bee class in the final representation.-->
-          <!--            They are arguably very similar sketches and I myself would classify these bees as a mosquito as well.-->
-          <!--            Good job network!-->
-          <!--          </SampleFocus>-->
-
-
-          <p>
-            Conceptually, the convolutional layers of a CNN are often regarded as feature extractors. One could argue
-            that the representation after the last maxpooling layer is how the network looks at and understands the
-            sample.
-            Try exploring this representation and compare it to the final layers. Do the linear layers still participate
-            in
-            feature extraction?
-          </p>
-
-        </div>
-
-
-        <div :class="'text-block ' + ((activeText === '0348281')? 'active' : '')" id="0348281">
-          <p>
-            Feel free to explore for yourself now in our
-            <span class="jump-section" @click="$emit('showDemo')">
+          <div :class="'text-block ' + ((activeText === '0348281')? 'active' : '')" id="0348281">
+            <p>
+              Feel free to explore for yourself now in our
+              <span class="jump-section" @click="$emit('showDemo')">
                Explorer
             <img class="right" src="/arrow_right.svg">
             </span>
 
-          </p>
-        </div>
+            </p>
+          </div>
 
+        </div>
       </div>
     </div>
 
@@ -589,8 +630,11 @@
               </p>
             </div>
           </div>
-          <div>
-            <h3>1. Single sample distances to other samples per layer</h3>
+          <div style="margin-bottom: 100px;">
+            <h3>1. Distances of one sample to all other samples grouped by class label</h3>
+            <p>We compute the euclidean distance of a single sample to all other individual samples in the test dataset.
+              We group these distances by class label and aggregate them into distributions using kernel density
+              estimation. The blue distribution contains the distances to samples with matching class labels.</p>
             Questions answered by this visualization:
             <ol>
               <li>Does the network learn to encode class probabilities in Euclidean space?</li>
@@ -601,8 +645,15 @@
 
         <div class="display-visualization">
 
-          <div>
+          <div style="margin-bottom: 100px;">
             <h3>2. Global neighborhood stability plot</h3>
+            <p>
+              We propagate each sample through the convolutional neural network and record the 100 nearest neighbors
+              after each layer. For each layer, we compute the cardinality of the set intersection between the 100
+              nearest neighbors in the input and after the layer. The visualization emerges by connecting these points
+              for each sample across the layers.
+            </p>
+
             Questions answered by this visualization:
             <ol>
               <li>How strongly do neighborhoods of samples in the dataset get affected by each layer?</li>
@@ -617,8 +668,23 @@
 
           <img src="/visualizations/local.svg"/>
 
-          <div>
+          <div style="margin-bottom: 100px;">
             <h3>3. Local neighborhood transformation plot</h3>
+
+            <p>
+              Given one specific sample, we compute the k nearest neighbors and radially position them around the
+              sample. The radius corresponds to the euclidean distance to the sample and is min-max normalized.
+              Analogously to a pie chart, we compute slices for each class label proportional to the number of samples
+              from that class. Each sample is then assigned a random angle within their slice to minimize overplotting.
+              The slice containing the samples of the same class as the investigated sample is colored in gray.
+            </p>
+            <p>
+              Colored traces depict the change in euclidean distance between the samples from one representation to
+              another. The length of each trace is proportional to the difference between the samples’ values in the
+              min-max normalized distance ranges implied by the k nearest neighbors in both representations. A trace is
+              plotted for each sample in the union of the k nearest neighbors in both representations.
+            </p>
+
             Questions answered by this visualization:
             <ol>
               <li>Which samples does the network pull closer in Euclidean spaces and which samples are pushed away
@@ -719,6 +785,7 @@ onMounted(() => {
       .setup({
         step: ".text-block",
         progress: true,
+        offset: 0.3
       })
       .onStepEnter((e: any) => {
         activeText.value = e.element.id
