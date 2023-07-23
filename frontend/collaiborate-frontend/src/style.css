@@ -191,9 +191,12 @@ h1 {
 .customTooltip {
     min-width: 450px !important;
     max-width: 450px !important;
+    max-height: 450px;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .customTooltip * {
     color: #4a4a4a;
-    font-size: 18px
+    font-size: 14px
 }

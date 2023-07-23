@@ -17,6 +17,7 @@ export const introJsConfig = {
         {
             element: '#scatter-plot-component',
             title: 'Projection View',
+            position: 'top',
             intro: `
             Here we provide a UMAP projection of the 10.000 samples that are also shown in the global neighborhood stability plot. 
             You can navigate it as follows:
