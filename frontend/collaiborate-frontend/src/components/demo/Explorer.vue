@@ -296,7 +296,7 @@ const updateSelectionDisplay = () => {
 
     if (firstUpdate.value) {
       setTimeout(() => {
-        introJs().setOptions(introJsConfig).start();
+        introJs().setOptions(introJsConfig as any).start();
       }, 500)
       firstUpdate.value = false
     }
