@@ -23,6 +23,7 @@ occlusion = Occlusion(model)
 umap_df = pd.read_csv("./umap_extended.csv")
 lines_df = pd.read_csv("./knn_analysis_quickdraw_10000_100.csv").set_index('idx')
 matplotlib.use('SVG')
+base_df = pd.read_csv('base_slim.csv', index_col="idx")
 
 
 class UmapProjection(Resource):
@@ -36,16 +37,6 @@ class UmapProjection(Resource):
                     .apply(lambda x: {'x': x[1], 'y': x[2], 'c': x[3], 'c_hat': x[5], 'id': x[0]}, axis=1))[0:length]
 
 
-class UmapProjectionXY(Resource):
-
-    def __init__(self, **kwargs):
-        self.df = kwargs['umap_df']
-
-    def get(self, length, xmin=-1, xmax=-1, ymin=-1, ymax=-1):
-        return list(self.df
-                    [(self.df.x > xmin) & (self.df.x < xmax) & (self.df.y > ymin) & (self.df.y < ymax)]
-                    .apply(lambda x: {'x': x[1], 'y': x[2], 'c': x[3], 'c_hat': x[5], 'id': x[0]}, axis=1))[0:length]
-
 
 class ParallelLines(Resource):
 
@@ -54,18 +45,16 @@ class ParallelLines(Resource):
 
     def get(self):
         return {
-            'layers': ['Conv2d(1, 16, 3)', 'relu1', 'maxpool1', 'Conv2d(16, 32, 3)', 'relu2',
-                       'maxpool2', 'Conv2d(32, 32, 3)', 'relu3', 'maxpool3',
+            'layers': ['Input', 'Conv2d(1, 16, 3)', 'relu1', 'maxpool1', 'Conv2d(16, 32, 3)', 'relu2',
+                       'maxpool2', 'Conv2d(32, 32, 3)', 'relu3', 'maxpool3', 'flatten',
                        'Linear(288, 128)', 'relu4', 'Linear(128, len(classes))'],
             'items': list(lines_df.apply(lambda x: {
                 'idx': x.name,
-                'layers': [x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[10], x[11], x[12]],
+                'layers': [100, x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9], x[10], x[11], x[12]],
                 'y': x[13],
                 'y_hat': x[14],
                 'mean': x[15],
                 'std': x[16],
-                'correct': x[17],
-                'pred_entropy': x[18]
             }, axis=1))
         }
 
@@ -91,7 +80,6 @@ class UmapProjectionFiltered(Resource):
                 pred_filter_to_classes = list(map(lambda n: int(n), pred_filter_string.split('-')))
                 pred_filter = lambda x: x['c_hat'] in pred_filter_to_classes
 
-            print(self.df.head())
             return list(
                 filter(
                     lambda x: label_filter(x) & pred_filter(x),
@@ -111,7 +99,19 @@ class UmapProjectionCL(Resource):
 
     def get(self, length):
         return list(self.df
+                    .filter(items=list(lines_df.index), axis=0)
                     .apply(lambda x: {'x': x[7], 'y': x[8], 'c': x[3], 'c_hat': x[5], 'id': x[0]}, axis=1))[0:length]
+
+
+class UmapProjectionLogits(Resource):
+
+    def __init__(self, **kwargs):
+        self.df = kwargs['umap_df']
+
+    def get(self, length):
+        return list(self.df
+                    .filter(items=list(lines_df.index), axis=0)
+                    .apply(lambda x: {'x': x[9], 'y': x[10], 'c': x[3], 'c_hat': x[5], 'id': x[0]}, axis=1))[0:length]
 
 
 class UmapProjectionCLFiltered(Resource):
@@ -138,7 +138,44 @@ class UmapProjectionCLFiltered(Resource):
             return list(
                 filter(
                     lambda x: label_filter(x) & pred_filter(x),
-                    list(self.df.apply(lambda x: {'x': x[7], 'y': x[8], 'c': x[3], 'c_hat': x[5], 'id': x[0]}, axis=1))
+                    list(
+                        self.df
+                        .filter(items=list(lines_df.index), axis=0)
+                        .apply(lambda x: {'x': x[7], 'y': x[8], 'c': x[3], 'c_hat': x[5], 'id': x[0]}, axis=1)
+                    )
+                )
+            )[0:length]
+
+
+class UmapProjectionLogitsFiltered(Resource):
+
+    def __init__(self, **kwargs):
+        self.df = kwargs['umap_df']
+
+    def get(self, restricted_classes, length):
+        match = re.match(r't((?:[0-9]+-?)+)?p((?:[0-9]+-?)+)?', restricted_classes)
+        if match is not None:
+            label_filter_string = re.match(r't((?:[0-9]+-?)+)?p((?:[0-9]+-?)+)?', restricted_classes).group(1)
+            pred_filter_string = re.match(r't((?:[0-9]+-?)+)?p((?:[0-9]+-?)+)?', restricted_classes).group(2)
+
+            label_filter = lambda x: True
+            if label_filter_string is not None:
+                label_filter_to_classes = list(map(lambda n: int(n), label_filter_string.split('-')))
+                label_filter = lambda x: x['c'] in label_filter_to_classes
+
+            pred_filter = lambda x: True
+            if pred_filter_string is not None:
+                pred_filter_to_classes = list(map(lambda n: int(n), pred_filter_string.split('-')))
+                pred_filter = lambda x: x['c_hat'] in pred_filter_to_classes
+
+            return list(
+                filter(
+                    lambda x: label_filter(x) & pred_filter(x),
+                    list(
+                        self.df
+                        .filter(items=list(lines_df.index), axis=0)
+                        .apply(lambda x: {'x': x[9], 'y': x[10], 'c': x[3], 'c_hat': x[5], 'id': x[0]}, axis=1)
+                    )
                 )
             )[0:length]
 
@@ -152,6 +189,52 @@ class SketchMetadata(Resource):
             'label': classes[val_data[sketch_index][1]],
             'prediction': classes[y_hat]
         }
+
+
+class Neighborhood(Resource):
+
+    def __init__(self, **kwargs):
+        self.base_df = kwargs['base_df']
+
+    def get(self, sketch_index):
+        lookup = dict(zip(range(len(base_df.index)), list(base_df.index)))
+        all_samples = [lookup[x] for x in list(base_df.loc[sketch_index].unique())[:-1]]
+
+        all_layers = {}
+        for layer in range(14):
+
+            idx = self.base_df.loc[sketch_index].name
+            x = val_data[idx][0]
+            subject_rep = model[:layer](torch.tensor(x).unsqueeze(1)).detach().numpy()
+
+            result = {}
+            for idx in all_samples:
+                if idx == sketch_index:
+                    continue;
+                x = val_data[idx][0]
+                rep = model[:layer](torch.tensor(x).unsqueeze(1)).detach().numpy()
+                d = np.linalg.norm(subject_rep.flatten() - rep.flatten())
+                result[int(idx)] = d.astype(float)
+
+            all_layers[layer] = result
+
+        labels = dict()
+        for idx in all_samples:
+            labels[str(idx)] = int(val_data[idx][1])
+
+        return {
+            "layers": all_layers,
+            "labels": labels,
+        }
+
+
+class AllImages(Resource):
+
+    def __init__(self, **kwargs):
+        self.base_df = kwargs['base_df']
+
+    def get(self):
+        return base_df['img'].to_dict()
 
 
 @app.before_request
@@ -171,7 +254,24 @@ def get_sketch(sketch_index):
     buf = io.BytesIO()
     fig.savefig(buf, format='png', bbox_inches='tight')
     buf.seek(0)
-    return Response(buf, mimetype='image/png')
+    return Response(buf, mimetype='image/png', headers={})
+
+
+@app.route("/sketch/pngcolor/<int:sketch_index>")
+def get_sketch_color(sketch_index):
+    px = 1 / plt.rcParams['figure.dpi']  # pixel in inches
+    fig = plt.figure(figsize=(28 * px, 28 * px))
+    plt.tight_layout()
+    ax = plt.Axes(fig, [0., 0., 1., 1.])
+    ax.set_axis_off()
+    fig.add_axes(ax)
+    x = val_data[sketch_index][0].reshape(28, 28, 1)
+    ax.imshow(x, cmap='Greys', alpha=x.reshape(28, 28))
+    buf = io.BytesIO()
+
+    fig.savefig(buf, format='png', bbox_inches='tight', transparent=True)
+    buf.seek(0)
+    return Response(buf, mimetype='image/png', headers={})
 
 
 @app.route("/sketch/probs/<int:sketch_index>")
@@ -320,13 +420,18 @@ def index():
     return app.send_static_file('index.html')
 
 
+@app.after_request
+def add_header(response: Response):
+    response.cache_control.max_age = 3600 * 24 * 365
+    response.access_control_allow_origin = "*"
+    response.access_control_allow_headers = "*"
+    return response
+
+
 api.add_resource(SketchMetadata, "/sketch/<int:sketch_index>")
 
 api.add_resource(UmapProjection,
                  "/umap/<int:length>",
-                 resource_class_kwargs={'umap_df': umap_df})
-api.add_resource(UmapProjectionXY,
-                 "/umap/<int:length>/<float(signed=True):xmin>/<float(signed=True):xmax>/<float(signed=True):ymin>/<float(signed=True):ymax>",
                  resource_class_kwargs={'umap_df': umap_df})
 
 api.add_resource(ParallelLines,
@@ -334,12 +439,24 @@ api.add_resource(ParallelLines,
                  resource_class_kwargs={'lines_df': lines_df})
 
 api.add_resource(UmapProjectionCL, "/umap-cl/<int:length>", resource_class_kwargs={'umap_df': umap_df})
+api.add_resource(UmapProjectionLogits, "/umap-logits/<int:length>", resource_class_kwargs={'umap_df': umap_df})
 api.add_resource(UmapProjectionFiltered,
                  "/umap_filtered/<string:restricted_classes>/<int:length>",
                  resource_class_kwargs={'umap_df': umap_df})
 api.add_resource(UmapProjectionCLFiltered,
                  "/umap-cl_filtered/<string:restricted_classes>/<int:length>",
                  resource_class_kwargs={'umap_df': umap_df})
+api.add_resource(UmapProjectionLogitsFiltered,
+                 "/umap-logits_filtered/<string:restricted_classes>/<int:length>",
+                 resource_class_kwargs={'umap_df': umap_df})
+
+api.add_resource(Neighborhood,
+                 "/neighborhood/<int:sketch_index>",
+                 resource_class_kwargs={'base_df': base_df})
+
+api.add_resource(AllImages,
+                 "/all",
+                 resource_class_kwargs={'base_df': base_df})
 
 cors = CORS(app, origins="*")
 

@@ -1,23 +1,76 @@
 <script setup lang="ts">
-import Explorer from './components/Explorer.vue'
+import Explorer from './components/demo/Explorer.vue'
+import ScrollamaStory from "./components/story/Story.vue";
+import {onMounted, ref, shallowRef} from "vue";
+import LocalView from "./components/shared/LocalView.vue";
+
+const allImages = shallowRef()
+const lines = shallowRef()
+
+const explorerIndex = ref(undefined as undefined | number)
+const stage = ref('story' as 'story' | 'demo')
+const apiUrl = import.meta.env.VITE_APIURL
+
+onMounted(() => {
+  fetch(apiUrl + "all")
+      .then(res => res.json())
+      .then(d => {
+        allImages.value = d
+      })
+
+  fetch(apiUrl + 'lines')
+      .then(res => res.json())
+      .then(d => {
+        lines.value = d
+      })
+})
+
+const updateExplorerIndex = (index: number) => explorerIndex.value = index;
 
 </script>
 
 <template>
-<Explorer/>
+  <ScrollamaStory :all-images="allImages" :lines="lines" v-if="stage === 'story'" v-on:show-demo="stage='demo'"/>
+  <Explorer v-if="stage === 'demo' && !explorerIndex" v-on:index="updateExplorerIndex" v-on:story="stage='story'"/>
+  <LocalView v-if="stage === 'demo' && explorerIndex" :lines="lines" :index="explorerIndex" :all-images="allImages"
+             v-on:update-index="updateExplorerIndex"/>
 </template>
 
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+
+</style>
+
+<style>
+:root {
+  --blue: #7EB0D5;
+  --blue-transparent: #7EB0D6B2;
+  --teal: #8BD3C7;
+  --green: #B2E061;
+  --green-transparent: #B2E061B2;
+  --purple: #BD7EBE;
+  --lavender: #BEB9DB;
+  --red: #FC7F6F;
+  --red-transparent: #FC7F6FB2;
+  --rose: #FDCCE5;
+  --orange: #FFB55A;
+  --yellow: #FFEE65;
+  --gray: #EFEFEF;
+  --gray-transparent: #EFEFEFB2;
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+
+/*  Navive UI*/
+
+.p-slider .p-slider-range {
+  background: var(--blue) !important;
 }
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+
+.p-slider .p-slider-handle {
+  border: 2px solid var(--blue) !important;
 }
+
+.p-slider:not(.p-disabled) .p-slider-handle:hover {
+  background: var(--blue) !important;
+  border-color: var(--blue) !important;
+}
+
 </style>
