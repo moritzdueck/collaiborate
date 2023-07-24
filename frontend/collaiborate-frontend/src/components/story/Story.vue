@@ -24,7 +24,9 @@
           </p>
 
           <p>
-            The model was trained using PyTorch and has the following architecture:
+            The <a
+              href="https://github.com/moritzdueck/collaiborate/blob/2f7911658ac06ca745e63f86d5268ff4858789c0/collaiborate/train_script.py#L37-L51">model</a>
+            was trained using PyTorch and has the following architecture:
           </p>
 
           <img style="width: 100%;" src="/cnnCollaiborate.svg"/>
@@ -709,6 +711,12 @@
       </div>
     </div>
 
+    <div class="links">
+      <a href="https://github.com/moritzdueck/collaiborate">
+        <img style="cursor:pointer; width: 30px;" src="/github-mark.svg"/>
+      </a>
+    </div>
+
   </div>
 </template>
 <script setup lang="ts">
@@ -953,7 +961,13 @@ const getRightColor = (layer: number) => {
   align-items: baseline;
   column-gap: 10px;
   max-width: 1280px;
-  margin-bottom: 200px;
+  margin-bottom: 100px;
+}
+
+.links {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 50px;
 }
 
 .display-visualization {
