@@ -43,7 +43,7 @@
             used the idea of calculating the k nearest neighbors across layer representation for CNN model robustness,
             demonstrating that these neighborhoods contain useful information. Embeddings can stem from a variety of
             models and techniques, so other authors focus on analyzing embeddings irrespective of data and model
-            specifics. Boggust et al. [<span v-html="getCitation('embeddingComparator')"/>] use local neighborhood
+            specifics. Heimerl et al. [<span v-html="getCitation('embComp')"/>] use local neighborhood
             information together with global patterns to compare embeddings in a visual system, focusing on the
             comparison of any two different embeddings of the same data. Inspired by these
             contributions, our investigation is motivated by the following questions: Focusing on a CNN image
@@ -761,6 +761,10 @@ const references = [
   {
     id: 'dKNN',
     doi: '10.48550/arXiv.1803.04765'
+  },
+  {
+    id: 'embComp',
+    doi: '10.1109/TVCG.2020.3045918'
   },
 ] as { id: string, doi: string }[];
 
