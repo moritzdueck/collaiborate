@@ -40,7 +40,7 @@
     </div>
 
     <div class="text-wrapper">
-      <h1 style="word-wrap: break-word;">If your neighborhood changes, what do you do?</h1>
+      <h1 style="word-wrap: break-word;">Neighborhood traces: When your neighborhood changes one layer at a time</h1>
       <p style="font-size: 20px">A Journey into CNNs for Sketch Classification</p>
       <p style="text-align: justify;">Convolutional Neural Networks (CNNs) have transformed image classification. But
         the inner workings of these networks trained on datasets like QuickDraw remain hard to understand for humans. In
