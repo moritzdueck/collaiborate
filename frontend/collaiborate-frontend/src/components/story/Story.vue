@@ -982,11 +982,13 @@ const getRightColor = (layer: number) => {
   margin-bottom: 70px;
   column-gap: 10px;
   border-radius: 5px;
+  max-width: calc(100vw - 60px);
 }
 
-.display-visualization > img {
+.display-visualization > img, .display-visualization > div > img  {
   width: 100%;
   max-height: 600px;
+  max-width: 100%;
 }
 
 .background-toggle {
