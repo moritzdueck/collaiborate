@@ -706,7 +706,7 @@
 
         <template v-for="reference of references">
           <span>{{ '[' + references.findIndex(citation => citation.id === reference.id) + ']' }}</span>
-          <p :id="reference.id"></p>
+          <p :id="reference.id">{{reference.text}}</p>
         </template>
       </div>
     </div>
@@ -741,32 +741,38 @@ const props = defineProps({
   lines: {} as any
 })
 
-const references = [
+    const references = [
   {
     id: 'embeddingComparator',
     doi: '10.1145/3490099.3511122',
+    text: 'Boggust, A., Carter, B., & Satyanarayan, A. (2022, March 22). Embedding Comparator: Visualizing Differences in Global Structure and Local Neighborhoods via Small Multiples. 27th International Conference on Intelligent User Interfaces. IUI ’22: 27th International Conference on Intelligent User Interfaces. https://doi.org/10.1145/3490099.3511122'
   },
   {
     id: 'latentSpaceCartography',
-    doi: '10.1111/cgf.13672'
+    doi: '10.1111/cgf.13672',
+    text: 'Liu, Y., Jun, E., Li, Q., & Heer, J. (2019). Latent Space Cartography: Visual Analysis of Vector Space Embeddings. Computer Graphics Forum, 38(3), 67–78. https://doi.org/10.1111/cgf.13672'
   },
   {
     id: 'LMFingerprints',
-    doi: '10.1111/cgf.14541'
+    doi: '10.1111/cgf.14541',
+    text: 'Sevastjanova, R., Kalouli, A., Beck, C., Hauptmann, H., & El‐Assady, M. (2022). LMFingerprints: Visual Explanations of Language Model Embedding Spaces through Layerwise Contextualization Scores. Computer Graphics Forum, 41(3), 295–307. https://doi.org/10.1111/cgf.14541'
   },
   {
     id: 'NeuralWordEmbeddings',
-    doi: '10.1109/TVCG.2017.2745141'
+    doi: '10.1109/TVCG.2017.2745141',
+    text: 'Liu, S., Bremer, P.-T., Thiagarajan, J. J., Srikumar, V., Wang, B., Livnat, Y., & Pascucci, V. (2018). Visual Exploration of Semantic Relationships in Neural Word Embeddings. IEEE Transactions on Visualization and Computer Graphics, 24(1), 553–562. https://doi.org/10.1109/tvcg.2017.2745141'
   },
   {
     id: 'dKNN',
-    doi: '10.48550/arXiv.1803.04765'
+    doi: '10.48550/arXiv.1803.04765',
+    text: 'Papernot, N., & McDaniel, P. (2018). Deep k-Nearest Neighbors: Towards Confident, Interpretable and Robust Deep Learning (Version 1). arXiv. https://doi.org/10.48550/ARXIV.1803.04765'
   },
   {
     id: 'embComp',
-    doi: '10.1109/TVCG.2020.3045918'
+    doi: '10.1109/TVCG.2020.3045918',
+    text: 'Heimerl, F., Kralj, C., Moller, T., & Gleicher, M. (2022). embComp: Visual Interactive Comparison of Vector Embeddings. IEEE Transactions on Visualization and Computer Graphics, 28(8), 2953–2969. https://doi.org/10.1109/tvcg.2020.3045918'
   },
-] as { id: string, doi: string }[];
+] as { id: string, doi: string, text: string }[];
 
 defineEmits({
   showDemo: () => true
@@ -837,7 +843,7 @@ onMounted(() => {
       });
 
   setTimeout(() => {
-    addCitations(references)
+    addCitations(references, false)
   }, 1000)
 
 })

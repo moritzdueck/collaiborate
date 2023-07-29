@@ -1,6 +1,6 @@
 import Cite from "citation-js";
 
-export function addCitations(citations) {
+export function addCitations(citations, replaceContent) {
 
     citations.forEach(citation => {
         let cit = new Cite(citation.doi)
@@ -11,7 +11,8 @@ export function addCitations(citations) {
             lang: 'en-US'
         })
 
-        document.getElementById(citation.id).innerHTML = output;
+        if(replaceContent)
+            document.getElementById(citation.id).innerHTML = output;
     })
 
 }
