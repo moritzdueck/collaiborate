@@ -12,52 +12,73 @@
             :class="showBackground? 'rotated' : ''" src="/plus.svg"/></h2>
         <template v-if="showBackground">
 
-          <p>
-            We analyze a convolutional neural network that is trained to classify images of the QuickDraw dataset. The
-            dataset contains over 50 million drawings of people depicting everyday objects, grouped into 345 categories.
-            We will focus on the following 15 categories to keep things simple: airplane, apple, bee, car, dragon,
-            mosquito, moustache, mouth, pear, piano, pineapple, smiley face, train, umbrella and wine bottle. In order
-            to have a perfectly balanced dataset, we sampled 100.000 instances of each class. The network should learn
-            to classify these training samples correctly. We used 80% of the data for training and the other 20%,
-            amounting to 300.000 samples across the fifteen categories, representing our test data we use for probing
-            and analyzing the model in the following.
-          </p>
+          <div style="overflow: hidden">
+            <p style="margin-top: 0">
+              We analyze a convolutional neural network that is trained to classify images of the QuickDraw dataset. The
+              dataset contains over 50 million drawings of people depicting everyday objects, grouped into 345
+              categories.
+              We will focus on the following 15 categories to keep things simple: airplane, apple, bee, car, dragon,
+              mosquito, moustache, mouth, pear, piano, pineapple, smiley face, train, umbrella and wine bottle. In order
+              to have a perfectly balanced dataset, we sampled 100.000 instances of each class. The network should learn
+              to classify these training samples correctly. We used 80% of the data for training and the other 20%,
+              amounting to 300.000 samples across the fifteen categories, representing our test data we use for probing
+              and analyzing the model in the following.
+            </p>
 
-          <p>
-            The <a
-              href="https://github.com/moritzdueck/collaiborate/blob/2f7911658ac06ca745e63f86d5268ff4858789c0/collaiborate/train_script.py#L37-L51">model</a>
-            was trained using PyTorch and has the following architecture:
-          </p>
+            <p>
+              The <a
+                href="https://github.com/moritzdueck/collaiborate/blob/2f7911658ac06ca745e63f86d5268ff4858789c0/collaiborate/train_script.py#L37-L51"
+                target="_blank">model</a>
+              was trained using PyTorch and has the following architecture:
+            </p>
 
-          <img style="width: 100%;" src="/cnnCollaiborate.svg"/>
+            <img style="width: 100%;" src="/cnnCollaiborate.svg"/>
 
-          <p>
-            For many machine learning models, visually analyzing latent spaces provides interesting insights into the
-            inner workings of general deep learning models [<span v-html="getCitation('embeddingComparator')"/>, <span
-              v-html="getCitation('latentSpaceCartography')"/>]
-            or language models [<span v-html="getCitation('LMFingerprints')"/>,
-            <span v-html="getCitation('NeuralWordEmbeddings')"/>]. In this work, we treat each layer of the CNN as a
-            function whose multidimensional output range can be interpreted as a latent space. Within each of these
-            latent spaces, we can analyze our whole dataset and investigate the distances between individual samples.
-            Papernot et al. [<span v-html="getCitation('dKNN')"/>] has
-            used the idea of calculating the k nearest neighbors across layer representation for CNN model robustness,
-            demonstrating that these neighborhoods contain useful information. Embeddings can stem from a variety of
-            models and techniques, so other authors focus on analyzing embeddings irrespective of data and model
-            specifics. Heimerl et al. [<span v-html="getCitation('embComp')"/>] use local neighborhood
-            information together with global patterns to compare embeddings in a visual system, focusing on the
-            comparison of any two different embeddings of the same data. Inspired by these
-            contributions, our investigation is motivated by the following questions: Focusing on a CNN image
-            classification model, is the locality within its latent spaces meaningful? Can such an investigation help
-            explain how the model behaves and what it has learnt? And how do individual network layers affect and
-            transform these spaces as samples are propagated through the model? This last aspect is specific to our work
-            due to the well-defined relation between the spaces through the mathematical operations performed by the
-            model.
-          </p>
+            <p>
+              For many machine learning models, visually analyzing latent spaces provides interesting insights into the
+              inner workings of general deep learning models [<span v-html="getCitation('embeddingComparator')"/>, <span
+                v-html="getCitation('latentSpaceCartography')"/>]
+              or language models [<span v-html="getCitation('LMFingerprints')"/>,
+              <span v-html="getCitation('NeuralWordEmbeddings')"/>]. In this work, we treat each layer of the CNN as a
+              function whose multidimensional output range can be interpreted as a latent space. Within each of these
+              latent spaces, we can analyze our whole dataset and investigate the distances between individual samples.
+              Papernot et al. [<span v-html="getCitation('dKNN')"/>] has
+              used the idea of calculating the k nearest neighbors across layer representation for CNN model robustness,
+              demonstrating that these neighborhoods contain useful information. Embeddings can stem from a variety of
+              models and techniques, so other authors focus on analyzing embeddings irrespective of data and model
+              specifics. Heimerl et al. [<span v-html="getCitation('embComp')"/>] use local neighborhood
+              information together with global patterns to compare embeddings in a visual system, focusing on the
+              comparison of any two different embeddings of the same data. Inspired by these
+              contributions, our investigation is motivated by the following questions: Focusing on a CNN image
+              classification model, is the locality within its latent spaces meaningful? Can such an investigation help
+              explain how the model behaves and what it has learnt? And how do individual network layers affect and
+              transform these spaces as samples are propagated through the model? This last aspect is specific to our
+              work
+              due to the well-defined relation between the spaces through the mathematical operations performed by the
+              model.
+            </p>
 
-          <p>Let's embark on this journey!</p>
+            <p>Let's embark on this journey!</p>
+          </div>
+
 
         </template>
 
+        <template v-if="!showBackground">
+          <div class="gradient-opacity" @click="showBackground = !showBackground">
+            <p style="margin-top: 0">
+              We analyze a convolutional neural network that is trained to classify images of the QuickDraw dataset. The
+              dataset contains over 50 million drawings of people depicting everyday objects, grouped into 345
+              categories.
+              We will focus on the following 15 categories to keep things simple: airplane, apple, bee, car, dragon,
+              mosquito, moustache, mouth, pear, piano, pineapple, smiley face, train, umbrella and wine bottle. In order
+              to have a perfectly balanced dataset, we sampled 100.000 instances of each class. The network should learn
+              to classify these training samples correctly. We used 80% of the data for training and the other 20%,
+              amounting to 300.000 samples across the fifteen categories, representing our test data we use for probing
+              and analyzing the model in the following.
+            </p>
+          </div>
+        </template>
       </div>
     </div>
 
@@ -257,7 +278,8 @@
               {{ classes.filter(c => c !== sampleLabel)[0] }}s or {{ classes.filter(c => c !== sampleLabel)[1] }}s.
 
 
-              <span class="text-highlight">The blue distribution shows the distances to other {{ sampleLabel }}s</span>,
+              <span class="text-highlight">The <span style="color: var(--blue); font-weight: bold">blue</span>
+                distribution shows the distances to other {{ sampleLabel }}s</span>,
               while all gray distributions show the distances to samples of other
               classes.
             </p>
@@ -636,7 +658,8 @@
             <h3>1. Distances of one sample to all other samples grouped by class label</h3>
             <p>We compute the euclidean distance of a single sample to all other individual samples in the test dataset.
               We group these distances by class label and aggregate them into distributions using kernel density
-              estimation. The blue distribution contains the distances to samples with matching class labels.</p>
+              estimation. The <span style="color: var(--blue); font-weight: bold">blue</span>
+              distribution contains the distances to samples with matching class labels.</p>
             Questions answered by this visualization:
             <ol>
               <li>Does the network learn to encode class probabilities in Euclidean space?</li>
@@ -706,13 +729,13 @@
 
         <template v-for="reference of references">
           <span>{{ '[' + references.findIndex(citation => citation.id === reference.id) + ']' }}</span>
-          <p :id="reference.id">{{reference.text}}</p>
+          <p :id="reference.id">{{ reference.text }}</p>
         </template>
       </div>
     </div>
 
     <div class="links">
-      <a href="https://github.com/moritzdueck/collaiborate">
+      <a href="https://github.com/moritzdueck/collaiborate" target="_blank">
         <img style="cursor:pointer; width: 30px;" src="/github-mark.svg"/>
       </a>
     </div>
@@ -741,7 +764,7 @@ const props = defineProps({
   lines: {} as any
 })
 
-    const references = [
+const references = [
   {
     id: 'embeddingComparator',
     doi: '10.1145/3490099.3511122',
@@ -841,10 +864,6 @@ onMounted(() => {
       .onStepExit((response: any) => {
         // { element, index, direction }
       });
-
-  setTimeout(() => {
-    addCitations(references, false)
-  }, 1000)
 
 })
 
@@ -991,7 +1010,7 @@ const getRightColor = (layer: number) => {
   max-width: calc(100vw - 60px);
 }
 
-.display-visualization > img, .display-visualization > div > img  {
+.display-visualization > img, .display-visualization > div > img {
   width: 100%;
   max-height: 600px;
   max-width: 100%;
@@ -1020,4 +1039,23 @@ const getRightColor = (layer: number) => {
   transform: rotate(45deg);
 }
 
+.gradient-opacity {
+  position: relative;
+  height: 150px;
+  overflow: hidden;
+}
+
+.gradient-opacity:after {
+  position: absolute;
+  bottom: 0;
+  height: 100%;
+  width: 100%;
+  content: "";
+  background: linear-gradient(to top,
+  rgba(239, 239, 239, 1) 20%,
+  rgba(239, 239, 239, 0) 80%
+  );
+  pointer-events: none;
+
+}
 </style>

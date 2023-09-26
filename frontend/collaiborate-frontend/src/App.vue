@@ -3,6 +3,8 @@ import Explorer from './components/demo/Explorer.vue'
 import ScrollamaStory from "./components/story/Story.vue";
 import {onMounted, ref, shallowRef} from "vue";
 import LocalView from "./components/shared/LocalView.vue";
+import PageTooSmallNotice from "./components/PageTooSmallNotice.vue";
+import {breakpointsTailwind, useBreakpoints} from '@vueuse/core'
 
 const allImages = shallowRef()
 const lines = shallowRef()
@@ -27,12 +29,21 @@ onMounted(() => {
 
 const updateExplorerIndex = (index: number) => explorerIndex.value = index;
 
+
+const props = defineProps(["allImages"])
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const smallerThanLg = breakpoints.smaller('lg');
+
 </script>
 
 <template>
-  <ScrollamaStory :all-images="allImages" :lines="lines" v-if="stage === 'story'" v-on:show-demo="stage='demo'"/>
-  <Explorer v-if="stage === 'demo' && !explorerIndex" v-on:index="updateExplorerIndex" v-on:story="stage='story'"/>
-  <LocalView v-if="stage === 'demo' && explorerIndex" :lines="lines" :index="explorerIndex" :all-images="allImages"
+  <PageTooSmallNotice v-if="smallerThanLg"/>
+  <ScrollamaStory :all-images="allImages" :lines="lines" v-if="stage === 'story' && !smallerThanLg"
+                  v-on:show-demo="stage='demo'"/>
+  <Explorer v-if="stage === 'demo' && !explorerIndex && !smallerThanLg" v-on:index="updateExplorerIndex"
+            v-on:story="stage='story'"/>
+  <LocalView v-if="stage === 'demo' && explorerIndex && !smallerThanLg" :lines="lines" :index="explorerIndex"
+             :all-images="allImages"
              v-on:update-index="updateExplorerIndex"/>
 </template>
 
